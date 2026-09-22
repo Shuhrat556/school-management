@@ -1,9 +1,20 @@
+import 'package:flutter/foundation.dart';
+
 class ApiConfig {
-  // Change this URL to match wherever your backend is running:
+  // Override the backend URL at build/run time instead of editing this file:
+  //   flutter run --dart-define=API_BASE_URL=http://<YOUR_LAN_IP>:5001
+  // Defaults when no override is given:
   //   Android emulator  → http://10.0.2.2:5001
-  //   Chrome / Windows  → http://localhost:5001
-  //   Physical phone    → http://<YOUR_LAN_IP>:5001  (run ipconfig to find your IP)
-  static const String baseUrl = 'http://10.0.2.2:5001';
+  //   Chrome (debug)    → http://localhost:5001
+  //   Web release build → the server the app was loaded from (its nginx
+  //                       proxies /api to the gateway)
+  static const String _baseUrlOverride = String.fromEnvironment('API_BASE_URL');
+
+  static String get baseUrl {
+    if (_baseUrlOverride.isNotEmpty) return _baseUrlOverride;
+    if (kIsWeb) return kReleaseMode ? Uri.base.origin : 'http://localhost:5001';
+    return 'http://10.0.2.2:5001';
+  }
 
   static const String registerEndpoint = '/api/auth/register';
   static const String loginEndpoint = '/api/auth/authenticate';
