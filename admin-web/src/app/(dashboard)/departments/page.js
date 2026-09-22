@@ -13,10 +13,6 @@ export default function DepartmentsPage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  useEffect(() => {
-    loadDepartments();
-  }, []);
-
   const loadDepartments = async () => {
     try {
       setIsLoading(true);
@@ -31,6 +27,10 @@ export default function DepartmentsPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadDepartments();
+  }, []);
 
   const handleCreate = (e) => {
     setSelectedDepartment(null);

@@ -352,7 +352,7 @@ export default function StudentSchedulesPage() {
 
             <div className="mt-6 flex items-center gap-2 rounded-2xl border border-slate-200/70 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
               <Clock3 className="h-4 w-4" />
-              Today's classes appear at the top of list view, and recurring sessions can be exported to your calendar app with the iCal button.
+              Today&apos;s classes appear at the top of list view, and recurring sessions can be exported to your calendar app with the iCal button.
             </div>
           </div>
         </div>

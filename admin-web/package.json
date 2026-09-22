@@ -6,7 +6,7 @@
     "dev": "next dev --port 3000 --turbopack",
     "build": "next build",
     "start": "next start --port 3000",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "lucide-react": "^0.575.0",
@@ -16,6 +16,8 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.1.6",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17"
   }

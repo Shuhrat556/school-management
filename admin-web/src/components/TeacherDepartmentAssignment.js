@@ -10,10 +10,6 @@ export default function TeacherDepartmentAssignment({ teacher, onUpdate }) {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  useEffect(() => {
-    loadDepartments();
-  }, []);
-
   const loadDepartments = async () => {
     try {
       setIsLoading(true);
@@ -28,6 +24,10 @@ export default function TeacherDepartmentAssignment({ teacher, onUpdate }) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadDepartments();
+  }, []);
 
   const isAssigned = (deptId) => {
     return teacher?.departments?.some(d => d.departmentId === deptId) || false;

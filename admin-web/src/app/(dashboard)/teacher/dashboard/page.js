@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuth, getUser } from '@/lib/auth';
 import { getClassrooms, getStudents, getSubjects } from '@/lib/api';
@@ -50,7 +51,7 @@ export default function TeacherDashboard() {
             Welcome back, {user?.firstName || user?.email?.split('@')[0] || 'Teacher'} 👋
           </h1>
           <p className="text-slate-500 text-lg font-medium">
-            Here's an overview of your academic activities today.
+            Here&apos;s an overview of your academic activities today.
           </p>
         </div>
       </div>
@@ -58,7 +59,7 @@ export default function TeacherDashboard() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         {cards.map(({ label, value, href, icon: Icon, gradient, shadow }, idx) => (
-          <a
+          <Link
             key={label}
             href={href}
             className={`group relative overflow-hidden bg-white/70 backdrop-blur-xl rounded-3xl border border-white/50 p-6 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500`}
@@ -80,7 +81,7 @@ export default function TeacherDashboard() {
             </div>
             {/* Subtle background gradient on hover */}
             <div className="absolute inset-0 bg-[#526d82] opacity-0 group-hover:opacity-5 transition-opacity duration-500" />
-          </a>
+          </Link>
         ))}
       </div>
 
@@ -97,7 +98,7 @@ export default function TeacherDashboard() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
-          <a href="/teacher/attendance" className="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-[#9db2bf] hover:bg-[#f4f8fb]/70 hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300">
+          <Link href="/teacher/attendance" className="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-[#9db2bf] hover:bg-[#f4f8fb]/70 hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300">
             <div className="bg-[#e6eef3] text-[#526d82] p-3 rounded-xl group-hover:bg-[#526d82] group-hover:text-white transition-colors duration-300">
               <ClipboardCheck className="w-6 h-6" />
             </div>
@@ -105,9 +106,9 @@ export default function TeacherDashboard() {
               <h3 className="font-bold text-slate-800">Record Attendance</h3>
               <p className="text-xs text-slate-500 mt-0.5">Mark daily presence</p>
             </div>
-          </a>
+          </Link>
           
-          <a href="/teacher/grades" className="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-[#9db2bf] hover:bg-[#f4f8fb]/70 hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300">
+          <Link href="/teacher/grades" className="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-[#9db2bf] hover:bg-[#f4f8fb]/70 hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300">
             <div className="bg-[#e6eef3] text-[#526d82] p-3 rounded-xl group-hover:bg-[#27374d] group-hover:text-white transition-colors duration-300">
               <BarChart3 className="w-6 h-6" />
             </div>
@@ -115,9 +116,9 @@ export default function TeacherDashboard() {
               <h3 className="font-bold text-slate-800">Input Grades</h3>
               <p className="text-xs text-slate-500 mt-0.5">Evaluate assignments</p>
             </div>
-          </a>
+          </Link>
           
-          <a href="/teacher/classrooms" className="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-[#9db2bf] hover:bg-[#f4f8fb]/70 hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300">
+          <Link href="/teacher/classrooms" className="group flex items-center gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-[#9db2bf] hover:bg-[#f4f8fb]/70 hover:shadow-lg hover:shadow-slate-500/10 transition-all duration-300">
             <div className="bg-[#e6eef3] text-[#526d82] p-3 rounded-xl group-hover:bg-[#526d82] group-hover:text-white transition-colors duration-300">
               <School className="w-6 h-6" />
             </div>
@@ -125,7 +126,7 @@ export default function TeacherDashboard() {
               <h3 className="font-bold text-slate-800">Browse Classrooms</h3>
               <p className="text-xs text-slate-500 mt-0.5">View your assigned classes</p>
             </div>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
