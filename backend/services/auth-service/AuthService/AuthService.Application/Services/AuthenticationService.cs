@@ -20,6 +20,7 @@ public class AuthenticationService : IAuthenticationService
     private readonly string _emailVerificationPepper;
     private readonly string _passwordResetPepper;
     private readonly IExternalAuthValidator _externalAuthValidator;
+    private readonly bool _registrationEnabled;
 
     public AuthenticationService(
         IUserRepository userRepo,
@@ -45,6 +46,11 @@ public class AuthenticationService : IAuthenticationService
             ?? configuration["EmailVerification:Pepper"]
             ?? configuration["Jwt:Secret"]
             ?? throw new ConfigurationException("PasswordReset:Pepper (or EmailVerification:Pepper / Jwt:Secret) is not configured");
+
+        // Self-service sign-up (password register + first-time OAuth) is off by
+        // default: accounts are meant to be created by an admin instead. Flip
+        // Registration:Enabled to re-open it.
+        _registrationEnabled = bool.TryParse(configuration["Registration:Enabled"], out var registrationEnabled) && registrationEnabled;
     }
 
     public async Task RequestEmailVerificationCodeAsync(string email)
@@ -195,6 +201,9 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<UserResponseDto> RegisterAsync(UserCreateDto dto)
     {
+        if (!_registrationEnabled)
+            throw new AuthService.Application.Exceptions.InvalidOperationException("Self-registration is disabled. Ask an administrator to create your account.");
+
         var email = dto.Email.Trim();
         var firstName = dto.FirstName.Trim();
         var lastName = dto.LastName.Trim();
@@ -525,9 +534,14 @@ private async Task<AuthResponseDto?> AuthenticateExternalAsync(ExternalAuthIdent
             user = await _userRepo.GetByEmailAsync(normalizedEmail);
     }
 
-    // 3) If still not found, create a new user (OAuth-only)
+    // 3) If still not found, create a new user (OAuth-only) — unless
+    // self-service sign-up is disabled, in which case only an admin-created
+    // account may log in.
     if (user == null)
     {
+        if (!_registrationEnabled)
+            return null;
+
         if (string.IsNullOrWhiteSpace(identity.Email))
             return null; // simplest: require email
 
