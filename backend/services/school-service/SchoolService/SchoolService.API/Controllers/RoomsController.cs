@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolService.Application.DTOs.Rooms;
 using SchoolService.Application.Interfaces;
@@ -5,6 +6,7 @@ using SchoolService.Application.Interfaces;
 namespace SchoolService.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class RoomsController : ControllerBase
 {
@@ -29,6 +31,7 @@ public class RoomsController : ControllerBase
         return room;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<RoomResponseDto>> Create(RoomCreateDto dto)
     {
@@ -36,6 +39,7 @@ public class RoomsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, RoomUpdateDto dto)
     {
@@ -44,6 +48,7 @@ public class RoomsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

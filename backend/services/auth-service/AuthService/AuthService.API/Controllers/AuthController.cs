@@ -2,8 +2,12 @@
 using AuthService.Application.DTOs.User;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Enums;
+using AuthService.Infrastructure.Settings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace AuthService.API.Controllers;
 
@@ -13,11 +17,13 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthenticationService _authService;
     private readonly IUserRepository _userRepository;
+    private readonly IConfiguration _configuration;
     
-    public AuthController(IAuthenticationService authService, IUserRepository userRepository)
+    public AuthController(IAuthenticationService authService, IUserRepository userRepository, IConfiguration configuration)
     {
         _authService = authService;
         _userRepository = userRepository;
+        _configuration = configuration;
     }
     
     [HttpPost("register")]
@@ -152,9 +158,15 @@ public class AuthController : ControllerBase
         return Ok(reset);
     }
 
+    [Authorize]
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto dto)
     {
+        // Only the account owner may change their own password
+        var callerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        if (!Guid.TryParse(callerId, out var callerGuid) || callerGuid != dto.UserId)
+            return Forbid();
+
         var changed = await _authService.ChangePasswordAsync(dto.UserId, dto.CurrentPassword, dto.NewPassword);
         if (!changed)
             return BadRequest(new { success = false, error = "Current password is incorrect or the account is unavailable." });
@@ -176,7 +188,7 @@ public async Task<IActionResult> OAuthFacebook([FromBody] FacebookAuthRequestDto
     return result == null ? Unauthorized() : Ok(result);
 }
 
-// Validates a JWT token - mainly called by other services like school-service
+// Validates a JWT token (signature, issuer, audience, expiry) - mainly called by other services like school-service
 [HttpPost("validate")]
 public IActionResult ValidateToken([FromBody] ValidateTokenRequest request)
 {
@@ -185,56 +197,28 @@ public IActionResult ValidateToken([FromBody] ValidateTokenRequest request)
 
     try
     {
-        // Split the JWT and decode the payload manually
-        var parts = request.Token.Split('.');
-        if (parts.Length != 3)
-            return Ok(new { valid = false, error = "Invalid token format" });
-        
-        // Decode payload (add padding if necessary)
-        var payload = parts[1];
-        var padding = 4 - payload.Length % 4;
-        if (padding < 4)
-            payload += new string('=', padding);
-        
-        var jsonBytes = Convert.FromBase64String(payload);
-        var json = System.Text.Encoding.UTF8.GetString(jsonBytes);
-        
-        // Parse the JSON to get exp
-        using var doc = System.Text.Json.JsonDocument.Parse(json);
-        var root = doc.RootElement;
-        
-        if (!root.TryGetProperty("exp", out var expElement))
-            return Ok(new { valid = false, error = "Token has no expiration claim", json = json });
-        
-        var expEpoch = expElement.GetInt64();
-        var expirationUtc = DateTimeOffset.FromUnixTimeSeconds(expEpoch).UtcDateTime;
-        var nowUtc = DateTime.UtcNow;
-        
-        if (expirationUtc < nowUtc)
-            return Ok(new { 
-                valid = false, 
-                error = "Token has expired",
-                expiration = expirationUtc.ToString("o"),
-                now = nowUtc.ToString("o")
-            });
+        var handler = new JwtSecurityTokenHandler { MapInboundClaims = false };
+        var principal = handler.ValidateToken(request.Token, JwtConfig.CreateValidationParameters(_configuration), out _);
 
-        // Get sub and email
-        var userId = root.TryGetProperty("sub", out var subEl) ? subEl.GetString() : null;
-        var email = root.TryGetProperty("email", out var emailEl) ? emailEl.GetString() : null;
-
-        return Ok(new { 
-            valid = true, 
-            userId,
-            email
+        return Ok(new
+        {
+            valid = true,
+            userId = principal.FindFirstValue(JwtRegisteredClaimNames.Sub),
+            email = principal.FindFirstValue(JwtRegisteredClaimNames.Email)
         });
     }
-    catch (Exception ex)
+    catch (SecurityTokenExpiredException)
     {
-        return Ok(new { valid = false, error = ex.Message });
+        return Ok(new { valid = false, error = "Token has expired" });
+    }
+    catch (Exception ex) when (ex is SecurityTokenException or ArgumentException)
+    {
+        return Ok(new { valid = false, error = "Invalid token" });
     }
 }
 
 // Returns user info for a given ID - other microservices call this to look up users
+[Authorize]
 [HttpGet("user/{userId}")]
 public async Task<IActionResult> GetUser(string userId)
 {
@@ -268,6 +252,7 @@ public async Task<IActionResult> GetUser(string userId)
 // ── Admin endpoints (internal use by admin-web) ──────────────────────────────
 
     // List all users in auth_db
+    [Authorize(Roles = "Admin")]
     [HttpGet("admin/users")]
     public async Task<IActionResult> AdminGetUsers()
     {
@@ -276,6 +261,7 @@ public async Task<IActionResult> GetUser(string userId)
     }
 
     // Create a user account with a specific role
+    [Authorize(Roles = "Admin")]
     [HttpPost("admin/users")]
     public async Task<IActionResult> AdminCreateUser([FromBody] AdminCreateUserDto dto)
     {
@@ -291,6 +277,7 @@ public async Task<IActionResult> GetUser(string userId)
     }
 
     // Delete a user account from auth_db
+    [Authorize(Roles = "Admin")]
     [HttpDelete("admin/users/{userId:guid}")]
     public async Task<IActionResult> AdminDeleteUser(Guid userId)
     {
@@ -306,6 +293,7 @@ public async Task<IActionResult> GetUser(string userId)
     }
 
     // Update a user's role in auth_db
+    [Authorize(Roles = "Admin")]
     [HttpPatch("admin/users/{userId:guid}/role")]
     public async Task<IActionResult> AdminUpdateUserRole(Guid userId, [FromBody] UpdateUserRoleDto dto)
     {

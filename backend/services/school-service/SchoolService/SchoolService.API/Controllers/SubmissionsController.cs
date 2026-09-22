@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolService.Application.DTOs.Submissions;
 using SchoolService.Application.Services;
@@ -5,6 +6,7 @@ using SchoolService.Application.Services;
 namespace SchoolService.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class SubmissionsController : ControllerBase
 {

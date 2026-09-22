@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolService.Application.Interfaces;
 using SchoolService.Domain.Entities;
@@ -5,6 +6,7 @@ using SchoolService.Domain.Entities;
 namespace SchoolService.API.Controllers;
 
 [ApiController]
+[Authorize(Roles = "Admin")]
 [Route("api/school/admin")]
 public class AdminSyncController : ControllerBase
 {

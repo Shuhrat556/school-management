@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Entities;
+using AuthService.Infrastructure.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,14 +20,8 @@ public class TokenService : ITokenService
 
     public string GenerateAccessToken(User user)
     {
-        // Get JWT secret with fallback to environment variable or default
-        var jwtSecret = (!string.IsNullOrEmpty(_configuration["Jwt:Secret"]) ? _configuration["Jwt:Secret"] : null) 
-                     ?? (!string.IsNullOrEmpty(_configuration["Jwt__Secret"]) ? _configuration["Jwt__Secret"] : null)
-                     ?? (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_SECRET")) ? Environment.GetEnvironmentVariable("JWT_SECRET") : null)
-                     ?? "your-secret-key-change-me-in-production-this-is-insecure";
-        
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
-        
+        var key = JwtConfig.GetSigningKey(_configuration);
+
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]

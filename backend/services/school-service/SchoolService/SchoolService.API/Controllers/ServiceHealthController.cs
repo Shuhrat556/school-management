@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolService.API.Services;
 
@@ -6,6 +7,7 @@ namespace SchoolService.API.Controllers;
 // Controller for monitoring health of services registered in Consul
 // Useful for debugging and visibility into the microservice landscape
 [ApiController]
+[Authorize(Roles = "Admin")]
 [Route("api/[controller]")]
 public class ServiceHealthController : ControllerBase
 {
@@ -127,6 +129,7 @@ public class ServiceHealthController : ControllerBase
     }
 
     // Quick ping to confirm this service is up and running
+    [AllowAnonymous]
     [HttpGet("ping")]
     public IActionResult Ping()
     {
