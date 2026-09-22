@@ -58,10 +58,18 @@ _ = Task.Run(async () =>
     }
 });
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Enabled"))
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    // One Swagger UI for the whole API: the downstream documents are proxied
+    // through the gateway (see the *-swagger-route entries in appsettings.json),
+    // so "Try it out" calls go through the gateway like real clients do.
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/auth/v1/swagger.json", "Auth Service");
+        options.SwaggerEndpoint("/swagger/school/v1/swagger.json", "School Service");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API Gateway");
+    });
 }
 
 app.UseCors("AllowAll");
