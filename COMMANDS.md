@@ -106,10 +106,10 @@ flutter analyze               # run static analysis
 
 ### Change API base URL (physical device)
 
-Edit `frontend/lib/services/api_config.dart`:
+Pass it at run/build time (defaults live in `frontend/lib/services/api_config.dart`):
 
-```dart
-static const String baseUrl = 'http://YOUR_LAN_IP:5001';
+```bash
+flutter run --dart-define=API_BASE_URL=http://YOUR_LAN_IP:5001
 ```
 
 ---
@@ -131,7 +131,8 @@ npm start                     # start production server
 
 | URL                              | What it is                              |
 | -------------------------------- | --------------------------------------- |
-| http://localhost:5001/swagger     | API docs + interactive tester           |
+| http://localhost:5001/swagger     | API docs (Auth + School) + tester       |
 | http://localhost:3000             | Admin panel (Next.js)                   |
+| http://localhost:3200             | Flutter app (web build)                 |
 | http://localhost:8500             | Consul — service discovery dashboard    |
 | http://localhost:5050             | PgAdmin — database browser              |

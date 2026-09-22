@@ -8,10 +8,10 @@ A full-stack school management platform built with **.NET microservices**, a **F
 
 | Layer             | Technology                                         |
 | ----------------- | -------------------------------------------------- |
-| API Gateway       | ASP.NET + YARP reverse proxy + Consul              |
-| Auth Service      | ASP.NET + Entity Framework Core + PostgreSQL + JWT |
-| School Service    | ASP.NET + Entity Framework Core + PostgreSQL       |
-| Service Discovery | HashiCorp Consul 1.15.4                            |
+| API Gateway       | ASP.NET Core 10 + YARP reverse proxy + Consul      |
+| Auth Service      | ASP.NET Core 10 + EF Core + PostgreSQL + JWT       |
+| School Service    | ASP.NET Core 10 + EF Core + PostgreSQL             |
+| Service Discovery | HashiCorp Consul 1.22                              |
 | Mobile App        | Flutter 3.9+ / Dart                                |
 | Admin Panel       | Next.js 16 + React 19 + Tailwind CSS               |
 | Databases         | PostgreSQL 16 (two isolated instances)             |
@@ -60,6 +60,7 @@ A full-stack school management platform built with **.NET microservices**, a **F
 | consul         | 8500 | Service discovery & health checks |
 | pgadmin        | 5050 | Database browser UI               |
 | admin-web      | 3000 | Next.js admin dashboard           |
+| web-app        | 3200 | Flutter app built for the web     |
 
 ---
 
@@ -191,10 +192,10 @@ flutter pub get
 flutter run
 ```
 
-**Physical device?** Update the IP in `frontend/lib/services/api_config.dart`:
+**Physical device?** Pass your computer's IP at run time (no code change needed):
 
-```dart
-static const String baseUrl = 'http://YOUR_LAN_IP:5001';
+```bash
+flutter run --dart-define=API_BASE_URL=http://YOUR_LAN_IP:5001
 ```
 
 Your phone and computer must be on the same Wi-Fi network.
@@ -203,10 +204,11 @@ Your phone and computer must be on the same Wi-Fi network.
 
 | URL                           | What                                      |
 | ----------------------------- | ----------------------------------------- |
-| http://localhost:5001/swagger | Swagger API docs                          |
+| http://localhost:5001/swagger | Swagger — Auth + School APIs in one UI    |
 | http://localhost:8500         | Consul dashboard                          |
 | http://localhost:5050         | PgAdmin (`admin@school.com` / `admin123`) |
 | http://localhost:3000         | Admin panel                               |
+| http://localhost:3200         | Flutter app (web build)                   |
 
 Log in with `admin@school.com` / `Password123!`
 
@@ -376,7 +378,7 @@ Full command reference: [COMMANDS.md](./COMMANDS.md) | Detailed setup: [SETUP.md
 | ----------------------------- | -------------------------------------------------------- |
 | `docker compose up` fails     | Make sure Docker Desktop is running                      |
 | Port 5001 in use              | Run `docker compose down` first                          |
-| "Connection refused" on phone | Wrong IP in `api_config.dart` or phone not on same Wi-Fi |
+| "Connection refused" on phone | Wrong `API_BASE_URL` or phone not on same Wi-Fi |
 | 401 Unauthorized              | Use seed credentials or register a new account           |
 | Emails not sending            | Check `EMAILSETTINGS_APP_PASSWORD` in `.env`             |
 | Want a fresh start            | `docker compose down -v && docker compose up --build`    |

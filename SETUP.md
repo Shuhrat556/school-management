@@ -69,6 +69,7 @@ All 8 containers should show status `running` or `healthy`:
 | consul         | 8500 | Running         |
 | pgadmin        | 5050 | Running         |
 | admin-web      | 3000 | Running         |
+| web-app        | 3200 | Running         |
 
 ---
 
@@ -92,11 +93,11 @@ Your phone and computer must be on the **same Wi-Fi network**.
    - **Windows:** run `ipconfig`, look for `IPv4 Address` under your Wi-Fi adapter
    - **Mac/Linux:** run `ifconfig | grep inet` or `ip addr`
 
-2. **Update the base URL** in `frontend/lib/services/api_config.dart`:
-   ```dart
-   static const String baseUrl = 'http://YOUR_LAN_IP:5001';
+2. **Run with your computer's IP** as the API base URL:
+   ```bash
+   flutter run --dart-define=API_BASE_URL=http://YOUR_LAN_IP:5001
    ```
-   Example: `http://10.0.2.2:5001`
+   Example: `flutter run --dart-define=API_BASE_URL=http://192.168.1.20:5001`
 
 3. **Run the app:**
    ```bash
@@ -119,13 +120,13 @@ flutter run -d chrome
 
 | Check                          | URL / Action                                              | Expected result                          |
 | ------------------------------ | --------------------------------------------------------- | ---------------------------------------- |
-| API docs                       | http://localhost:5001/swagger                              | Swagger UI loads                         |
+| API docs                       | http://localhost:5001/swagger                              | Swagger UI loads (pick Auth / School at the top right) |
 | Login (API)                    | Use Swagger to POST `/api/auth/authenticate` with `admin@school.com` / `Password123!` | Returns JWT token |
 | Consul dashboard               | http://localhost:8500                                     | All 3 services appear green              |
 | Admin panel                    | http://localhost:3000                                     | Login page loads                         |
 | Admin login                    | `admin@school.com` / `Password123!`                       | Dashboard with stats                     |
 | PgAdmin                        | http://localhost:5050                                     | Login: `admin@school.com` / `admin123`   |
-| Flutter app                    | Open on device/emulator                                   | Splash screen → role selection           |
+| Flutter app                    | Open on device/emulator, or http://localhost:3200          | Splash screen → role selection           |
 | Flutter login                  | Teacher: `teacher1@school.com` / `Password123!`           | Teacher dashboard                        |
 
 ---
@@ -155,7 +156,7 @@ This starts a dev server at http://localhost:3000. API requests are proxied to `
 2. Send the zip. The recipient:
    - Installs Docker Desktop and Flutter SDK
    - Unzips and follows steps 2–5 above
-   - The **only** line they may need to change is `baseUrl` in `api_config.dart` (for physical phone testing)
+   - For physical phone testing they pass `--dart-define=API_BASE_URL=http://THEIR_LAN_IP:5001` to `flutter run`
 
 ---
 
@@ -165,10 +166,10 @@ This starts a dev server at http://localhost:3000. API requests are proxied to `
 | ----------------------------------------- | ------------------------------------------------------------------- |
 | `docker compose up` errors immediately    | Make sure Docker Desktop is open and running                        |
 | Port 5001 already in use                  | Run `docker compose down` first, or change the port in `docker-compose.yml` |
-| App shows "Connection refused" on phone   | Wrong IP in `api_config.dart`, or phone not on same Wi-Fi           |
+| App shows "Connection refused" on phone   | Wrong `API_BASE_URL`, or phone not on same Wi-Fi                   |
 | App shows 401 Unauthorized                | Use seed credentials or register a new account                      |
 | Emails not sending                        | Check `EMAILSETTINGS_APP_PASSWORD` in `.env` is a valid Gmail App Password |
 | Consul shows unhealthy service            | Check `docker compose logs -f <service-name>` for errors            |
-| Admin panel won't load on port 3000       | Run `docker compose logs -f admin-web` — may need `npm install` inside container |
+| Admin panel won't load on port 3000       | Run `docker compose logs -f admin-web`, then `docker compose up -d --build admin-web` |
 | Want to wipe all data and start fresh     | `docker compose down -v && docker compose up --build`               |
 | Flutter build errors                      | Run `flutter clean && flutter pub get` then try again               |
