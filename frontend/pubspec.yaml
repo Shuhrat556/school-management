@@ -27,6 +27,7 @@ dependencies:
   image_picker: ^1.0.4
   dotted_border: ^3.1.0
   logging: ^1.2.0
+  cupertino_icons: ^1.0.9
 
 flutter_launcher_icons:
   android: "launcher_icon"
