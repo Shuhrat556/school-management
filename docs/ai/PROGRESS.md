@@ -52,4 +52,6 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B3b: akkaunt lockout (5 xato → 5 daq 429 ACCOUNT_LOCKED), auth migratsiya `AddLoginLockout` (Down bilan), testlar 17/17.
   Flutter login xatosi endi `error` kalitini ham ko'rsatadi. **Deploy'da auth migratsiyasi ishga tushadi (startup Migrate) — Q2 ruxsati bilan.**
 
-KEYINGI QADAM: PLAN 5-bo'lim B4 — Facebook OAuth email bo'yicha avtomatik bog'lashni cheklash (test bilan), keyin B8.
+- B4 TUZATILDI: OAuth email bo'yicha bog'lash faqat tasdiqlangan email bilan (Facebook takeover testi avval 200 qaytargan). auth 20/20.
+
+KEYINGI QADAM: PLAN 5-bo'lim B8 — EMAIL_NOT_VERIFIED faqat parol to'g'ri bo'lganda (test bilan), keyin B7 (refresh token xeshi).

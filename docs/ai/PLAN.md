@@ -39,7 +39,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] B2: JWT secret yo'q/qisqa bo'lsa Production'da ishga tushmaslik (ikkala servis); test
 - [x] B3a: auth per-IP rate limiting + ForwardedHeaders (auth, gateway); test 429
 - [x] B3b: akkaunt lockout (5 xato → 5 daq), auth migratsiya (Down bilan); test
-- [ ] B4: Facebook OAuth — email bo'yicha avtomatik bog'lashni faqat tasdiqlangan email bilan; test
+- [x] B4: Facebook OAuth — email bo'yicha avtomatik bog'lashni faqat tasdiqlangan email bilan; test
 - [ ] B8: login javobida EMAIL_NOT_VERIFIED faqat parol to'g'ri bo'lsa; test
 - [ ] B7: refresh tokenlarni xeshlab saqlash (auth migratsiya, rollback bilan); test
 - [ ] B6: CORS — konfiguratsiyadan originlar ro'yxati (dev: hammasi)
@@ -65,6 +65,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [ ] F3: In-app bildirishnomalar (yangi baho, qoldirilgan dars, e'lon)
 - [ ] F4: O'quvchi hisobot kartasi (semestr bo'yicha o'rtacha + davomat %) API + CSV eksport
 - [ ] F5: Baho o'zgarishlari audit log'i
+- [ ] F6: Profil sahifasidan Google/Facebook akkauntini bog'lash (`POST /api/auth/link/{provider}`, Bearer bilan)
 
 ## 9. Deploy
 - [x] docs/DEPLOYMENT.md: runbook, backup (pg_dump), rollback rejasi

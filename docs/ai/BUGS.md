@@ -25,7 +25,9 @@ Parolni brute-force qilish cheklanmagan (kod tekshiruvida lockout bor, parolda y
 
 ### B4 [YUQORI] Facebook OAuth tasdiqlanmagan email bo'yicha mavjud akkauntga bog'laydi
 `AuthenticationService.AuthenticateExternalAsync` — Facebook uchun email bo'yicha mavjud foydalanuvchiga
-avtomatik bog'lanadi (izohda "keep unverified"). Bu account takeover vektori. · OCHIQ
+avtomatik bog'lanadi (izohda "keep unverified"). Bu account takeover vektori.
+· TUZATILDI: email bo'yicha bog'lash faqat provayder emailni tasdiqlaganda (Google `email_verified`); ExternalLoginTests
+(avval Facebook orqali Admin akkauntiga kirildi). Oqibat: Facebook faqat oldindan bog'langan akkauntlar uchun ishlaydi (PLAN F6).
 
 ### B5 [O'RTA] `.env` git tarixida
 `0e013e1` commitida `backend/.env` qo'shilgan, `9334e20` da olib tashlangan — qiymatlar tarixda qoladi.
