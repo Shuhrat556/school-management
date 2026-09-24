@@ -59,4 +59,7 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B7 TUZATILDI: refresh tokenlar SHA-256 xesh ko'rinishida (+indeks); `HashRefreshTokens` migratsiyasi eski tokenlarni SQL'da xeshlaydi.
   Scratchpad'da vaqtinchalik PostgreSQL 16 (port 55432) ko'tarildi — migratsiya up/down haqiqiy DB'da sinaldi. auth 23/23.
 
-KEYINGI QADAM: PLAN 5-bo'lim B6 — CORS originlarini konfiguratsiyadan olish (dev'da hammasi), test; keyin 6-bo'lim unit testlar / 7-bo'lim B11.
+- B6 TUZATILDI: gateway CORS konfiguratsiyadan (`Cors:AllowedOrigins`), servislarda CORS yo'q. Yangi `api-gateway/ApiGateway.Tests`
+  (+`ApiGateway.slnx`). Testlar: gateway 4, auth 23, school 99.
+
+KEYINGI QADAM: PLAN 6-bo'lim — CI (GitHub Actions workflow fayli), keyin admin-web test (vitest) va 7-bo'lim B11 (school migratsiyalar).

@@ -42,7 +42,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] B4: Facebook OAuth — email bo'yicha avtomatik bog'lashni faqat tasdiqlangan email bilan; test
 - [x] B8: login javobida EMAIL_NOT_VERIFIED faqat parol to'g'ri bo'lsa; test
 - [x] B7: refresh tokenlarni xeshlab saqlash (auth migratsiya, rollback bilan); test
-- [ ] B6: CORS — konfiguratsiyadan originlar ro'yxati (dev: hammasi)
+- [x] B6: CORS — konfiguratsiyadan originlar ro'yxati (dev: hammasi)
 
 ## 6. Testlar (qamrov)
 - [ ] School-service unit: GradeService, AttendanceService, ClassroomService (enroll/unenroll), StudentService

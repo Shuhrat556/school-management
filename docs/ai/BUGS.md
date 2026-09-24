@@ -34,7 +34,9 @@ avtomatik bog'lanadi (izohda "keep unverified"). Bu account takeover vektori.
 Tavsiya: JWT secret va Gmail App Password'ni **almashtirish** (tarixni qayta yozish ruxsat talab qiladi). · OCHIQ
 
 ### B6 [O'RTA] CORS `AllowAnyOrigin` barcha servislarda
-Gateway, auth, school — `AllowAll`. Production uchun aniq originlar ro'yxati kerak. · OCHIQ
+Gateway, auth, school — `AllowAll`. Production uchun aniq originlar ro'yxati kerak.
+· TUZATILDI: faqat gateway'da, Development'da hammasi, boshqa muhitda `Cors:AllowedOrigins`; auth/school'dagi CORS olib tashlandi
+(ular faqat gateway orqali chaqiriladi). CorsTests (yangi `ApiGateway.Tests`).
 
 ### B7 [O'RTA] Refresh tokenlar DB da ochiq holda saqlanadi
 `RefreshToken.Token` — xesh o'rniga asl qiymat. DB sizib chiqsa sessiyalar o'g'irlanadi.

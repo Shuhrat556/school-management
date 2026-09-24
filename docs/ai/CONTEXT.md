@@ -51,7 +51,7 @@ admin-web `api/school/admin/sync-profile` bilan sinxronlaydi.
 |---|---|---|
 | .NET build | `dotnet build backend/services/<svc>/...sln` (gateway: `ApiGateway.csproj`) | 3/3 OK, 0 warning |
 | .NET paketlar | `dotnet list <sln> package --outdated` / `--vulnerable --include-transitive` | yangilanish yo'q, zaiflik yo'q |
-| .NET testlar | — | **test loyihasi yo'q** |
+| .NET testlar | `dotnet test backend/services/{api-gateway/ApiGateway.Tests,auth-service/AuthService/AuthService.Tests,school-service/SchoolService/SchoolService.Tests}` | xUnit + WebApplicationFactory + SQLite |
 | admin-web lint | `cd admin-web && npm run lint` | 0 error, 21 warning |
 | admin-web build | `npm run build` | OK |
 | admin-web audit | `npm audit --omit=dev` | 0 zaiflik; next 16.3.5→16.3.6 patch bor |

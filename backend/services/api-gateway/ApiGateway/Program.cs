@@ -10,12 +10,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Browser clients normally call the API through their own origin (admin-web
+// rewrites, web-app nginx), so cross-origin access is only for the origins
+// listed in Cors:AllowedOrigins — or anything in Development.
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader());
+    options.AddDefaultPolicy(policy =>
+    {
+        if (builder.Environment.IsDevelopment())
+            policy.AllowAnyOrigin();
+        else
+            policy.WithOrigins(allowedOrigins);
+        policy.AllowAnyMethod().AllowAnyHeader();
+    });
 });
 
 builder.Services.AddSingleton<Consul.IConsulClient>(sp => new Consul.ConsulClient(cfg =>
@@ -87,7 +95,7 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger
     });
 }
 
-app.UseCors("AllowAll");
+app.UseCors();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "api-gateway" }));
 

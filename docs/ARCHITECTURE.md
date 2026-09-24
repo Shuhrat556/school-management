@@ -65,6 +65,8 @@ admin-web `/teacher/grades` → `POST /api/school/grades` (Next.js rewrite) → 
 | `EmailSettings__*` | `.env` | Gmail SMTP for codes |
 | `Registration__Enabled` | env | `false` by default |
 | `Swagger__Enabled` | env | Swagger is always on in Development |
+| `Cors__AllowedOrigins__0..n` (gateway) | env | Cross-origin browser access outside Development; empty by default — admin-web and web-app are same-origin |
+| `RateLimiting__<policy>__PermitLimit` (auth) | env | Per-IP limits, see API.md |
 | `API_URL` (admin-web) | build arg + env | baked into Next.js rewrites at build time |
 | `API_BASE_URL` (Flutter) | `--dart-define` | empty = same origin (web build behind nginx) |
 
