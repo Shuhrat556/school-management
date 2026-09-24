@@ -37,6 +37,9 @@ public class AuthApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Jwt:Secret", JwtSecret);
         builder.UseSetting("Jwt:Issuer", "AuthService");
         builder.UseSetting("Jwt:Audience", "AuthServiceClients");
+        // Every test request shares one client IP; keep the per-IP limits out of the way.
+        foreach (var policy in new[] { "login", "codes", "refresh" })
+            builder.UseSetting($"RateLimiting:{policy}:PermitLimit", "100000");
 
         builder.ConfigureServices(services =>
         {
@@ -47,6 +50,13 @@ public class AuthApiFactory : WebApplicationFactory<Program>
             services.RemoveAll<IEmailSender>();
             services.AddSingleton<IEmailSender>(Emails);
         });
+    }
+
+    protected override void ConfigureClient(HttpClient client)
+    {
+        base.ConfigureClient(client);
+        using var scope = Services.CreateScope();
+        scope.ServiceProvider.GetRequiredService<AuthDbContext>().Database.EnsureCreated();
     }
 
     public async Task<T> WithScopeAsync<T>(Func<IServiceProvider, Task<T>> action)

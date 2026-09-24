@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Consul;
 using AuthService.API.Middleware;
+using AuthService.API.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +66,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = JwtConfig.CreateValidationParameters(builder.Configuration);
     });
 builder.Services.AddAuthorization();
+builder.Services.AddAuthRateLimits(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -94,6 +96,7 @@ builder.Services.AddSingleton<IConsulClient, ConsulClient>(sp => new ConsulClien
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // Tests (and one-off tools) set Database:InitializeOnStartup=false and manage the schema themselves.
@@ -139,6 +142,7 @@ if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger
 }
 
 app.UseCors("AllowAll");
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

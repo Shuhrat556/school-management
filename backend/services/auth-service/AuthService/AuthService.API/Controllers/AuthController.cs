@@ -5,6 +5,8 @@ using AuthService.Domain.Enums;
 using AuthService.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using AuthService.API.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -58,6 +60,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("authenticate")]
+    [EnableRateLimiting(AuthRateLimits.Login)]
     public async Task<IActionResult> Authenticate([FromBody] LoginRequestDto dto)
     {
         var result = await _authService.AuthenticateAsync(dto.Email, dto.Password);
@@ -86,6 +89,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
+    [EnableRateLimiting(AuthRateLimits.Refresh)]
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.RefreshToken))
@@ -107,6 +111,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("request-email-verification-code")]
+    [EnableRateLimiting(AuthRateLimits.Codes)]
     public async Task<IActionResult> RequestEmailVerificationCode([FromBody] RequestEmailVerificationCodeRequestDto dto)
     {
         await _authService.RequestEmailVerificationCodeAsync(dto.Email);
@@ -121,6 +126,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("verify-email")]
+    [EnableRateLimiting(AuthRateLimits.Codes)]
     public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequestDto dto)
     {
         var verified = await _authService.VerifyEmailAsync(dto.Email, dto.Code);
@@ -145,6 +151,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("request-password-reset")]
+    [EnableRateLimiting(AuthRateLimits.Codes)]
     public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetRequestDto dto)
     {
         await _authService.RequestPasswordResetAsync(dto.Email);
@@ -152,6 +159,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("reset-password")]
+    [EnableRateLimiting(AuthRateLimits.Codes)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto dto)
     {
         var reset = await _authService.ResetPasswordAsync(dto.Email, dto.Code, dto.NewPassword);
@@ -175,6 +183,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("oauth/google")]
+    [EnableRateLimiting(AuthRateLimits.Login)]
 public async Task<IActionResult> OAuthGoogle([FromBody] GoogleAuthRequestDto dto)
 {
     var result = await _authService.AuthenticateGoogleAsync(dto.IdToken);
@@ -182,6 +191,7 @@ public async Task<IActionResult> OAuthGoogle([FromBody] GoogleAuthRequestDto dto
 }
 
 [HttpPost("oauth/facebook")]
+[EnableRateLimiting(AuthRateLimits.Login)]
 public async Task<IActionResult> OAuthFacebook([FromBody] FacebookAuthRequestDto dto)
 {
     var result = await _authService.AuthenticateFacebookAsync(dto.AccessToken);

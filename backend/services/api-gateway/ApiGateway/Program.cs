@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.HttpOverrides;
 using Yarp.ReverseProxy;
 using Yarp.ReverseProxy.Configuration;
 
@@ -24,10 +25,24 @@ builder.Services.AddSingleton<Consul.IConsulClient>(sp => new Consul.ConsulClien
     cfg.Address = new Uri($"http://{consulHost}:{consulPort}");
 }));
 
+// admin-web and the web-app nginx sit in front of the gateway on the private
+// Docker network; trust their X-Forwarded-For so YARP passes the real client
+// IP on to the services (auth-service rate-limits per client IP).
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+    foreach (var network in new[] { "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "127.0.0.0/8", "::1/128" })
+        options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(network));
+});
+
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 _ = Task.Run(async () =>
 {

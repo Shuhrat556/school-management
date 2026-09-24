@@ -46,4 +46,7 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B2 TUZATILDI: ikkala servis Development'dan tashqarida zaif/yo'q JWT secret bilan ishga tushmaydi (testlar avval 3+3 yiqildi).
   B19: appsettings'dagi pepper olib tashlandi. DEPLOYMENT.md ga secret uzunligini tekshirish qadami. auth 10/10, school 99/99.
 
-KEYINGI QADAM: PLAN 5-bo'lim B3 — auth rate limiting (authenticate, refresh, request-*, verify-email, reset-password) + ForwardedHeaders, test 429.
+- B3a: auth per-IP rate limiting (D5) + gateway/auth ForwardedHeaders (faqat xususiy tarmoqlar). Testlar 14/14
+  (IP bo'yicha ajratish, ishonchsiz peer XFF'i e'tiborsiz). Next.js XFF cheklovi D5 da.
+
+KEYINGI QADAM: PLAN 5-bo'lim B3b — akkaunt lockout (User'ga FailedLoginAttempts/LoginLockoutUntil, EF migratsiya + Down), test.

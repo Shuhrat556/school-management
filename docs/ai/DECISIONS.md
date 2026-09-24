@@ -36,3 +36,19 @@ admin-web teacher/student sahifalari va Flutter o'qituvchi ekranlari ishlatadiga
 yagona uzilish — Flutter o'qituvchining "o'quvchini o'chirish" tugmasi, u olib tashlandi.
 Keyingi bosqich (B1b): o'qish endpointlarida o'quvchi faqat o'z ma'lumotini ko'rishi; o'qituvchi faqat o'z sinflarini o'zgartirishi (resurs darajasi).
 **Manba:** [Role-based authorization in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/security/authorization/roles), OWASP A01.
+
+## D5 — Auth rate limiting va real mijoz IP'si (2026-09-25)
+**Qaror:** ikki qatlam.
+1. **Per-IP limiter** (built-in `Microsoft.AspNetCore.RateLimiting`, fixed window, navbatsiz): `login` 60/daq
+   (authenticate, oauth/*), `codes` 20/10 daq (request-*, verify-email, reset-password), `refresh` 120/daq.
+   `RateLimiting:<policy>:PermitLimit|WindowSeconds` bilan sozlanadi. 429 + `Retry-After` + `{code: "TOO_MANY_REQUESTS"}`.
+   Limitlar ataylab yumshoq: butun maktab bitta NAT IP ortida bo'lishi mumkin.
+2. **Akkaunt lockout** (keyingi commit, auth DB migratsiyasi bilan) — bitta akkauntga brute-force'ga qarshi asosiy himoya.
+**Real IP:** gateway va auth `UseForwardedHeaders()` bilan faqat xususiy tarmoqlardan (10/8, 172.16/12, 192.168/16, loopback)
+kelgan `X-Forwarded-For` ga ishonadi, `ForwardLimit=1`. Ma'lum cheklov: Next.js `x-forwarded-for ??= socket` qiladi, ya'ni
+admin-web'ga to'g'ridan-to'g'ri yuborilgan soxta XFF saqlanadi → admin-web orqali IP limitni chetlab o'tish mumkin.
+Oldiga nginx qo'yilganda u XFF ni **almashtirishi** kerak (`proxy_set_header X-Forwarded-For $remote_addr;`), qo'shmasligi.
+web-app nginx `$proxy_add_x_forwarded_for` qo'shadi — o'ngdagi qiymat haqiqiy, xavfsiz.
+**Manba:** [Rate limiting middleware](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit),
+[Configure ASP.NET Core to work with proxy servers](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer),
+OWASP Authentication Cheat Sheet (login throttling).

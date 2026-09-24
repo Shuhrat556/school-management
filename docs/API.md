@@ -37,6 +37,9 @@ Error body (both services):
 
 Roles (numeric in responses): `Teacher=1`, `Student=2`, `Parent=3`, `Admin=4`.
 
+Rate limits per client IP (429 `TOO_MANY_REQUESTS` with `Retry-After`): `authenticate` and `oauth/*` 60/min;
+`request-email-verification-code`, `verify-email`, `request-password-reset`, `reset-password` 20 per 10 min; `refresh` 120/min.
+
 ## School service
 
 Base `/api/school` unless noted. Ids are GUIDs.
