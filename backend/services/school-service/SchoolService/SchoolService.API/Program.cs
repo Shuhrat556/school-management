@@ -114,11 +114,20 @@ builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<ProfileAccess>();
 
+const string DevelopmentJwtSecret = "your-secret-key-change-me-in-production-this-is-insecure";
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSecret = (!string.IsNullOrEmpty(jwtSection["Secret"]) ? jwtSection["Secret"] : null) 
              ?? (!string.IsNullOrEmpty(builder.Configuration["Jwt__Secret"]) ? builder.Configuration["Jwt__Secret"] : null)
              ?? (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("JWT_SECRET")) ? Environment.GetEnvironmentVariable("JWT_SECRET") : null)
-             ?? "your-secret-key-change-me-in-production-this-is-insecure";
+             ?? DevelopmentJwtSecret;
+
+// The fallback key is published in the repository; outside Development a real
+// secret (HS256: at least 32 bytes) is required, otherwise tokens can be forged.
+if (!builder.Environment.IsDevelopment()
+    && (jwtSecret == DevelopmentJwtSecret || Encoding.UTF8.GetByteCount(jwtSecret) < 32))
+    throw new InvalidOperationException(
+        "Jwt:Secret (JWT_SECRET) must be a random value of at least 32 bytes outside Development.");
+
 var key = Encoding.UTF8.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(options =>

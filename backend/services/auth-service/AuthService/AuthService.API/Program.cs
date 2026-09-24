@@ -13,6 +13,8 @@ using AuthService.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+JwtConfig.EnsureUsableSecret(builder.Configuration, builder.Environment.IsDevelopment());
+
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {

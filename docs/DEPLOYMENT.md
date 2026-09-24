@@ -45,6 +45,9 @@ Before:
 2. Note the currently deployed commit: `git -C ~/apps/school-management rev-parse --short HEAD` → write it in the release notes (rollback target).
 3. **Back up both databases** (see below) and check the dump files are non-empty.
 4. Read the migration list for this release. Any schema change must come as an EF migration with a working `Down`.
+5. Outside Development both .NET services refuse to start unless `JWT_SECRET` is at least 32 bytes and is not the
+   development fallback. Check without printing the value:
+   `grep -cE '^JWT_SECRET=.{32,}$' backend/.env` → must print `1`.
 
 Deploy:
 ```bash

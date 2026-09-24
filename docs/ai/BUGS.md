@@ -14,7 +14,8 @@ davomatni belgilashi, o'quvchi/o'qituvchini o'chirishi mumkin. (OWASP A01 Broken
 ### B2 [YUQORI] JWT secret bo'lmasa hardcode qilingan kalitga tushadi
 `AuthService.Infrastructure/Settings/JwtConfig.cs`, `SchoolService.API/Program.cs` — `JWT_SECRET` berilmasa
 repo'da ochiq turgan `"your-secret-key-change-me-..."` bilan token imzolanadi/tekshiriladi → har kim token soxtalashtira oladi.
-Production'da ishga tushishdan oldin to'xtashi kerak (fail fast). · OCHIQ
+Production'da ishga tushishdan oldin to'xtashi kerak (fail fast).
+· TUZATILDI: Development'dan boshqa muhitda secret yo'q/fallback/<32 bayt bo'lsa servis ishga tushmaydi (JwtSecretStartupTests, ikkala servis)
 
 ### B3 [YUQORI] Login/parolni tiklash endpointlarida rate limiting yo'q
 `AuthController` — `authenticate`, `request-password-reset`, `request-email-verification-code`, `refresh`.
@@ -85,3 +86,8 @@ Students.Email, Teachers.Email — takroriy yozuvlarga DB darajasida to'siq yo'q
 
 ### B18 [PAST] `Enrollment` entity o'lik kod
 `SchoolService.Domain/Entities/Enrollment.cs` — DbContext'da yo'q, hech qayerda ishlatilmaydi (o'rnini `StudentClassroom` egallagan). · OCHIQ
+
+### B19 [PAST] Kod xeshlari uchun pepper repoda
+`AuthService.API/appsettings.json` — `EmailVerification:Pepper` ochiq turardi (email tasdiqlash va parol tiklash kodlari HMAC'i
+uchun). · TUZATILDI: bo'lim olib tashlandi, pepper endi `Jwt:Secret` dan olinadi (PasswordResetTests end-to-end tekshiradi).
+Deploy'dan keyin 10 daqiqa ichida yuborilgan eski kodlar yaroqsiz bo'ladi — xolos.

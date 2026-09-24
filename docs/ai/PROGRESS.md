@@ -43,4 +43,7 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - T0b: `AuthService.Tests` (SQLite, FakeEmailSender), Program.cs'ga o'sha flaglar. Commit 9cfb473.
 - B10 TUZATILDI: NULL parol xeshi bilan login 500 o'rniga 401 (test avval 500 bilan yiqildi).
 
-KEYINGI QADAM: PLAN 5-bo'lim B2 — JWT secret yo'q/qisqa bo'lsa Development/Testing'dan boshqa muhitda ishga tushmaslik (ikkala servis), test bilan.
+- B2 TUZATILDI: ikkala servis Development'dan tashqarida zaif/yo'q JWT secret bilan ishga tushmaydi (testlar avval 3+3 yiqildi).
+  B19: appsettings'dagi pepper olib tashlandi. DEPLOYMENT.md ga secret uzunligini tekshirish qadami. auth 10/10, school 99/99.
+
+KEYINGI QADAM: PLAN 5-bo'lim B3 — auth rate limiting (authenticate, refresh, request-*, verify-email, reset-password) + ForwardedHeaders, test 429.
