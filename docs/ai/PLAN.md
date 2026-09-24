@@ -34,7 +34,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [ ] T0b: `AuthService.Tests` xuddi shunday
 - [x] B1: school-service rol-policy'lari (Admin / Teacher / Student) — yozish endpointlari faqat Admin/Teacher; test: Student 403
 - [x] B1b: Student o'z ma'lumotlarini ko'radi (grades/attendance/submissions/students list — faqat o'ziniki) + `GET /students/me`, student-portal.js dagi "hamma o'quvchini yuklab email bo'yicha qidirish" fallback'ini olib tashlash; test
-- [ ] B9: SubmissionsController DI (ISubmissionService) + studentId ni tokendan olish; test
+- [x] B9: SubmissionsController (+MaterialsController) DI (ISubmissionService) + studentId ni tokendan olish; test
 - [ ] B10: OAuth-only user parol bilan kirganda 500 emas 401; test
 - [ ] B2: JWT secret yo'q/qisqa bo'lsa Production'da ishga tushmaslik (ikkala servis); test
 - [ ] B3: auth rate limiting (authenticate, refresh, request-*, verify-email, reset-password) + ForwardedHeaders; test 429

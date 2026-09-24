@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Submissions;
-using SchoolService.Application.Services;
+using SchoolService.Application.Interfaces;
 
 namespace SchoolService.API.Controllers;
 
@@ -11,11 +11,13 @@ namespace SchoolService.API.Controllers;
 [Route("api/[controller]")]
 public class SubmissionsController : ControllerBase
 {
-    private readonly SubmissionService _submissionService;
+    private readonly ISubmissionService _submissionService;
+    private readonly ProfileAccess _access;
 
-    public SubmissionsController(SubmissionService submissionService)
+    public SubmissionsController(ISubmissionService submissionService, ProfileAccess access)
     {
         _submissionService = submissionService;
+        _access = access;
     }
 
     [HttpGet("material/{materialId}")]
@@ -28,23 +30,32 @@ public class SubmissionsController : ControllerBase
     [HttpGet("student/{studentId}")]
     public async Task<ActionResult<List<SubmissionResponseDto>>> GetByStudent(Guid studentId)
     {
+        if (!await _access.CanAccessStudentAsync(User, studentId))
+            return Forbid();
+
         return await _submissionService.GetSubmissionsByStudentAsync(studentId);
     }
 
+    // A student hands in work for themselves; the student comes from the token.
     [HttpPost]
     public async Task<ActionResult<SubmissionResponseDto>> Submit(SubmissionCreateDto dto)
     {
-        // In a real app, studentId would come from the Auth context
-        // For now, let's assume it's passed or handled by the service similarly
-        // This is a placeholder for a real implementation
-        return BadRequest("Student ID required from Auth context.");
+        var own = await _access.GetOwnStudentAsync(User);
+        if (own == null)
+            return Forbid();
+
+        return Ok(await _submissionService.SubmitAsync(own.Id, dto));
     }
 
+    // Older clients put the student id in the path; it must be the caller's own.
     [HttpPost("{studentId}/submit")]
     public async Task<ActionResult<SubmissionResponseDto>> Submit(Guid studentId, SubmissionCreateDto dto)
     {
-        var submission = await _submissionService.SubmitAsync(studentId, dto);
-        return Ok(submission);
+        var own = await _access.GetOwnStudentAsync(User);
+        if (own == null || own.Id != studentId)
+            return Forbid();
+
+        return Ok(await _submissionService.SubmitAsync(own.Id, dto));
     }
 
     [HttpPatch("{id}/grade")]

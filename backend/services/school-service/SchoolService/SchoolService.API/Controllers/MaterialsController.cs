@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Materials;
-using SchoolService.Application.Services;
+using SchoolService.Application.Interfaces;
 
 namespace SchoolService.API.Controllers;
 
@@ -11,9 +11,9 @@ namespace SchoolService.API.Controllers;
 [Route("api/[controller]")]
 public class MaterialsController : ControllerBase
 {
-    private readonly MaterialService _materialService;
+    private readonly IMaterialService _materialService;
 
-    public MaterialsController(MaterialService materialService)
+    public MaterialsController(IMaterialService materialService)
     {
         _materialService = materialService;
     }

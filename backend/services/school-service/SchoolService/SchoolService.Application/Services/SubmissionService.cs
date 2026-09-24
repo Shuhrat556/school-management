@@ -1,4 +1,5 @@
 using SchoolService.Application.DTOs.Submissions;
+using SchoolService.Application.Exceptions;
 using SchoolService.Application.Interfaces;
 using SchoolService.Domain.Entities;
 
@@ -7,14 +8,20 @@ namespace SchoolService.Application.Services;
 public class SubmissionService : ISubmissionService
 {
     private readonly ISubmissionRepository _submissionRepository;
+    private readonly IMaterialRepository _materialRepository;
 
-    public SubmissionService(ISubmissionRepository submissionRepository)
+    public SubmissionService(ISubmissionRepository submissionRepository, IMaterialRepository materialRepository)
     {
         _submissionRepository = submissionRepository;
+        _materialRepository = materialRepository;
     }
 
     public async Task<SubmissionResponseDto> SubmitAsync(Guid studentId, SubmissionCreateDto dto)
     {
+        var material = await _materialRepository.GetByIdAsync(dto.MaterialId);
+        if (material == null || !material.IsActive)
+            throw new NotFoundException("Material", dto.MaterialId);
+
         var submission = new Submission(dto.MaterialId, studentId, dto.SubmissionUrl);
         await _submissionRepository.AddAsync(submission);
 

@@ -37,4 +37,7 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   (AuthUserId, bo'lmasa bog'lanmagan profil email bo'yicha). admin-web student-portal va Flutter login'lari endi butun ro'yxatni
   yuklamaydi. Testlar 88/88 (B1b testlari tuzatish bilan birga yozildi). `StudentService.cs`/`api.js` da faqat o'z hunk'im stage qilindi.
 
-KEYINGI QADAM: PLAN 5-bo'lim B9 — SubmissionsController DI + studentId ni tokendan olish (test bilan).
+- B9 TUZATILDI: materials va submissions controllerlari interfeys orqali; topshiriq faqat o'z nomidan (token), noma'lum material → 404.
+  Avval 7 test 500 bilan yiqildi, tuzatishdan keyin 95/95.
+
+KEYINGI QADAM: PLAN 5-bo'lim T0b — `AuthService.Tests` loyihasi, keyin B10 (OAuth-only user login 500).

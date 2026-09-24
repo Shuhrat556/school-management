@@ -39,9 +39,11 @@ Gateway, auth, school — `AllowAll`. Production uchun aniq originlar ro'yxati k
 
 ## Xatolar
 
-### B9 [YUQORI] `/api/submissions/*` har doim 500
-`SubmissionsController` konkret `SubmissionService` ni so'raydi, DI da faqat `ISubmissionService` ro'yxatdan o'tgan
-→ controller yaratilmaydi. · OCHIQ (build/run bilan tasdiqlash kerak)
+### B9 [YUQORI] `/api/submissions/*` va `/api/materials/*` har doim 500
+`SubmissionsController`/`MaterialsController` konkret `SubmissionService`/`MaterialService` ni so'raydi, DI da faqat interfeyslar
+ro'yxatdan o'tgan → controller yaratilmaydi. Qo'shimcha: `POST /api/submissions` placeholder edi, `{studentId}/submit` istalgan
+o'quvchi nomidan topshirishga ruxsat berardi, mavjud bo'lmagan material 500 berardi.
+· TUZATILDI (MaterialsAndSubmissionsTests: avval 7/7 yiqildi, keyin o'tdi)
 
 ### B10 [YUQORI] OAuth-only foydalanuvchi parol bilan kirsa 500
 `AuthenticationService.AuthenticateAsync` — `user.PasswordHash!` null bo'lsa `VerifyPassword` da NullReferenceException. · OCHIQ
