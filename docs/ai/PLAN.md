@@ -7,15 +7,15 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] docs/ai/ fayllari, CLAUDE.md, ai-loop.sh, root .gitignore, `ai/improvements` branch
 
 ## 1. Loyihani aniqlash
-- [~] Kodni o'qish: backend (gateway, auth, school), admin-web, Flutter → CONTEXT.md
-- [ ] Build + test + lint: dotnet build, npm run lint/build, flutter analyze/test → BUGS.md
-- [ ] Eskirgan paketlar va zaifliklar: dotnet list package --outdated/--vulnerable, npm audit, flutter pub outdated
+- [x] Kodni o'qish: backend (gateway, auth, school), admin-web, Flutter → CONTEXT.md
+- [x] Build + test + lint: dotnet build, npm run lint/build, flutter analyze/test → BUGS.md
+- [x] Eskirgan paketlar va zaifliklar: dotnet list package --outdated/--vulnerable, npm audit, flutter pub outdated
 - [ ] Docker bilan lokal ishga tushirish va smoke test (Docker Desktop ishlashi kerak)
 
 ## 2. Server va DB (faqat o'qish)
-- [ ] ~/.ssh/config va docs/server_key.md dagi hostni aniqlash, read-only ulanish
-- [ ] Serverda: servislar, resurslar, loglar, SSL, deploy usuli → CONTEXT.md
-- [ ] DB: sxema, indekslar, hajm, backup (faqat SELECT) → CONTEXT.md / docs/DATABASE.md
+- [x] ~/.ssh/config va docs/server_key.md dagi hostni aniqlash, read-only ulanish
+- [x] Serverda: servislar, resurslar, loglar, SSL, deploy usuli → CONTEXT.md
+- [x] DB: sxema, indekslar, hajm, backup (faqat SELECT) → CONTEXT.md (DATABASE.md 4-bo'limda)
 
 ## 3. Tadqiqot
 - [ ] Raqobatchilar (xalqaro + mahalliy) → RESEARCH.md

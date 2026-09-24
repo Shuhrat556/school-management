@@ -47,7 +47,35 @@ admin-web `api/school/admin/sync-profile` bilan sinxronlaydi.
 - Server: `docs/server_key.md` da SSH manzili bor (repo'ga kirmaydi, D3). Holati — PLAN 2-bo'lim.
 
 ## Buyruqlar
-_(1-bo'lim build/test bosqichida to'ldiriladi)_
+| Maqsad | Buyruq | Holat (2026-09-24) |
+|---|---|---|
+| .NET build | `dotnet build backend/services/<svc>/...sln` (gateway: `ApiGateway.csproj`) | 3/3 OK, 0 warning |
+| .NET paketlar | `dotnet list <sln> package --outdated` / `--vulnerable --include-transitive` | yangilanish yo'q, zaiflik yo'q |
+| .NET testlar | — | **test loyihasi yo'q** |
+| admin-web lint | `cd admin-web && npm run lint` | 0 error, 21 warning |
+| admin-web build | `npm run build` | OK |
+| admin-web audit | `npm audit --omit=dev` | 0 zaiflik; next 16.3.5→16.3.6 patch bor |
+| admin-web testlar | — | **test yo'q** |
+| Flutter | `cd frontend && flutter pub get && flutter analyze && flutter test` | analyze toza, 1 widget test o'tadi |
+| Flutter eslatma | `pub get` ios/macos xcconfig ni o'zgartiradi va Podfile yaratadi — commit qilmang, `git checkout` bilan qaytaring | |
+| Stack lokal | `cd backend && cp .env.example .env && docker compose up --build` | Docker Desktop kerak |
 
 ## Server va DB
-_(PLAN 2-bo'lim)_
+Manzil: `docs/server_key.md` (repo'da emas). Ubuntu 24.04, 4 vCPU, 3.8 GB RAM (+2 GB swap), disk 50 GB (61% band).
+Serverda egasining boshqa loyihasi ham bor (3000/3001/8000 portlar, o'z nginx + certbot saytlari) —
+unga tegilmaydi.
+- **Deploy usuli:** `/home/kasb/apps/school-management` — repo'ning git klon'i (`main` = b4db3c3, remote
+  `origin-canonical` = Shuhrat556/school-management) + serverga xos `backend/docker-compose.override.yml`
+  (git'da emas) + `backend/.env` (600). Qo'lda: `git pull && docker compose up -d --build` (CI/CD yo'q).
+  Compose loyiha nomi: `school-management`, 9 konteyner.
+- **Override:** `ASPNETCORE_ENVIRONMENT=Production`, `Swagger__Enabled=true`; ochiq portlar: admin-web **3100**,
+  web-app **3200**, gateway **5001** (Swagger bilan). Qolganlari 127.0.0.1 ga bog'langan.
+- **TLS/domen yo'q:** school-management nginx orqali emas, to'g'ridan-to'g'ri HTTP portlarda — parol va tokenlar
+  shifrlanmagan holda uzatiladi (BUGS B14).
+- **Backup yo'q:** school_db/auth_db uchun cron yoki dump yo'q (boshqa loyiha uchun qo'lda dump bor) (B15).
+- **Loglar:** oxirgi 48 soatda gateway/auth/school/admin-web/web-app'da error/warn yo'q.
+- `~/apps/school-management-releases/` — debug APK (167 MB).
+- **school_db** (8.7 MB): `__EFMigrationsHistory` **yo'q** (EnsureCreated, B11). Asosan seed: 46 student, 2 teacher,
+  12 classroom, 12 subject, 552 grade, 230 attendance. Indekslar: PK + FK indekslari; **unique cheklov yo'q**
+  (Attendance student+sana, StudentGrade student+fan+semestr, Students/Teachers email) (B16).
+- **auth_db** (7.8 MB): 56 user, 15 refresh token; EF migratsiyalar 4 ta, tarix jadvali bor.

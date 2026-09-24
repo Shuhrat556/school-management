@@ -58,3 +58,18 @@ Gateway, auth, school — `AllowAll`. Production uchun aniq originlar ro'yxati k
 `backend/.tools/` (dotnet-ef 8.0.11 binarlari, .exe), `.idea/`, `*.DotSettings.user`, Flutter generated
 fayllar (`ios/Flutter/Generated.xcconfig`, `ephemeral/`), `School_Management_System_Documentation.docx`,
 `make-zip.ps1`. .gitignore ularni e'tiborsiz qoldiradi, lekin ular allaqachon track qilingan. · OCHIQ
+
+## Server / infratuzilma
+
+### B14 [YUQORI] Production HTTP'da, TLS va domensiz
+Serverda admin-web (3100), web-app (3200), gateway (5001, Swagger yoqilgan) to'g'ridan-to'g'ri `0.0.0.0` da ochiq.
+Login parollari va JWT'lar shifrlanmagan holda uzatiladi. Tavsiya: domen/subdomen + mavjud nginx/certbot orqali
+reverse proxy, portlarni 127.0.0.1 ga bog'lash, production'da Swagger'ni o'chirish. Server konfiguratsiyasini
+o'zgartirish ruxsat talab qiladi. · OCHIQ
+
+### B15 [YUQORI] school_db / auth_db uchun backup yo'q
+Serverda cron ham, dump fayllar ham yo'q. Deploy'dan oldin `pg_dump` majburiy (RULES 7). · OCHIQ
+
+### B16 [O'RTA] Ma'lumot yaxlitligi uchun unique cheklovlar yo'q
+school_db: Attendance (StudentId, ClassroomId, Date), StudentGrade (StudentId, SubjectId, Semester),
+Students.Email, Teachers.Email — takroriy yozuvlarga DB darajasida to'siq yo'q. Faqat migratsiya orqali (B11 dan keyin). · OCHIQ
