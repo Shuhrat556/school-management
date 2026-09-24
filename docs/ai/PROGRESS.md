@@ -17,4 +17,12 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   backup yo'q, school_db migratsiya tarixisiz. → CONTEXT "Server va DB", BUGS B14–B16.
 - Docker Desktop lokal ishga tushirildi (`open -a Docker`).
 
-KEYINGI QADAM: PLAN.md 1-bo'lim oxirgi band — Docker bilan lokal stack'ni ko'tarib smoke test; keyin 3-bo'lim (tadqiqot).
+## 2026-09-25 — Sessiya 1 (davomi)
+
+- RESEARCH.md: raqobatchilar (eMaktab/Kundalik, PowerSchool, Fedena, OpenSIS/Gibbon, ManageBac) va rasmiy hujjatlar
+  (EF migratsiyalar, rate limiting). PLAN.md 5–9 bo'limlari tuzildi. QUESTIONS Q2–Q4. Commit 35fb255.
+- Lokal `docker compose up --build` — image yuklash paytida Mac diski to'ldi (~180 MB bo'sh), Docker Desktop to'xtadi.
+  Docker yopildi, boshqa ishlatilmaydi → QUESTIONS Q5. Lokal `backend/.env` (gitignored, tasodifiy secret) yaratildi.
+
+KEYINGI QADAM: PLAN.md 4-bo'lim — docs/ARCHITECTURE.md, API.md, DATABASE.md, DEPLOYMENT.md (disk talab qilmaydi),
+so'ng egasiga hisobot; disk bo'shagach 5-bo'lim T0 (test loyihalari).

@@ -23,3 +23,10 @@ RUXSAT KERAK: school-management hozir HTTP portlarda (3100/3200/5001) ochiq (BUG
 ## Q4 — Maxfiy qiymatlarni almashtirish (OCHIQ, egasi bajaradi)
 `backend/.env` bir vaqtlar git tarixiga tushgan (BUGS B5). Tavsiya: serverdagi `JWT_SECRET` va Gmail App Password'ni
 yangilash (Google hisobida eski App Password'ni bekor qilish). Git tarixini tozalash (force push) — faqat sizning qaroringiz bilan.
+
+## Q5 — Mac diski to'la (OCHIQ, egasi bajaradi)
+2026-09-25: diskda ~180 MB bo'sh joy qoldi (100%). Lokal `docker compose up --build` image yuklash paytida Docker Desktop
+"unable to start" bilan to'xtadi; men Docker'ni yopdim va boshqa ishlatmayapman. Joy bo'shatish variantlari (hammasi qayta tiklanadi):
+- `cd frontend && flutter clean` — ~2.4 GB (`frontend/build`, 22-sentabrdagi Android build qoldig'i);
+- Docker Desktop → Troubleshoot → "Clean / Purge data" — ~0.7 GB (VM diski, 24-sentabrda men ishga tushirganimda yaratilgan).
+Joy bo'shamaguncha: Docker smoke test va yangi NuGet paketlari kerak bo'lgan test loyihalari kechiktiriladi.

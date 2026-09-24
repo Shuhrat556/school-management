@@ -10,7 +10,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] Kodni o'qish: backend (gateway, auth, school), admin-web, Flutter → CONTEXT.md
 - [x] Build + test + lint: dotnet build, npm run lint/build, flutter analyze/test → BUGS.md
 - [x] Eskirgan paketlar va zaifliklar: dotnet list package --outdated/--vulnerable, npm audit, flutter pub outdated
-- [ ] Docker bilan lokal ishga tushirish va smoke test (Docker Desktop ishlashi kerak)
+- [ ] Docker bilan lokal ishga tushirish va smoke test — disk to'la (QUESTIONS Q5), joy bo'shagach
 
 ## 2. Server va DB (faqat o'qish)
 - [x] ~/.ssh/config va docs/server_key.md dagi hostni aniqlash, read-only ulanish
