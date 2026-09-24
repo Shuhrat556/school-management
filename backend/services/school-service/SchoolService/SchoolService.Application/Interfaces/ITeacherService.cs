@@ -11,6 +11,7 @@ public interface ITeacherService
     Task<PagedResult<TeacherResponseDto>> GetByDepartmentAsync(Guid departmentId, int page, int pageSize);
     Task<TeacherResponseDto> GetByIdAsync(Guid id);
     Task<TeacherResponseDto?> GetByAuthUserIdAsync(Guid authUserId);
+    Task<TeacherResponseDto?> GetForUserAsync(Guid authUserId, string? email);
     Task<TeacherResponseDto> CreateAsync(TeacherCreateDto dto);
     Task<TeacherResponseDto> UpdateAsync(Guid id, TeacherUpdateDto dto);
     Task DeleteAsync(Guid id);

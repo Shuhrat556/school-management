@@ -33,4 +33,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B1 TUZATILDI: rol atributlari (D4), o'quvchi/o'qituvchi faqat o'z profilini tahrirlaydi; Flutter o'qituvchi ekranidan
   "delete" tugmasi olib tashlandi. Testlar 78/78. Commit 63ec4bf.
 
-KEYINGI QADAM: PLAN 5-bo'lim B1b — o'quvchi uchun o'qish endpointlarini cheklash + `GET /students/me`, student-portal.js ni moslash.
+- B1b TUZATILDI: o'quvchi faqat o'z profil/baho/davomatini ko'radi, ro'yxat Staff'ga; `GET /students/me`, `GET /teachers/me`
+  (AuthUserId, bo'lmasa bog'lanmagan profil email bo'yicha). admin-web student-portal va Flutter login'lari endi butun ro'yxatni
+  yuklamaydi. Testlar 88/88 (B1b testlari tuzatish bilan birga yozildi). `StudentService.cs`/`api.js` da faqat o'z hunk'im stage qilindi.
+
+KEYINGI QADAM: PLAN 5-bo'lim B9 — SubmissionsController DI + studentId ni tokendan olish (test bilan).

@@ -14,14 +14,17 @@ public class StudentsController : ControllerBase
 {
     private readonly IStudentService _studentService;
     private readonly IClassroomService _classroomService;
+    private readonly ProfileAccess _access;
 
-    public StudentsController(IStudentService studentService, IClassroomService classroomService)
+    public StudentsController(IStudentService studentService, IClassroomService classroomService, ProfileAccess access)
     {
         _studentService = studentService;
         _classroomService = classroomService;
+        _access = access;
     }
 
     [HttpGet]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult> GetAll(
         [FromQuery] int? page,
         [FromQuery] int? pageSize)
@@ -38,13 +41,31 @@ public class StudentsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<StudentResponseDto>> GetById(Guid id)
     {
+        if (!await _access.CanAccessStudentAsync(User, id))
+            return Forbid();
+
         var student = await _studentService.GetByIdAsync(id);
+        return Ok(student);
+    }
+
+    // The signed-in student's own profile.
+    [HttpGet("me")]
+    [Authorize(Roles = Roles.Student)]
+    public async Task<ActionResult<StudentResponseDto>> GetMe()
+    {
+        var student = await _access.GetOwnStudentAsync(User);
+        if (student == null)
+            return NotFound();
+
         return Ok(student);
     }
 
     [HttpGet("by-auth-user/{authUserId:guid}")]
     public async Task<ActionResult<StudentResponseDto>> GetByAuthUserId(Guid authUserId)
     {
+        if (!User.IsStaff() && User.GetAuthUserId() != authUserId)
+            return Forbid();
+
         var student = await _studentService.GetByAuthUserIdAsync(authUserId);
         if (student == null)
             return NotFound();
@@ -55,6 +76,9 @@ public class StudentsController : ControllerBase
     [HttpGet("{id:guid}/classrooms")]
     public async Task<ActionResult> GetClassrooms(Guid id)
     {
+        if (!await _access.CanAccessStudentAsync(User, id))
+            return Forbid();
+
         var classrooms = await _classroomService.GetByStudentIdAsync(id);
         return Ok(classrooms);
     }
@@ -74,8 +98,7 @@ public class StudentsController : ControllerBase
         // cannot change the login email or the active flag.
         if (!User.IsStaff())
         {
-            var authUserId = User.GetAuthUserId();
-            var own = authUserId.HasValue ? await _studentService.GetByAuthUserIdAsync(authUserId.Value) : null;
+            var own = await _access.GetOwnStudentAsync(User);
             if (own == null || own.Id != id)
                 return Forbid();
 

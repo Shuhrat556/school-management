@@ -9,7 +9,7 @@ Darajalar: KRITIK · YUQORI · O'RTA · PAST.
 `SchoolService.API/Controllers/{Grades,Attendance,Students,Teachers,Classrooms,Subjects,Schedules,Announcements,Materials,Submissions}Controller.cs`
 — faqat `[Authorize]`. Istalgan tizimga kirgan foydalanuvchi (masalan, Student) baho qo'yishi/o'zgartirishi,
 davomatni belgilashi, o'quvchi/o'qituvchini o'chirishi mumkin. (OWASP A01 Broken Access Control.)
-· YOZISH endpointlari TUZATILDI (D4, testlar: RoleAuthorizationTests, ProfileOwnershipTests). O'qish endpointlari — B1b, OCHIQ
+· YOZISH endpointlari TUZATILDI (D4, testlar: RoleAuthorizationTests, ProfileOwnershipTests). O'qish endpointlari (B1b) ham TUZATILDI: StudentDataAccessTests
 
 ### B2 [YUQORI] JWT secret bo'lmasa hardcode qilingan kalitga tushadi
 `AuthService.Infrastructure/Settings/JwtConfig.cs`, `SchoolService.API/Program.cs` — `JWT_SECRET` berilmasa

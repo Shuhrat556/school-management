@@ -4,9 +4,8 @@ import {
   getClassroomSchedule,
   getGrades,
   getMaterialsByClassroom,
-  getStudentByAuthUserId,
+  getMyStudent,
   getStudentClassrooms,
-  getStudents,
   getStudentSubmissions,
   getSubject,
 } from '@/lib/api';
@@ -443,19 +442,7 @@ export async function resolveCurrentStudentProfile() {
   const user = getUser();
   if (!user) return { user: null, student: null };
 
-  let student = null;
-
-  if (user.userId) {
-    student = await getStudentByAuthUserId(user.userId);
-  }
-
-  if (!student && user.email) {
-    const students = toArray(await getStudents(1, 500));
-    student = students.find(
-      (candidate) => String(candidate?.email ?? '').toLowerCase() === String(user.email).toLowerCase(),
-    ) ?? null;
-  }
-
+  const student = await getMyStudent();
   return { user, student };
 }
 

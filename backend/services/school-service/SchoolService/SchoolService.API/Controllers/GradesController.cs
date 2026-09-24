@@ -12,8 +12,13 @@ namespace SchoolService.API.Controllers;
 public class GradesController : ControllerBase
 {
     private readonly IGradeService _gradeService;
+    private readonly ProfileAccess _access;
 
-    public GradesController(IGradeService gradeService) => _gradeService = gradeService;
+    public GradesController(IGradeService gradeService, ProfileAccess access)
+    {
+        _gradeService = gradeService;
+        _access = access;
+    }
 
     [HttpGet]
     public async Task<ActionResult> GetAll(
@@ -21,6 +26,15 @@ public class GradesController : ControllerBase
         [FromQuery] Guid? subjectId,
         [FromQuery] string? semester)
     {
+        // A student only ever sees their own grades.
+        if (!User.IsStaff())
+        {
+            var own = await _access.GetOwnStudentAsync(User);
+            if (own == null || (studentId.HasValue && studentId != own.Id))
+                return Forbid();
+            studentId = own.Id;
+        }
+
         var grades = await _gradeService.GetAllAsync(studentId, subjectId, semester);
         return Ok(grades);
     }
@@ -29,6 +43,8 @@ public class GradesController : ControllerBase
     public async Task<ActionResult<GradeResponseDto>> GetById(Guid id)
     {
         var grade = await _gradeService.GetByIdAsync(id);
+        if (!await _access.CanAccessStudentAsync(User, grade.StudentId))
+            return Forbid();
         return Ok(grade);
     }
 

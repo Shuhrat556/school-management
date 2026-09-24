@@ -44,16 +44,18 @@ Base `/api/school` unless noted. Ids are GUIDs.
 ### Students — `/students`
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| GET | `/students?page=&pageSize=` | user | Paged when `page`/`pageSize` given, otherwise full list |
-| GET | `/students/{id}` | user | |
-| GET | `/students/by-auth-user/{authUserId}` | user | Profile for a signed-in account |
-| GET | `/students/{id}/classrooms` | user | |
+| GET | `/students?page=&pageSize=` | Staff | Paged when `page`/`pageSize` given, otherwise full list |
+| GET | `/students/me` | Student | Own profile: linked by `AuthUserId`, or an unlinked profile with the token's email; 404 if none |
+| GET | `/students/{id}` | Staff, own | |
+| GET | `/students/by-auth-user/{authUserId}` | Staff, own | |
+| GET | `/students/{id}/classrooms` | Staff, own | |
 | POST | `/students` | Staff | Create |
 | PUT | `/students/{id}` | Staff, own | Update; on their own profile a student cannot change `email` or `isActive` |
 | DELETE | `/students/{id}` | Admin | **Hard** delete — cascades to grades, attendance, submissions (BUGS B17) |
 
 ### Teachers — `/teachers`
-GET list (`?page=&pageSize=&departmentId=`), GET `{id}` — user. POST, DELETE `{id}` — Admin.
+GET list (`?page=&pageSize=&departmentId=`), GET `{id}` — user. GET `me` — Teacher (own profile, same lookup as `/students/me`).
+POST, DELETE `{id}` — Admin.
 PUT `{id}` — Admin, or the teacher on their own profile (`email`, `isActive`, `hireDate` stay unchanged).
 POST / DELETE `/teachers/{teacherId}/departments/{departmentId}` — Admin.
 
@@ -80,11 +82,12 @@ GET `?classroomId=` or `?teacherId=` (one is required), GET `{id}` — user. POS
 | Method | Path | Auth | Notes |
 |---|---|---|---|
 | GET | `/attendance?classroomId=&date=` | Staff | Classroom sheet for a date |
-| GET | `/attendance/{studentId}/history` | user | One student's history |
+| GET | `/attendance/{studentId}/history` | Staff, own | One student's history |
 | POST | `/attendance/mark` | Staff | Bulk mark a classroom for a date; status `Present=1`, `Absent=2`, `Late=3` |
 
 ### Grades — `/grades`
-GET `?studentId=&subjectId=&semester=`, GET `{id}` — user. POST, PUT `{id}`, DELETE `{id}` — Staff. Score 0–100.
+GET `?studentId=&subjectId=&semester=`, GET `{id}` — Staff; a student gets only their own grades
+(`studentId` defaults to their own, any other id → 403). POST, PUT `{id}`, DELETE `{id}` — Staff. Score 0–100.
 
 ### Admin sync — `/admin`
 POST `/admin/sync-profile` — Admin. Creates/updates the school profile linked to an auth account.

@@ -10,6 +10,7 @@ public interface ITeacherRepository
     Task<(List<Teacher> Items, int TotalCount)> GetByDepartmentPagedAsync(Guid departmentId, int page, int pageSize);
     Task<Teacher?> GetByIdAsync(Guid id);
     Task<Teacher?> GetByAuthUserIdAsync(Guid authUserId);
+    Task<Teacher?> GetUnlinkedByEmailAsync(string email);
     Task AddAsync(Teacher teacher);
     Task UpdateAsync(Teacher teacher);
     Task DeleteAsync(Teacher teacher);

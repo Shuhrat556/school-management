@@ -15,10 +15,13 @@ public class TeachersController : ControllerBase
     private readonly ITeacherService _teacherService;
     private readonly IDepartmentService _departmentService;
 
-    public TeachersController(ITeacherService teacherService, IDepartmentService departmentService)
+    private readonly ProfileAccess _access;
+
+    public TeachersController(ITeacherService teacherService, IDepartmentService departmentService, ProfileAccess access)
     {
         _teacherService = teacherService;
         _departmentService = departmentService;
+        _access = access;
     }
 
     [HttpGet]
@@ -48,6 +51,18 @@ public class TeachersController : ControllerBase
         return Ok(allTeachers);
     }
 
+    // The signed-in teacher's own profile.
+    [HttpGet("me")]
+    [Authorize(Roles = Roles.Teacher)]
+    public async Task<ActionResult<TeacherResponseDto>> GetMe()
+    {
+        var teacher = await _access.GetOwnTeacherAsync(User);
+        if (teacher == null)
+            return NotFound();
+
+        return Ok(teacher);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<TeacherResponseDto>> GetById(Guid id)
     {
@@ -70,10 +85,7 @@ public class TeachersController : ControllerBase
         // cannot change the login email, the active flag or the hire date.
         if (!User.IsInRole(Roles.Admin))
         {
-            var authUserId = User.GetAuthUserId();
-            var own = authUserId.HasValue && User.IsInRole(Roles.Teacher)
-                ? await _teacherService.GetByAuthUserIdAsync(authUserId.Value)
-                : null;
+            var own = await _access.GetOwnTeacherAsync(User);
             if (own == null || own.Id != id)
                 return Forbid();
 

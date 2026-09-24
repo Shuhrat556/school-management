@@ -10,6 +10,7 @@ using SchoolService.Infrastructure.Repositories;
 using SchoolService.Infrastructure.Seed;
 using SchoolService.API.Services;
 using SchoolService.API.Middleware;
+using SchoolService.API.Authorization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -111,6 +112,7 @@ builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<DataSeeder>();
+builder.Services.AddScoped<ProfileAccess>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtSecret = (!string.IsNullOrEmpty(jwtSection["Secret"]) ? jwtSection["Secret"] : null) 

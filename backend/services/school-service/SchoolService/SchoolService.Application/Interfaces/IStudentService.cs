@@ -9,6 +9,7 @@ public interface IStudentService
     Task<PagedResult<StudentResponseDto>> GetAllAsync(int page, int pageSize);
     Task<StudentResponseDto> GetByIdAsync(Guid id);
     Task<StudentResponseDto?> GetByAuthUserIdAsync(Guid authUserId);
+    Task<StudentResponseDto?> GetForUserAsync(Guid authUserId, string? email);
     Task<StudentResponseDto> CreateAsync(StudentCreateDto dto);
     Task<StudentResponseDto> UpdateAsync(Guid id, StudentUpdateDto dto);
     Task DeleteAsync(Guid id);

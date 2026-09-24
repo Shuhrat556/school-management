@@ -53,6 +53,15 @@ public class StudentService : IStudentService
         return student == null ? null : MapToResponse(student);
     }
 
+    // The profile linked to this account; profiles never linked (seed data) match by email.
+    public async Task<StudentResponseDto?> GetForUserAsync(Guid authUserId, string? email)
+    {
+        var student = await _repository.GetByAuthUserIdAsync(authUserId);
+        if (student == null && !string.IsNullOrWhiteSpace(email))
+            student = await _repository.GetUnlinkedByEmailAsync(email);
+        return student == null ? null : MapToResponse(student);
+    }
+
     public async Task<StudentResponseDto> CreateAsync(StudentCreateDto dto)
     {
         var student = new Student(dto.FirstName, dto.LastName);

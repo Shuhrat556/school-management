@@ -12,8 +12,13 @@ namespace SchoolService.API.Controllers;
 public class AttendanceController : ControllerBase
 {
     private readonly IAttendanceService _attendanceService;
+    private readonly ProfileAccess _access;
 
-    public AttendanceController(IAttendanceService attendanceService) => _attendanceService = attendanceService;
+    public AttendanceController(IAttendanceService attendanceService, ProfileAccess access)
+    {
+        _attendanceService = attendanceService;
+        _access = access;
+    }
 
     /// <summary>GET /api/school/attendance?classroomId=&amp;date=YYYY-MM-DD</summary>
     [HttpGet]
@@ -30,6 +35,9 @@ public class AttendanceController : ControllerBase
     [HttpGet("{studentId:guid}/history")]
     public async Task<ActionResult> GetStudentHistory(Guid studentId)
     {
+        if (!await _access.CanAccessStudentAsync(User, studentId))
+            return Forbid();
+
         var records = await _attendanceService.GetStudentHistoryAsync(studentId);
         return Ok(records);
     }

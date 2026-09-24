@@ -386,6 +386,19 @@ class ApiService {
     return null;
   }
 
+  // GET /api/school/Students/me — the signed-in student's own record
+  Future<StudentDto?> getMyStudent() async {
+    try {
+      final response = await _dio.get('${ApiConfig.studentsEndpoint}/me');
+      if (response.statusCode == 200 && response.data != null) {
+        return StudentDto.fromJson(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get my student error: ${e.message}');
+    }
+    return null;
+  }
+
   // POST /api/school/Students
   Future<StudentDto?> createStudent(StudentDto student) async {
     try {
@@ -446,6 +459,19 @@ class ApiService {
       }
     } on DioException catch (e) {
       _logger.warning('Get teacher by id error: ${e.message}');
+    }
+    return null;
+  }
+
+  // GET /api/school/Teachers/me — the signed-in teacher's own record
+  Future<TeacherDto?> getMyTeacher() async {
+    try {
+      final response = await _dio.get('${ApiConfig.teachersEndpoint}/me');
+      if (response.statusCode == 200 && response.data != null) {
+        return TeacherDto.fromJson(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get my teacher error: ${e.message}');
     }
     return null;
   }

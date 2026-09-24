@@ -86,14 +86,10 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
         );
         // Clear any stale entity_id from a previous session BEFORE lookup.
         await _apiService.saveEntityId('');
-        // Look up the school-service student record by matching email
+        // Look up the signed-in student's school record
         try {
-          final students = await _apiService.getStudents();
-          final emailLower = response.email.toLowerCase();
-          final match = students.firstWhere(
-            (s) => (s.email ?? '').toLowerCase() == emailLower,
-            orElse: () => throw Exception('no school record for this user'),
-          );
+          final match = await _apiService.getMyStudent();
+          if (match == null) throw Exception('no school record for this user');
           await _apiService.saveEntityId(match.id);
           // Update display name with actual student name instead of auth username
           await _apiService.saveUserData(
@@ -136,12 +132,8 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
         );
         await _apiService.saveEntityId('');
         try {
-          final students = await _apiService.getStudents();
-          final emailLower = response.email.toLowerCase();
-          final match = students.firstWhere(
-            (s) => (s.email ?? '').toLowerCase() == emailLower,
-            orElse: () => throw Exception('no school record for this user'),
-          );
+          final match = await _apiService.getMyStudent();
+          if (match == null) throw Exception('no school record for this user');
           await _apiService.saveEntityId(match.id);
           await _apiService.saveUserData(
             username: match.fullName,
@@ -181,12 +173,8 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
         );
         await _apiService.saveEntityId('');
         try {
-          final students = await _apiService.getStudents();
-          final emailLower = response.email.toLowerCase();
-          final match = students.firstWhere(
-            (s) => (s.email ?? '').toLowerCase() == emailLower,
-            orElse: () => throw Exception('no school record for this user'),
-          );
+          final match = await _apiService.getMyStudent();
+          if (match == null) throw Exception('no school record for this user');
           await _apiService.saveEntityId(match.id);
           await _apiService.saveUserData(
             username: match.fullName,

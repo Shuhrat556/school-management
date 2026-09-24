@@ -64,6 +64,14 @@ public class TeacherRepository : ITeacherRepository
             .Include(t => t.TeacherDepartments).ThenInclude(td => td.Department)
             .FirstOrDefaultAsync(t => t.AuthUserId == authUserId);
 
+    public async Task<Teacher?> GetUnlinkedByEmailAsync(string email)
+    {
+        var normalized = email.Trim().ToLower();
+        return await _context.Teachers
+            .Include(t => t.TeacherDepartments).ThenInclude(td => td.Department)
+            .FirstOrDefaultAsync(t => t.AuthUserId == null && t.Email != null && t.Email.ToLower() == normalized);
+    }
+
     public async Task AddAsync(Teacher teacher)
     {
         await _context.Teachers.AddAsync(teacher);

@@ -70,6 +70,15 @@ public class TeacherService : ITeacherService
         return teacher == null ? null : MapToResponse(teacher);
     }
 
+    // The profile linked to this account; profiles never linked (seed data) match by email.
+    public async Task<TeacherResponseDto?> GetForUserAsync(Guid authUserId, string? email)
+    {
+        var teacher = await _repository.GetByAuthUserIdAsync(authUserId);
+        if (teacher == null && !string.IsNullOrWhiteSpace(email))
+            teacher = await _repository.GetUnlinkedByEmailAsync(email);
+        return teacher == null ? null : MapToResponse(teacher);
+    }
+
     public async Task<TeacherResponseDto> CreateAsync(TeacherCreateDto dto)
     {
         var teacher = new Teacher(dto.FirstName, dto.LastName);

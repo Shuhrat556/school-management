@@ -12,6 +12,9 @@ public static class ClaimsPrincipalExtensions
         return Guid.TryParse(value, out var id) ? id : null;
     }
 
+    public static string? GetEmail(this ClaimsPrincipal user)
+        => user.FindFirstValue(ClaimTypes.Email) ?? user.FindFirstValue(JwtRegisteredClaimNames.Email);
+
     public static bool IsStaff(this ClaimsPrincipal user)
         => user.IsInRole(Roles.Admin) || user.IsInRole(Roles.Teacher);
 }

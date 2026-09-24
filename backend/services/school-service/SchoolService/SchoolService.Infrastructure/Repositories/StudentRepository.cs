@@ -31,6 +31,13 @@ public class StudentRepository : IStudentRepository
     public async Task<Student?> GetByAuthUserIdAsync(Guid authUserId)
         => await _context.Students.FirstOrDefaultAsync(s => s.AuthUserId == authUserId);
 
+    public async Task<Student?> GetUnlinkedByEmailAsync(string email)
+    {
+        var normalized = email.Trim().ToLower();
+        return await _context.Students
+            .FirstOrDefaultAsync(s => s.AuthUserId == null && s.Email != null && s.Email.ToLower() == normalized);
+    }
+
     public async Task AddAsync(Student student)
     {
         await _context.Students.AddAsync(student);

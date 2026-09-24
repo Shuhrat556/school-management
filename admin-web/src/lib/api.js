@@ -277,6 +277,12 @@ export async function getStudentByAuthUserId(authUserId) {
   return res.ok ? res.json() : null;
 }
 
+// The signed-in student's own profile (linked account, or matched by email)
+export async function getMyStudent() {
+  const res = await request('/api/school/students/me');
+  return res.ok ? res.json() : null;
+}
+
 export async function getStudentClassrooms(studentId) {
   const res = await request(`/api/school/students/${studentId}/classrooms`);
   return res.ok ? res.json() : null;
