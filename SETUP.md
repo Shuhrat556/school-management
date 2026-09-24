@@ -27,16 +27,22 @@ cd school-management
 
 ## 2. Environment variables
 
-The `.env` file inside `backend/` is already committed with development defaults — **no action needed** for local development.
+Create `backend/.env` from the template — it is git-ignored and must never be committed:
 
-It contains:
+```bash
+cd backend
+cp .env.example .env
+```
+
+Set at least `JWT_SECRET` (a random value of 32+ characters, e.g. `openssl rand -hex 32`).
 
 | Variable                     | Purpose                              |
 | ---------------------------- | ------------------------------------ |
 | `JWT_SECRET`                 | Signs all JWT tokens                 |
-| `EMAILSETTINGS_APP_PASSWORD` | Gmail App Password for sending emails |
+| `EMAILSETTINGS_*`            | Gmail account + App Password for verification / reset emails |
+| `PGADMIN_EMAIL`, `PGADMIN_PASSWORD` | PgAdmin login                 |
 
-> **Optional:** To use your own Gmail for email sending, open `backend/.env` and replace `EMAILSETTINGS_APP_PASSWORD` with your own [Gmail App Password](https://support.google.com/accounts/answer/185833).
+> **Optional:** to send real emails, put your own [Gmail App Password](https://support.google.com/accounts/answer/185833) in `EMAILSETTINGS_APP_PASSWORD`.
 
 ---
 
@@ -125,7 +131,7 @@ flutter run -d chrome
 | Consul dashboard               | http://localhost:8500                                     | All 3 services appear green              |
 | Admin panel                    | http://localhost:3000                                     | Login page loads                         |
 | Admin login                    | `admin@school.com` / `Password123!`                       | Dashboard with stats                     |
-| PgAdmin                        | http://localhost:5050                                     | Login: `admin@school.com` / `admin123`   |
+| PgAdmin                        | http://localhost:5050                                     | Login: `PGADMIN_EMAIL` / `PGADMIN_PASSWORD` from `backend/.env` |
 | Flutter app                    | Open on device/emulator, or http://localhost:3200          | Splash screen → role selection           |
 | Flutter login                  | Teacher: `teacher1@school.com` / `Password123!`           | Teacher dashboard                        |
 

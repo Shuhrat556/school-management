@@ -60,7 +60,7 @@ docker compose exec school-db psql -U school_user -d school_db \
   -c 'SELECT "Id", "Name", "Grade", "AcademicYear" FROM "Classrooms";'
 ```
 
-PgAdmin UI (easier): http://localhost:5050 — login: `admin@school.com` / `admin123`
+PgAdmin UI (easier): http://localhost:5050 — login: `PGADMIN_EMAIL` / `PGADMIN_PASSWORD` from `backend/.env`
 
 ---
 

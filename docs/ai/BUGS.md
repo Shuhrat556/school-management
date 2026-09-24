@@ -73,3 +73,11 @@ Serverda cron ham, dump fayllar ham yo'q. Deploy'dan oldin `pg_dump` majburiy (R
 ### B16 [O'RTA] Ma'lumot yaxlitligi uchun unique cheklovlar yo'q
 school_db: Attendance (StudentId, ClassroomId, Date), StudentGrade (StudentId, SubjectId, Semester),
 Students.Email, Teachers.Email — takroriy yozuvlarga DB darajasida to'siq yo'q. Faqat migratsiya orqali (B11 dan keyin). · OCHIQ
+
+### B17 [O'RTA] O'quvchini o'chirish — hard delete, baholar/davomat kaskad o'chadi
+`StudentRepository.DeleteAsync` → `Remove()`; FK `StudentGrades/Attendances/Submissions/StudentClassrooms` = CASCADE.
+`DeletedAt` ustuni bor, lekin ishlatilmaydi. Bitta xato bosish butun akademik tarixni yo'q qiladi. Tavsiya: soft delete
+(`DeletedAt` + global query filter) yoki `IsActive=false`. · OCHIQ
+
+### B18 [PAST] `Enrollment` entity o'lik kod
+`SchoolService.Domain/Entities/Enrollment.cs` — DbContext'da yo'q, hech qayerda ishlatilmaydi (o'rnini `StudentClassroom` egallagan). · OCHIQ

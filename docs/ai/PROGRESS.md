@@ -24,5 +24,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - Lokal `docker compose up --build` — image yuklash paytida Mac diski to'ldi (~180 MB bo'sh), Docker Desktop to'xtadi.
   Docker yopildi, boshqa ishlatilmaydi → QUESTIONS Q5. Lokal `backend/.env` (gitignored, tasodifiy secret) yaratildi.
 
-KEYINGI QADAM: PLAN.md 4-bo'lim — docs/ARCHITECTURE.md, API.md, DATABASE.md, DEPLOYMENT.md (disk talab qilmaydi),
-so'ng egasiga hisobot; disk bo'shagach 5-bo'lim T0 (test loyihalari).
+- Hujjatlar: docs/ARCHITECTURE.md, API.md, DATABASE.md, DEPLOYMENT.md yaratildi; README/SETUP/COMMANDS dagi eskirgan
+  `.env commit qilingan`, ochiq registratsiya va PgAdmin paroli haqidagi gaplar tuzatildi. BUGS B17 (hard delete), B18.
+- Disk bo'shadi (16 GB) → Q5 yopildi.
+
+KEYINGI QADAM: egasiga qisqa hisobot; keyin PLAN 5-bo'lim T0 — backend test loyihalari (xUnit + WebApplicationFactory), so'ng B1.

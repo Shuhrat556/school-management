@@ -68,7 +68,7 @@ A full-stack school management platform built with **.NET microservices**, a **F
 
 ### Authentication & Authorization
 
-- Email/password registration and login
+- Email/password login; accounts are created by an admin (self-registration is off by default, `Registration__Enabled=true` re-opens it)
 - Email verification with code
 - Password reset via email code
 - Google and Facebook OAuth
@@ -156,6 +156,18 @@ Each class has **15 students**.
 
 ---
 
+## Documentation
+
+| Document | Contents |
+| -------- | -------- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Services, layers, auth flow, configuration |
+| [docs/API.md](docs/API.md) | Every endpoint with its access level |
+| [docs/DATABASE.md](docs/DATABASE.md) | Tables, relations, delete behaviour, backups |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production setup, release checklist, backup and rollback |
+| [docs/ai/](docs/ai/) | Working notes: plan, progress, known bugs, research |
+
+---
+
 ## Quick Start
 
 ### Prerequisites
@@ -179,6 +191,7 @@ cd school-management
 
 ```bash
 cd backend
+cp .env.example .env      # then set JWT_SECRET to a random 32+ character value
 docker compose up --build
 ```
 
@@ -206,7 +219,7 @@ Your phone and computer must be on the same Wi-Fi network.
 | ----------------------------- | ----------------------------------------- |
 | http://localhost:5001/swagger | Swagger — Auth + School APIs in one UI    |
 | http://localhost:8500         | Consul dashboard                          |
-| http://localhost:5050         | PgAdmin (`admin@school.com` / `admin123`) |
+| http://localhost:5050         | PgAdmin (`PGADMIN_EMAIL` / `PGADMIN_PASSWORD` from `.env`) |
 | http://localhost:3000         | Admin panel                               |
 | http://localhost:3200         | Flutter app (web build)                   |
 
@@ -279,7 +292,7 @@ school-management/
 
 | Method | Endpoint                           | Description                    |
 | ------ | ---------------------------------- | ------------------------------ |
-| POST   | `/register`                        | Register a new user            |
+| POST   | `/register`                        | Self sign-up (disabled by default) |
 | POST   | `/authenticate`                    | Login (returns JWT + refresh)  |
 | POST   | `/refresh`                         | Refresh access token           |
 | POST   | `/logout`                          | Revoke refresh token           |
@@ -335,14 +348,16 @@ Full interactive docs at **http://localhost:5001/swagger** after starting the ba
 
 ## Environment Variables
 
-The `backend/.env` file is committed with development defaults. Key variables:
+Copy `backend/.env.example` to `backend/.env` and fill it in — `.env` is git-ignored and must never be committed.
 
-| Variable                     | Purpose                               |
-| ---------------------------- | ------------------------------------- |
-| `JWT_SECRET`                 | Signs all JWT tokens                  |
-| `EMAILSETTINGS_APP_PASSWORD` | Gmail App Password for sending emails |
+| Variable                     | Purpose                                              |
+| ---------------------------- | ---------------------------------------------------- |
+| `JWT_SECRET`                 | Signs all JWT tokens (random, 32+ characters; the same value is used by auth and school services) |
+| `EMAILSETTINGS_FROM_EMAIL`, `EMAILSETTINGS_SMTP_USER` | Gmail account that sends verification / reset codes |
+| `EMAILSETTINGS_APP_PASSWORD` | Gmail App Password for that account                  |
+| `PGADMIN_EMAIL`, `PGADMIN_PASSWORD` | PgAdmin login                                 |
 
-To use your own Gmail for email sending, replace `EMAILSETTINGS_APP_PASSWORD` with your own [Gmail App Password](https://support.google.com/accounts/answer/185833).
+To send email from your own Gmail, create a [Gmail App Password](https://support.google.com/accounts/answer/185833).
 
 ---
 

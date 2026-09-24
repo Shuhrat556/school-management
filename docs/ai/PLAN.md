@@ -10,7 +10,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] Kodni o'qish: backend (gateway, auth, school), admin-web, Flutter → CONTEXT.md
 - [x] Build + test + lint: dotnet build, npm run lint/build, flutter analyze/test → BUGS.md
 - [x] Eskirgan paketlar va zaifliklar: dotnet list package --outdated/--vulnerable, npm audit, flutter pub outdated
-- [ ] Docker bilan lokal ishga tushirish va smoke test — disk to'la (QUESTIONS Q5), joy bo'shagach
+- [ ] Docker bilan lokal ishga tushirish va smoke test (disk bo'shadi — qayta sinash)
 
 ## 2. Server va DB (faqat o'qish)
 - [x] ~/.ssh/config va docs/server_key.md dagi hostni aniqlash, read-only ulanish
@@ -22,11 +22,11 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] Rasmiy hujjatlar: ASP.NET Core 10, EF Core 10, YARP, Next.js 16, Flutter → RESEARCH.md
 
 ## 4. Hujjatlar
-- [ ] docs/ARCHITECTURE.md
-- [ ] docs/API.md
-- [ ] docs/DATABASE.md
-- [ ] docs/DEPLOYMENT.md
-- [ ] README yangilash
+- [x] docs/ARCHITECTURE.md
+- [x] docs/API.md
+- [x] docs/DATABASE.md
+- [x] docs/DEPLOYMENT.md
+- [x] README yangilash
 - [ ] Egasiga 5-10 bandli qisqa hisobot
 
 ## 5. Kritik xatolar va xavfsizlik (har biri: test → tuzatish → build/test)
@@ -65,7 +65,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [ ] F5: Baho o'zgarishlari audit log'i
 
 ## 9. Deploy
-- [ ] docs/DEPLOYMENT.md: runbook, backup (pg_dump), rollback rejasi
+- [x] docs/DEPLOYMENT.md: runbook, backup (pg_dump), rollback rejasi
 - [ ] scripts/backup-db.sh (lokal/serverda ishlatish uchun, faqat fayl)
 - [!] Serverda backup olish va yangi versiyani deploy qilish — RUXSAT KERAK (QUESTIONS Q2)
 - [!] TLS/domen uchun nginx konfiguratsiyasi — RUXSAT KERAK (QUESTIONS Q3)
