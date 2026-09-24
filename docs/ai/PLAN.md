@@ -18,8 +18,8 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] DB: sxema, indekslar, hajm, backup (faqat SELECT) → CONTEXT.md (DATABASE.md 4-bo'limda)
 
 ## 3. Tadqiqot
-- [ ] Raqobatchilar (xalqaro + mahalliy) → RESEARCH.md
-- [ ] Rasmiy hujjatlar: ASP.NET Core 10, EF Core 10, YARP, Next.js 16, Flutter → RESEARCH.md
+- [x] Raqobatchilar (xalqaro + mahalliy) → RESEARCH.md
+- [x] Rasmiy hujjatlar: ASP.NET Core 10, EF Core 10, YARP, Next.js 16, Flutter → RESEARCH.md
 
 ## 4. Hujjatlar
 - [ ] docs/ARCHITECTURE.md
@@ -28,3 +28,44 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [ ] docs/DEPLOYMENT.md
 - [ ] README yangilash
 - [ ] Egasiga 5-10 bandli qisqa hisobot
+
+## 5. Kritik xatolar va xavfsizlik (har biri: test → tuzatish → build/test)
+- [ ] T0: Backend test loyihalari: `SchoolService.Tests`, `AuthService.Tests` (xUnit + WebApplicationFactory + EF InMemory/SQLite), `backend/tests.sln` yoki har sln ga qo'shish
+- [ ] B1: school-service rol-policy'lari (Admin / Teacher / Student) — yozish endpointlari faqat Admin/Teacher; test: Student 403
+- [ ] B1b: Student o'z ma'lumotlarini ko'radi (grades/attendance/submissions — faqat o'ziniki); test
+- [ ] B9: SubmissionsController DI (ISubmissionService) + studentId ni tokendan olish; test
+- [ ] B10: OAuth-only user parol bilan kirganda 500 emas 401; test
+- [ ] B2: JWT secret yo'q/qisqa bo'lsa Production'da ishga tushmaslik (ikkala servis); test
+- [ ] B3: auth rate limiting (authenticate, refresh, request-*, verify-email, reset-password) + ForwardedHeaders; test 429
+- [ ] B4: Facebook OAuth — email bo'yicha avtomatik bog'lashni faqat tasdiqlangan email bilan; test
+- [ ] B8: login javobida EMAIL_NOT_VERIFIED faqat parol to'g'ri bo'lsa; test
+- [ ] B7: refresh tokenlarni xeshlab saqlash (auth migratsiya, rollback bilan); test
+- [ ] B6: CORS — konfiguratsiyadan originlar ro'yxati (dev: hammasi)
+
+## 6. Testlar (qamrov)
+- [ ] School-service unit: GradeService, AttendanceService, ClassroomService (enroll/unenroll), StudentService
+- [ ] Auth unit: AuthenticationService (login, refresh rotation, reset code lockout), PasswordHasher
+- [ ] admin-web: vitest + api.js (refresh oqimi), auth.js (rol yo'naltirish)
+- [ ] Flutter: api_service unit (Dio mock), login oqimi widget testi
+- [ ] CI: GitHub Actions — dotnet test, npm lint/build/test, flutter analyze/test (faqat fayl; ulash egasiga)
+
+## 7. Refaktoring
+- [ ] B11: school-service `EnsureCreated`+raw SQL → EF migratsiyalar (baseline migratsiya, mavjud DB uchun history seed, rollback skripti)
+- [ ] B16: unique cheklovlar migratsiyasi (Attendance, StudentGrade, email) + dublikat tekshiruv SQL
+- [ ] B12: gateway o'lik Consul kodi — olib tashlash yoki haqiqiy dinamik provider
+- [ ] B13: repo gigiyenasi — .tools/, .idea/, DotSettings.user, Flutter generated fayllarni untrack qilish
+- [ ] admin-web: lint warninglarini tuzatish (21), parallel 401 da bitta refresh (race)
+- [ ] admin-web Dockerfile: `output: 'standalone'`
+
+## 8. Yangi funksiyalar (RESEARCH.md: Majburiy/Muhim)
+- [ ] F1: Parent portali — ota-ona ↔ o'quvchi bog'lash (school DB migratsiya), Parent API (farzand baho/davomat/e'lon)
+- [ ] F2: Parent UI (admin-web `/parent/*`)
+- [ ] F3: In-app bildirishnomalar (yangi baho, qoldirilgan dars, e'lon)
+- [ ] F4: O'quvchi hisobot kartasi (semestr bo'yicha o'rtacha + davomat %) API + CSV eksport
+- [ ] F5: Baho o'zgarishlari audit log'i
+
+## 9. Deploy
+- [ ] docs/DEPLOYMENT.md: runbook, backup (pg_dump), rollback rejasi
+- [ ] scripts/backup-db.sh (lokal/serverda ishlatish uchun, faqat fayl)
+- [!] Serverda backup olish va yangi versiyani deploy qilish — RUXSAT KERAK (QUESTIONS Q2)
+- [!] TLS/domen uchun nginx konfiguratsiyasi — RUXSAT KERAK (QUESTIONS Q3)
