@@ -6,7 +6,7 @@ account and a school profile is the `AuthUserId` column on `Students` / `Teacher
 | Database | Owner service | Schema management | Size on the server (2026-09-25) |
 |---|---|---|---|
 | `auth_db` | auth-service | EF Core migrations, applied at startup (`Database.Migrate()`) | ~8 MB, 56 users |
-| `school_db` | school-service | `EnsureCreated()` + idempotent SQL in `Program.cs` — **no migration history** (BUGS B11) | ~9 MB, mostly seed data |
+| `school_db` | school-service | EF Core migrations, applied at startup; databases created earlier with `EnsureCreated()` are baselined once (see below) | ~9 MB, mostly seed data |
 
 ## auth_db
 
@@ -52,6 +52,17 @@ TeacherDepartments TeacherSubjects├─* Schedules
 | `Announcements` | Teacher announcement, optional classroom | `Title`, `Body`, `PublishedAt` |
 | `Materials` | Learning material / assignment in a classroom | `Title`, `Url`, `Type` |
 | `Submissions` | Student hand-in for a material | `SubmissionUrl`, `SubmittedAt`, `Grade`, `Feedback` |
+
+### Migrations and the legacy baseline
+Until 2026-09 school_db was created with `EnsureCreated()` plus hand-written SQL, so those databases have the full schema
+but no `__EFMigrationsHistory`. On startup `LegacySchemaBaseline.ApplyAsync` (in `SchoolService.Infrastructure/Data`)
+detects such a database (PostgreSQL, `Students` exists, no history table), runs the old idempotent SQL once more and records
+every migration up to `20260409091051_Add_Department_Entity_And_Relationships` as applied. `Database.MigrateAsync()` then
+applies anything newer. The migration chain was checked to produce exactly the `EnsureCreated()` schema (columns, types,
+nullability, indexes, constraints) and the production schema matched it (2026-09-25).
+
+Tests: `MigrationTests` (fresh database, legacy baseline, rolling back every migration) run when `SCHOOL_TEST_POSTGRES`
+points at a PostgreSQL server, as in CI.
 
 ### Delete behaviour
 Deleting a **Student** removes the row (hard delete) and cascades to `StudentClassrooms`, `StudentGrades`,

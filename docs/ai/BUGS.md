@@ -61,7 +61,9 @@ o'quvchi nomidan topshirishga ruxsat berardi, mavjud bo'lmagan material 500 bera
 
 ### B11 [O'RTA] School DB sxemasi migratsiyasiz boshqariladi
 `SchoolService.API/Program.cs` — `EnsureCreated()` + qo'lda yozilgan `ALTER TABLE ... IF NOT EXISTS` SQL.
-`Migrations/` papkasi bor, lekin ishlatilmaydi; rollback imkoni yo'q, sxema drift xavfi. · OCHIQ
+`Migrations/` papkasi bor, lekin ishlatilmaydi; rollback imkoni yo'q, sxema drift xavfi.
+· TUZATILDI: `MigrateAsync()` + `LegacySchemaBaseline` (D6); Designer'siz yetim `AddCurriculumToSubjects.cs` o'chirildi;
+MigrationTests (PostgreSQL) + CI'da postgres service va `has-pending-model-changes`.
 
 ### B12 [PAST] Gateway Consul discovery natijasi tashlab yuboriladi (o'lik kod)
 `ApiGateway/Program.cs` — `BuildFromConsul` natijasi ishlatilmaydi; YARP doim statik konfiguratsiyada. · OCHIQ

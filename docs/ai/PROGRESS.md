@@ -64,4 +64,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 
 - CI: `.github/workflows/ci.yml` qo'shildi (branch push qilinganda ishlaydi; men push qilmadim).
 
-KEYINGI QADAM: PLAN 7-bo'lim B11 — school-service'ni EF migratsiyalarga o'tkazish (baseline, mavjud DB uchun history, sinov vaqtinchalik PG'da).
+- B11 TUZATILDI: school-service `MigrateAsync()` + legacy baseline (D6). Migratsiyalar va EnsureCreated sxemasi, prod sxemasi
+  bilan solishtirildi — mos. 3 ta PostgreSQL testi (SCHOOL_TEST_POSTGRES), CI'da postgres service. school 102/102.
+  **Deploy'da school_db ga `__EFMigrationsHistory` qo'shiladi — Q2 ruxsati bilan.**
+
+KEYINGI QADAM: PLAN 7-bo'lim B16 — unique cheklovlar migratsiyasi (Attendance, StudentGrade; avval dublikatlarni tekshirish), keyin B17 soft delete.

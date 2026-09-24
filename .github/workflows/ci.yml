@@ -16,6 +16,17 @@ jobs:
   backend:
     name: .NET services
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # school-service migration tests create and drop their own databases here
+      SCHOOL_TEST_POSTGRES: Host=localhost;Port=5432;Username=postgres;Password=postgres
     strategy:
       fail-fast: false
       matrix:
@@ -46,6 +57,9 @@ jobs:
       - name: auth-service
         working-directory: backend/services/auth-service/AuthService
         run: dotnet ef migrations has-pending-model-changes --project AuthService.Infrastructure --startup-project AuthService.API
+      - name: school-service
+        working-directory: backend/services/school-service/SchoolService
+        run: dotnet ef migrations has-pending-model-changes --project SchoolService.Infrastructure --startup-project SchoolService.API
 
   admin-web:
     name: admin-web

@@ -54,3 +54,15 @@ web-app nginx `$proxy_add_x_forwarded_for` qo'shadi — o'ngdagi qiymat haqiqiy,
 **Manba:** [Rate limiting middleware](https://learn.microsoft.com/en-us/aspnet/core/performance/rate-limit),
 [Configure ASP.NET Core to work with proxy servers](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer),
 OWASP Authentication Cheat Sheet (login throttling).
+
+## D6 — school_db: squash emas, baseline (2026-09-25)
+**Qaror:** mavjud 6 ta migratsiya saqlanadi; `EnsureCreated` bilan yaratilgan bazalar uchun startup'da bir martalik baseline
+(`LegacySchemaBaseline`): eski idempotent SQL + history'ga `20260409091051_Add_Department_Entity_And_Relationships` gacha
+bo'lgan migratsiyalarni yozish, keyin `MigrateAsync()`.
+**Sabab:** vaqtinchalik PostgreSQL 16'da migratsiyalar zanjiri va `EnsureCreated` sxemasi normallashtirilgan holda (ustunlar,
+turlar, nullability, indekslar, cheklovlar) solishtirildi — bir xil (faqat DEFAULT qiymatlar farqi). Production sxemasi ham
+(read-only so'rov) aynan shu. Squash tarixni yo'qotardi va dasturchilarning lokal bazalarini buzardi. Startup'da migratsiya
+auth-service bilan bir xil yondashuv; EF 9+ migratsiya lock'i bor.
+**Nozik joy:** Npgsql 10 da `IHistoryRepository.ExistsAsync()` jadval yo'q bo'lsa ham `true` qaytaradi — shuning uchun `to_regclass`.
+**Manba:** [Applying Migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying)
+("Don't call EnsureCreated before Migrate").

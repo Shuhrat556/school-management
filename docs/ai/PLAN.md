@@ -52,7 +52,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] CI: `.github/workflows/ci.yml` — dotnet test (3 servis), EF pending-changes, admin-web lint/build, flutter analyze/test (push qilinmagan)
 
 ## 7. Refaktoring
-- [ ] B11: school-service `EnsureCreated`+raw SQL → EF migratsiyalar (baseline migratsiya, mavjud DB uchun history seed, rollback skripti)
+- [x] B11: school-service `EnsureCreated`+raw SQL → EF migratsiyalar (baseline, PostgreSQL testlari, rollback sinovi)
 - [ ] B16: unique cheklovlar migratsiyasi (Attendance, StudentGrade, email) + dublikat tekshiruv SQL
 - [ ] B12: gateway o'lik Consul kodi — olib tashlash yoki haqiqiy dinamik provider
 - [ ] B13: repo gigiyenasi — .tools/, .idea/, DotSettings.user, Flutter generated fayllarni untrack qilish
