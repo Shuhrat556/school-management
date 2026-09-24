@@ -142,6 +142,8 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+// Tests (and one-off tools) set Database:InitializeOnStartup=false and manage the schema themselves.
+if (app.Configuration.GetValue("Database:InitializeOnStartup", true))
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SchoolDbContext>();
@@ -272,6 +274,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+if (app.Configuration.GetValue("Consul:Enabled", true))
 _ = Task.Run(async () =>
 {
     var consulClient = app.Services.GetRequiredService<IConsulClient>();

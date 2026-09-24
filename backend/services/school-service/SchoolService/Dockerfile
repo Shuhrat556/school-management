@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY . .
-RUN dotnet restore SchoolService.sln
+RUN dotnet restore SchoolService.API/SchoolService.API.csproj
 RUN dotnet publish SchoolService.API/SchoolService.API.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0

@@ -2,7 +2,7 @@
 WORKDIR /src
 
 COPY . .
-RUN dotnet restore AuthService.sln
+RUN dotnet restore AuthService.API/AuthService.API.csproj
 RUN dotnet publish AuthService.API/AuthService.API.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
