@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Schedules;
 using SchoolService.Application.Interfaces;
 
@@ -36,6 +37,7 @@ public class SchedulesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<ScheduleResponseDto>> Create([FromBody] ScheduleCreateDto dto)
     {
         var created = await _scheduleService.CreateAsync(dto);
@@ -43,6 +45,7 @@ public class SchedulesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<ScheduleResponseDto>> Update(Guid id, [FromBody] ScheduleUpdateDto dto)
     {
         var updated = await _scheduleService.UpdateAsync(id, dto);
@@ -50,6 +53,7 @@ public class SchedulesController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _scheduleService.DeleteAsync(id);

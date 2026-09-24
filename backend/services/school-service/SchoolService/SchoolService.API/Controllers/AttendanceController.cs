@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Attendance;
 using SchoolService.Application.Interfaces;
 
@@ -16,6 +17,7 @@ public class AttendanceController : ControllerBase
 
     /// <summary>GET /api/school/attendance?classroomId=&amp;date=YYYY-MM-DD</summary>
     [HttpGet]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult> GetByClassroomAndDate(
         [FromQuery] Guid classroomId,
         [FromQuery] DateOnly date)
@@ -34,6 +36,7 @@ public class AttendanceController : ControllerBase
 
     /// <summary>POST /api/school/attendance/mark — bulk mark a whole classroom for a date</summary>
     [HttpPost("mark")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> BulkMark([FromBody] BulkMarkAttendanceDto dto)
     {
         await _attendanceService.BulkMarkAsync(dto);

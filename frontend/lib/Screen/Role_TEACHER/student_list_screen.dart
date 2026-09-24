@@ -3,7 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tamdansers/services/api_models.dart';
 import 'package:tamdansers/services/api_service.dart';
 
-// screen that lists all students — lets the teacher search, edit, or delete them
+// screen that lists all students — lets the teacher search and edit them
+// (deleting a student is admin-only and done in the admin panel)
 class StudentListScreen extends StatefulWidget {
   const StudentListScreen({super.key});
 
@@ -51,72 +52,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
               (s.gender ?? '').toLowerCase().contains(q),
         )
         .toList();
-  }
-
-  Future<void> _confirmDelete(StudentDto s) async {
-    final yes = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          'Delete Student',
-          style: GoogleFonts.outfit(
-            fontWeight: FontWeight.bold,
-            color: _deepBlue,
-          ),
-        ),
-        content: Text(
-          'Delete ${s.fullName}? This cannot be undone.',
-          style: GoogleFonts.inter(color: Colors.grey.shade700),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              'Delete',
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-    if (yes != true) return;
-    try {
-      await _api.deleteStudent(s.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${s.fullName} deleted', style: GoogleFonts.inter()),
-            backgroundColor: _teal,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        _load();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed: $e', style: GoogleFonts.inter()),
-            backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _showEditDialog(StudentDto s) async {
@@ -460,15 +395,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
             icon: const Icon(Icons.edit_rounded, color: _teal, size: 20),
             tooltip: 'Edit',
             onPressed: () => _showEditDialog(s),
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.delete_outline_rounded,
-              color: Colors.redAccent,
-              size: 20,
-            ),
-            tooltip: 'Delete',
-            onPressed: () => _confirmDelete(s),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs;
 using SchoolService.Application.DTOs.Classrooms;
 using SchoolService.Application.Interfaces;
@@ -40,6 +41,7 @@ public class ClassroomsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<ClassroomResponseDto>> Create([FromBody] ClassroomCreateDto dto)
     {
         var created = await _classroomService.CreateAsync(dto);
@@ -47,6 +49,7 @@ public class ClassroomsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<ClassroomResponseDto>> Update(Guid id, [FromBody] ClassroomUpdateDto dto)
     {
         var updated = await _classroomService.UpdateAsync(id, dto);
@@ -54,6 +57,7 @@ public class ClassroomsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _classroomService.DeleteAsync(id);
@@ -61,6 +65,7 @@ public class ClassroomsController : ControllerBase
     }
 
     [HttpPost("{id:guid}/enroll")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> EnrollStudent(Guid id, [FromBody] EnrollStudentDto dto)
     {
         await _classroomService.EnrollStudentAsync(id, dto.StudentId);
@@ -68,6 +73,7 @@ public class ClassroomsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}/unenroll/{studentId:guid}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> UnenrollStudent(Guid id, Guid studentId)
     {
         await _classroomService.UnenrollStudentAsync(id, studentId);

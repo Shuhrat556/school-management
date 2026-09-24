@@ -4,9 +4,8 @@ All clients call the **gateway** (`http://<host>:5001` in Docker; admin-web and 
 origin, which proxies `/api/*`). Interactive docs: `/swagger` on the gateway (Auth + School documents).
 
 Authentication: `Authorization: Bearer <accessToken>` from `POST /api/auth/authenticate`.
-Auth column: **anon** = no token, **user** = any signed-in user, **Admin** = `Admin` role only.
-
-> Role checks on school-service write endpoints are being added (BUGS B1). Until then "user" means *any* role.
+Auth column: **anon** = no token, **user** = any signed-in user, **Staff** = `Admin` or `Teacher`, **Admin** = `Admin` only,
+**own** = a student/teacher acting on their own profile.
 
 Error body (both services):
 
@@ -49,12 +48,13 @@ Base `/api/school` unless noted. Ids are GUIDs.
 | GET | `/students/{id}` | user | |
 | GET | `/students/by-auth-user/{authUserId}` | user | Profile for a signed-in account |
 | GET | `/students/{id}/classrooms` | user | |
-| POST | `/students` | user | Create |
-| PUT | `/students/{id}` | user | Update |
-| DELETE | `/students/{id}` | user | **Hard** delete — cascades to grades, attendance, submissions (BUGS B17) |
+| POST | `/students` | Staff | Create |
+| PUT | `/students/{id}` | Staff, own | Update; on their own profile a student cannot change `email` or `isActive` |
+| DELETE | `/students/{id}` | Admin | **Hard** delete — cascades to grades, attendance, submissions (BUGS B17) |
 
 ### Teachers — `/teachers`
-GET list (`?page=&pageSize=&departmentId=`), GET `{id}`, POST, PUT `{id}`, DELETE `{id}` — user.
+GET list (`?page=&pageSize=&departmentId=`), GET `{id}` — user. POST, DELETE `{id}` — Admin.
+PUT `{id}` — Admin, or the teacher on their own profile (`email`, `isActive`, `hireDate` stay unchanged).
 POST / DELETE `/teachers/{teacherId}/departments/{departmentId}` — Admin.
 
 ### Departments — `/departments`
@@ -62,29 +62,29 @@ GET list, GET `{id}`, GET `{id}/detail` — user. POST, PUT `{id}`, DELETE `{id}
 POST `{departmentId}/assign-teacher/{teacherId}`, DELETE `{departmentId}/remove-teacher/{teacherId}` — Admin.
 
 ### Subjects — `/subjects`
-GET list, GET `{id}`, POST, PUT `{id}`, DELETE `{id}`, POST `{id}/assign-teacher` (`{teacherId}`),
-DELETE `{id}/remove-teacher/{teacherId}` — user.
+GET list, GET `{id}` — user. POST, POST `{id}/assign-teacher` (`{teacherId}`) — Staff.
+PUT `{id}`, DELETE `{id}`, DELETE `{id}/remove-teacher/{teacherId}` — Admin.
 
 ### Classrooms (course sections) — `/classrooms`
-GET list, GET `{id}` (with students), POST, PUT `{id}`, DELETE `{id}`,
-POST `{id}/enroll` (`{studentId}`), DELETE `{id}/unenroll/{studentId}` — user.
+GET list, GET `{id}` (with students) — user. POST, PUT `{id}`, POST `{id}/enroll` (`{studentId}`),
+DELETE `{id}/unenroll/{studentId}` — Staff. DELETE `{id}` — Admin.
 
 ### Rooms — `/rooms`
 GET list, GET `{id}` — user. POST, PUT `{id}`, DELETE `{id}` — Admin.
 (The gateway also forwards the legacy `/api/rooms/**` path.)
 
 ### Schedules — `/schedules`
-GET `?classroomId=` or `?teacherId=` (one is required), GET `{id}`, POST, PUT `{id}`, DELETE `{id}` — user.
+GET `?classroomId=` or `?teacherId=` (one is required), GET `{id}` — user. POST, PUT `{id}`, DELETE `{id}` — Staff.
 
 ### Attendance — `/attendance`
-| Method | Path | Notes |
-|---|---|---|
-| GET | `/attendance?classroomId=&date=` | Classroom sheet for a date |
-| GET | `/attendance/{studentId}/history` | One student's history |
-| POST | `/attendance/mark` | Bulk mark a classroom for a date; status `Present=1`, `Absent=2`, `Late=3` |
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/attendance?classroomId=&date=` | Staff | Classroom sheet for a date |
+| GET | `/attendance/{studentId}/history` | user | One student's history |
+| POST | `/attendance/mark` | Staff | Bulk mark a classroom for a date; status `Present=1`, `Absent=2`, `Late=3` |
 
 ### Grades — `/grades`
-GET `?studentId=&subjectId=&semester=`, GET `{id}`, POST, PUT `{id}`, DELETE `{id}` — user. Score 0–100.
+GET `?studentId=&subjectId=&semester=`, GET `{id}` — user. POST, PUT `{id}`, DELETE `{id}` — Staff. Score 0–100.
 
 ### Admin sync — `/admin`
 POST `/admin/sync-profile` — Admin. Creates/updates the school profile linked to an auth account.
@@ -92,9 +92,9 @@ POST `/admin/sync-profile` — Admin. Creates/updates the school profile linked 
 ### Outside `/api/school`
 | Base | Endpoints | Auth |
 |---|---|---|
-| `/api/announcements` | GET (`?classroomId=`), GET `{id}`, POST, PUT `{id}`, POST `{id}/publish`, POST `{id}/unpublish`, DELETE `{id}` | user |
-| `/api/materials` | GET `classroom/{classroomId}`, POST, PUT `{id}`, DELETE `{id}` | user |
-| `/api/submissions` | GET `material/{materialId}`, GET `student/{studentId}`, POST `{studentId}/submit`, PATCH `{id}/grade` | user — currently returns 500 (BUGS B9) |
+| `/api/announcements` | GET (`?classroomId=`), GET `{id}` — user; POST, PUT `{id}`, POST `{id}/publish`, POST `{id}/unpublish`, DELETE `{id}` — Staff | |
+| `/api/materials` | GET `classroom/{classroomId}` — user; POST, PUT `{id}`, DELETE `{id}` — Staff | |
+| `/api/submissions` | GET `material/{materialId}`, PATCH `{id}/grade` — Staff; GET `student/{studentId}`, POST `{studentId}/submit` — user | currently returns 500 (BUGS B9) |
 | `/api/servicehealth` | GET `dashboard`, `service/{name}`, `discover/{name}`, `ping`, `test-auth-connection` | Admin |
 | `/api/validation` | demo endpoints for service-to-service calls | mixed; not routed by the gateway |
 

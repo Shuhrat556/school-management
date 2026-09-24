@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Announcements;
 using SchoolService.Application.Interfaces;
 
@@ -33,6 +34,7 @@ public class AnnouncementsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Create([FromBody] AnnouncementCreateDto dto)
     {
         var result = await _service.CreateAsync(dto);
@@ -40,6 +42,7 @@ public class AnnouncementsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Update(Guid id, [FromBody] AnnouncementUpdateDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
@@ -47,6 +50,7 @@ public class AnnouncementsController : ControllerBase
     }
 
     [HttpPost("{id:guid}/publish")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Publish(Guid id)
     {
         var result = await _service.PublishAsync(id);
@@ -54,6 +58,7 @@ public class AnnouncementsController : ControllerBase
     }
 
     [HttpPost("{id:guid}/unpublish")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Unpublish(Guid id)
     {
         var result = await _service.UnpublishAsync(id);
@@ -61,6 +66,7 @@ public class AnnouncementsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _service.DeleteAsync(id);

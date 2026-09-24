@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs;
 using SchoolService.Application.DTOs.Students;
 using SchoolService.Application.Interfaces;
@@ -59,6 +60,7 @@ public class StudentsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<StudentResponseDto>> Create([FromBody] StudentCreateDto dto)
     {
         var created = await _studentService.CreateAsync(dto);
@@ -68,11 +70,25 @@ public class StudentsController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<StudentResponseDto>> Update(Guid id, [FromBody] StudentUpdateDto dto)
     {
+        // Staff edit any record; a student may edit only their own profile and
+        // cannot change the login email or the active flag.
+        if (!User.IsStaff())
+        {
+            var authUserId = User.GetAuthUserId();
+            var own = authUserId.HasValue ? await _studentService.GetByAuthUserIdAsync(authUserId.Value) : null;
+            if (own == null || own.Id != id)
+                return Forbid();
+
+            dto.Email = own.Email;
+            dto.IsActive = own.IsActive;
+        }
+
         var updated = await _studentService.UpdateAsync(id, dto);
         return Ok(updated);
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _studentService.DeleteAsync(id);

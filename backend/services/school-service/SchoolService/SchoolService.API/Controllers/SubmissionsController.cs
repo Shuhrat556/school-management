@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Submissions;
 using SchoolService.Application.Services;
 
@@ -18,6 +19,7 @@ public class SubmissionsController : ControllerBase
     }
 
     [HttpGet("material/{materialId}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<List<SubmissionResponseDto>>> GetByMaterial(Guid materialId)
     {
         return await _submissionService.GetSubmissionsByMaterialAsync(materialId);
@@ -46,6 +48,7 @@ public class SubmissionsController : ControllerBase
     }
 
     [HttpPatch("{id}/grade")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Grade(Guid id, GradeSubmissionDto dto)
     {
         var result = await _submissionService.GradeSubmissionAsync(id, dto);

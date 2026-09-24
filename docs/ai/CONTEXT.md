@@ -57,7 +57,7 @@ admin-web `api/school/admin/sync-profile` bilan sinxronlaydi.
 | admin-web audit | `npm audit --omit=dev` | 0 zaiflik; next 16.3.5→16.3.6 patch bor |
 | admin-web testlar | — | **test yo'q** |
 | Flutter | `cd frontend && flutter pub get && flutter analyze && flutter test` | analyze toza, 1 widget test o'tadi |
-| Flutter eslatma | `pub get` ios/macos xcconfig ni o'zgartiradi va Podfile yaratadi — commit qilmang, `git checkout` bilan qaytaring | |
+| Flutter eslatma | `pub get` (va `--no-pub` siz analyze/test) ios/macos xcconfig ni o'zgartirib Podfile yaratadi — `flutter analyze --no-pub`, `flutter test --no-pub` ishlating; tushib qolsa `git checkout` bilan qaytaring | |
 | Stack lokal | `cd backend && cp .env.example .env && docker compose up --build` | Docker Desktop kerak |
 
 ## Server va DB

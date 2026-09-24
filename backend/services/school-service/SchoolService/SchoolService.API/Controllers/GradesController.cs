@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Grades;
 using SchoolService.Application.Interfaces;
 
@@ -32,6 +33,7 @@ public class GradesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<GradeResponseDto>> Create([FromBody] GradeCreateDto dto)
     {
         var created = await _gradeService.CreateAsync(dto);
@@ -39,6 +41,7 @@ public class GradesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<GradeResponseDto>> Update(Guid id, [FromBody] GradeUpdateDto dto)
     {
         var updated = await _gradeService.UpdateAsync(id, dto);
@@ -46,6 +49,7 @@ public class GradesController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _gradeService.DeleteAsync(id);

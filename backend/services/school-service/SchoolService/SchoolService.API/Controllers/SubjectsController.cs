@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Subjects;
 using SchoolService.Application.Interfaces;
 
@@ -35,6 +36,7 @@ public class SubjectsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<SubjectResponseDto>> Create([FromBody] SubjectCreateDto dto)
     {
         var created = await _subjectService.CreateAsync(dto);
@@ -42,6 +44,7 @@ public class SubjectsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<SubjectResponseDto>> Update(Guid id, [FromBody] SubjectUpdateDto dto)
     {
         var updated = await _subjectService.UpdateAsync(id, dto);
@@ -49,6 +52,7 @@ public class SubjectsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _subjectService.DeleteAsync(id);
@@ -56,6 +60,7 @@ public class SubjectsController : ControllerBase
     }
 
     [HttpPost("{id:guid}/assign-teacher")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> AssignTeacher(Guid id, [FromBody] AssignTeacherToSubjectDto dto)
     {
         await _subjectService.AssignTeacherAsync(id, dto.TeacherId);
@@ -63,6 +68,7 @@ public class SubjectsController : ControllerBase
     }
 
     [HttpDelete("{id:guid}/remove-teacher/{teacherId:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> RemoveTeacher(Guid id, Guid teacherId)
     {
         await _subjectService.RemoveTeacherAsync(id, teacherId);

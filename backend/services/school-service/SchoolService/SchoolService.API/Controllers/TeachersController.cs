@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs;
 using SchoolService.Application.DTOs.Teachers;
 using SchoolService.Application.Interfaces;
@@ -55,6 +56,7 @@ public class TeachersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<TeacherResponseDto>> Create([FromBody] TeacherCreateDto dto)
     {
         var created = await _teacherService.CreateAsync(dto);
@@ -64,11 +66,28 @@ public class TeachersController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<TeacherResponseDto>> Update(Guid id, [FromBody] TeacherUpdateDto dto)
     {
+        // Admins edit any teacher; a teacher may edit only their own profile and
+        // cannot change the login email, the active flag or the hire date.
+        if (!User.IsInRole(Roles.Admin))
+        {
+            var authUserId = User.GetAuthUserId();
+            var own = authUserId.HasValue && User.IsInRole(Roles.Teacher)
+                ? await _teacherService.GetByAuthUserIdAsync(authUserId.Value)
+                : null;
+            if (own == null || own.Id != id)
+                return Forbid();
+
+            dto.Email = own.Email;
+            dto.IsActive = own.IsActive;
+            dto.HireDate = own.HireDate;
+        }
+
         var updated = await _teacherService.UpdateAsync(id, dto);
         return Ok(updated);
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _teacherService.DeleteAsync(id);

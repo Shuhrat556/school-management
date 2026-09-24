@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs.Materials;
 using SchoolService.Application.Services;
 
@@ -24,6 +25,7 @@ public class MaterialsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<MaterialResponseDto>> Create(MaterialCreateDto dto)
     {
         var material = await _materialService.CreateMaterialAsync(dto);
@@ -31,6 +33,7 @@ public class MaterialsController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Update(Guid id, MaterialUpdateDto dto)
     {
         var result = await _materialService.UpdateMaterialAsync(id, dto);
@@ -39,6 +42,7 @@ public class MaterialsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _materialService.DeleteMaterialAsync(id);

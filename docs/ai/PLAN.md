@@ -30,9 +30,10 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [ ] Egasiga 5-10 bandli qisqa hisobot
 
 ## 5. Kritik xatolar va xavfsizlik (har biri: test → tuzatish → build/test)
-- [ ] T0: Backend test loyihalari: `SchoolService.Tests`, `AuthService.Tests` (xUnit + WebApplicationFactory + EF InMemory/SQLite), `backend/tests.sln` yoki har sln ga qo'shish
-- [ ] B1: school-service rol-policy'lari (Admin / Teacher / Student) — yozish endpointlari faqat Admin/Teacher; test: Student 403
-- [ ] B1b: Student o'z ma'lumotlarini ko'radi (grades/attendance/submissions — faqat o'ziniki); test
+- [x] T0a: `SchoolService.Tests` (xUnit + WebApplicationFactory + SQLite in-memory), sln ga qo'shildi
+- [ ] T0b: `AuthService.Tests` xuddi shunday
+- [x] B1: school-service rol-policy'lari (Admin / Teacher / Student) — yozish endpointlari faqat Admin/Teacher; test: Student 403
+- [ ] B1b: Student o'z ma'lumotlarini ko'radi (grades/attendance/submissions/students list — faqat o'ziniki) + `GET /students/me`, student-portal.js dagi "hamma o'quvchini yuklab email bo'yicha qidirish" fallback'ini olib tashlash; test
 - [ ] B9: SubmissionsController DI (ISubmissionService) + studentId ni tokendan olish; test
 - [ ] B10: OAuth-only user parol bilan kirganda 500 emas 401; test
 - [ ] B2: JWT secret yo'q/qisqa bo'lsa Production'da ishga tushmaslik (ikkala servis); test
