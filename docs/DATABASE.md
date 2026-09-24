@@ -13,13 +13,14 @@ account and a school profile is the `AuthUserId` column on `Students` / `Teacher
 | Table | Key columns | Notes |
 |---|---|---|
 | `Users` | `Id`, `Email`, `NormalizedEmail` (unique), `Username` (full name), `PasswordHash` (PBKDF2-SHA256, 100k iterations; null for OAuth-only), `Role` (1 Teacher, 2 Student, 3 Parent, 4 Admin), `IsEmailVerified`, `IsActive`, `LastLoginAt` | Also holds HMAC hashes, expiry and lockout counters for email-verification and password-reset codes |
-| `RefreshTokens` | `Token`, `UserId` → Users, `ExpiresAt`, `RevokedAt` | Stored in plain text (BUGS B7) |
+| `RefreshTokens` | `Token` (indexed), `UserId` → Users, `ExpiresAt`, `RevokedAt` | `Token` holds base64(SHA-256) of the issued token, never the token itself |
 | `ExternalLogins` | `UserId` → Users, `Provider` (Google/Facebook), `ProviderUserId` | unique per provider |
 
 `Users` also keeps `FailedLoginAttempts` and `LoginLockoutUntil` for the sign-in lockout.
 
 Migrations: `AuthService.Infrastructure/Migrations` — `InitialCreate`, `AddEmailVerificationFields`,
-`AddPasswordResetFields`, `AddExternalLogins`, `AddLoginLockout` (2 nullable/defaulted columns; `Down` drops them).
+`AddPasswordResetFields`, `AddExternalLogins`, `AddLoginLockout` (2 nullable/defaulted columns; `Down` drops them),
+`HashRefreshTokens` (hashes existing tokens in place + index; `Down` drops the index — hashed rows stay, users sign in again).
 
 ## school_db
 

@@ -59,6 +59,8 @@ admin-web `api/school/admin/sync-profile` bilan sinxronlaydi.
 | Flutter | `cd frontend && flutter pub get && flutter analyze && flutter test` | analyze toza, 1 widget test o'tadi |
 | Flutter eslatma | `pub get` (va `--no-pub` siz analyze/test) ios/macos xcconfig ni o'zgartirib Podfile yaratadi — `flutter analyze --no-pub`, `flutter test --no-pub` ishlating; tushib qolsa `git checkout` bilan qaytaring | |
 | Stack lokal | `cd backend && cp .env.example .env && docker compose up --build` | Docker Desktop kerak |
+| EF migratsiya sinovi | Homebrew PostgreSQL 16: `initdb -D <scratch>/pgdata -U postgres --auth=trust`, `pg_ctl -D ... -o "-p 55432 -c unix_socket_directories='' -c listen_addresses=127.0.0.1" start`, so'ng `dotnet ef database update <M> --connection "Host=127.0.0.1;Port=55432;Database=x;Username=postgres"` | sinalgan |
+| EF o'zgarish tekshiruvi | `dotnet ef migrations has-pending-model-changes --project AuthService.Infrastructure --startup-project AuthService.API` | |
 
 ## Server va DB
 Manzil: `docs/server_key.md` (repo'da emas). Ubuntu 24.04, 4 vCPU, 3.8 GB RAM (+2 GB swap), disk 50 GB (61% band).

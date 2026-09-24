@@ -12,4 +12,7 @@ public interface ITokenService
     
     /// Gets the expiration time for refresh tokens.
     DateTime GetRefreshTokenExpiration();
+
+    /// The form a refresh token is stored and looked up in (clients get the raw token).
+    string HashRefreshToken(string refreshToken);
 }

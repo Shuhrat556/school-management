@@ -274,7 +274,7 @@ public class AuthenticationService : IAuthenticationService
         var refreshTokenExpiration = _tokenService.GetRefreshTokenExpiration();
 
         // Store refresh token
-        user.AddRefreshToken(refreshToken, refreshTokenExpiration);
+        user.AddRefreshToken(_tokenService.HashRefreshToken(refreshToken), refreshTokenExpiration);
         user.RecordLogin();
         await _userRepo.UpdateAsync(user);
 
@@ -299,14 +299,15 @@ public class AuthenticationService : IAuthenticationService
         if (string.IsNullOrWhiteSpace(refreshToken))
             return null;
 
-        var user = await _userRepo.GetByRefreshTokenAsync(refreshToken);
+        var tokenHash = _tokenService.HashRefreshToken(refreshToken);
+        var user = await _userRepo.GetByRefreshTokenAsync(tokenHash);
         if (user == null)
             return null;
 
         if (!user.IsActive)
             return null;
 
-        var existingRefreshToken = user.RefreshTokens.FirstOrDefault(rt => rt.Token == refreshToken);
+        var existingRefreshToken = user.RefreshTokens.FirstOrDefault(rt => rt.Token == tokenHash);
         if (existingRefreshToken == null || !existingRefreshToken.IsActive)
             return null;
 
@@ -314,7 +315,7 @@ public class AuthenticationService : IAuthenticationService
         existingRefreshToken.Revoke();
         var newRefreshToken = _tokenService.GenerateRefreshToken();
         var refreshTokenExpiration = _tokenService.GetRefreshTokenExpiration();
-        user.AddRefreshToken(newRefreshToken, refreshTokenExpiration);
+        user.AddRefreshToken(_tokenService.HashRefreshToken(newRefreshToken), refreshTokenExpiration);
 
         // Issue new access token
         var accessToken = _tokenService.GenerateAccessToken(user);
@@ -497,11 +498,12 @@ public class AuthenticationService : IAuthenticationService
         if (string.IsNullOrWhiteSpace(refreshToken))
             return false;
 
-        var user = await _userRepo.GetByRefreshTokenAsync(refreshToken);
+        var tokenHash = _tokenService.HashRefreshToken(refreshToken);
+        var user = await _userRepo.GetByRefreshTokenAsync(tokenHash);
         if (user == null)
             return false;
 
-        var existingRefreshToken = user.RefreshTokens.FirstOrDefault(rt => rt.Token == refreshToken);
+        var existingRefreshToken = user.RefreshTokens.FirstOrDefault(rt => rt.Token == tokenHash);
         if (existingRefreshToken == null)
             return false;
 
@@ -575,7 +577,7 @@ private async Task<AuthResponseDto?> AuthenticateExternalAsync(ExternalAuthIdent
     var refreshToken = _tokenService.GenerateRefreshToken();
     var refreshTokenExpiration = _tokenService.GetRefreshTokenExpiration();
 
-    user.AddRefreshToken(refreshToken, refreshTokenExpiration);
+    user.AddRefreshToken(_tokenService.HashRefreshToken(refreshToken), refreshTokenExpiration);
     user.RecordLogin();
     await _userRepo.UpdateAsync(user);
 

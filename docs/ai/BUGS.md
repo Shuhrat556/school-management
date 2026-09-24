@@ -37,7 +37,9 @@ Tavsiya: JWT secret va Gmail App Password'ni **almashtirish** (tarixni qayta yoz
 Gateway, auth, school — `AllowAll`. Production uchun aniq originlar ro'yxati kerak. · OCHIQ
 
 ### B7 [O'RTA] Refresh tokenlar DB da ochiq holda saqlanadi
-`RefreshToken.Token` — xesh o'rniga asl qiymat. DB sizib chiqsa sessiyalar o'g'irlanadi. · OCHIQ
+`RefreshToken.Token` — xesh o'rniga asl qiymat. DB sizib chiqsa sessiyalar o'g'irlanadi.
+· TUZATILDI: base64(SHA-256) saqlanadi + indeks; migratsiya `HashRefreshTokens` mavjud tokenlarni SQL'da xeshlaydi (sessiyalar saqlanadi).
+PostgreSQL 16 da up/down sinaldi. RefreshTokenStorageTests.
 
 ### B8 [PAST] Login javobi tasdiqlanmagan akkaunt mavjudligini oshkor qiladi
 `AuthController.Authenticate` — parol noto'g'ri bo'lsa ham `EMAIL_NOT_VERIFIED` qaytaradi.

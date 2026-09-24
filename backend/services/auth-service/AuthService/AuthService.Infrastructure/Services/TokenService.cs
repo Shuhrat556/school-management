@@ -54,6 +54,10 @@ public class TokenService : ITokenService
         return Convert.ToBase64String(randomBytes);
     }
 
+    // SHA-256 is enough here: refresh tokens are 64 random bytes, not guessable passwords.
+    public string HashRefreshToken(string refreshToken)
+        => Convert.ToBase64String(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(refreshToken)));
+
     public DateTime GetRefreshTokenExpiration()
     {
         var days = int.Parse(_configuration["Jwt:RefreshTokenExpirationDays"] ?? "7");

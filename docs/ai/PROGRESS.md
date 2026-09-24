@@ -56,4 +56,7 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 
 - B8 TUZATILDI: `EMAIL_NOT_VERIFIED` faqat to'g'ri paroldan keyin (test avval yiqildi). auth 21/21.
 
-KEYINGI QADAM: PLAN 5-bo'lim B7 — refresh tokenlarni SHA-256 xesh sifatida saqlash (auth migratsiya, mavjud tokenlar bilan muomala), test.
+- B7 TUZATILDI: refresh tokenlar SHA-256 xesh ko'rinishida (+indeks); `HashRefreshTokens` migratsiyasi eski tokenlarni SQL'da xeshlaydi.
+  Scratchpad'da vaqtinchalik PostgreSQL 16 (port 55432) ko'tarildi — migratsiya up/down haqiqiy DB'da sinaldi. auth 23/23.
+
+KEYINGI QADAM: PLAN 5-bo'lim B6 — CORS originlarini konfiguratsiyadan olish (dev'da hammasi), test; keyin 6-bo'lim unit testlar / 7-bo'lim B11.

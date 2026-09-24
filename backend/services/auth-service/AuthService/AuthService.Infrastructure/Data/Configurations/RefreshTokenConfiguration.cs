@@ -12,9 +12,12 @@ public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
         builder.HasKey(rt => rt.Id);
 
         // Required fields
+        // Holds the SHA-256 of the token, never the token itself
         builder.Property(rt => rt.Token)
             .IsRequired()
             .HasMaxLength(500);
+
+        builder.HasIndex(rt => rt.Token);
 
         builder.Property(rt => rt.ExpiresAt)
             .IsRequired();
