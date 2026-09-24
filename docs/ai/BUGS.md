@@ -40,7 +40,8 @@ Gateway, auth, school — `AllowAll`. Production uchun aniq originlar ro'yxati k
 `RefreshToken.Token` — xesh o'rniga asl qiymat. DB sizib chiqsa sessiyalar o'g'irlanadi. · OCHIQ
 
 ### B8 [PAST] Login javobi tasdiqlanmagan akkaunt mavjudligini oshkor qiladi
-`AuthController.Authenticate` — parol noto'g'ri bo'lsa ham `EMAIL_NOT_VERIFIED` qaytaradi. · OCHIQ
+`AuthController.Authenticate` — parol noto'g'ri bo'lsa ham `EMAIL_NOT_VERIFIED` qaytaradi.
+· TUZATILDI: faqat parol to'g'ri bo'lsa (LoginTests)
 
 ## Xatolar
 

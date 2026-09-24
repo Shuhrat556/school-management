@@ -66,4 +66,22 @@ public class LoginTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
+
+    // BUGS B8: "email not verified" was returned even for a wrong password,
+    // which told anyone that the address has an account.
+    [Fact]
+    public async Task Unverified_account_is_only_revealed_to_someone_with_the_password()
+    {
+        var email = AuthApiFactory.NewEmail();
+        await factory.CreateUserAsync(email, "Password123!", verified: false);
+        var client = factory.CreateClient();
+
+        var wrong = await (await client.PostAsJsonAsync("/api/auth/authenticate", new { email, password = "wrong" }))
+            .Content.ReadFromJsonAsync<JsonElement>();
+        var right = await (await client.PostAsJsonAsync("/api/auth/authenticate", new { email, password = "Password123!" }))
+            .Content.ReadFromJsonAsync<JsonElement>();
+
+        Assert.Equal("INVALID_CREDENTIALS", wrong.GetProperty("code").GetString());
+        Assert.Equal("EMAIL_NOT_VERIFIED", right.GetProperty("code").GetString());
+    }
 }

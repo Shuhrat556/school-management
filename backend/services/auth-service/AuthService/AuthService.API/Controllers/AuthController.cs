@@ -81,22 +81,18 @@ public class AuthController : ControllerBase
                 retryAfterSeconds = retryAfter
             });
         }
+        catch (AuthService.Application.Exceptions.EmailNotVerifiedException ex)
+        {
+            return Unauthorized(new
+            {
+                error = "Email not verified",
+                message = ex.Message,
+                code = "EMAIL_NOT_VERIFIED"
+            });
+        }
 
         if (result != null)
             return Ok(result);
-
-        // Authentication failed - check if it's due to unverified email
-        var user = await _userRepository.GetByEmailAsync(dto.Email.Trim().ToUpperInvariant());
-        if (user != null && !user.IsEmailVerified)
-        {
-            return Unauthorized(new 
-            { 
-                error = "Email not verified",
-                message = "Please verify your email before logging in",
-                code = "EMAIL_NOT_VERIFIED",
-                //nextStep = "POST /api/auth/request-email-verification-code"
-            });
-        }
 
         // Generic error for wrong password or user not found
         return Unauthorized(new 

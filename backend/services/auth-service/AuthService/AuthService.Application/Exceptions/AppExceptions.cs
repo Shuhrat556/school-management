@@ -35,6 +35,12 @@ public class AccountLockedException : Exception
         => LockedUntil = lockedUntil;
 }
 
+// Thrown after a correct password when the account's email is not verified yet
+public class EmailNotVerifiedException : Exception
+{
+    public EmailNotVerifiedException() : base("Please verify your email before logging in") { }
+}
+
 // Thrown when an operation isn't allowed in the current state
 public class InvalidOperationException : Exception
 {

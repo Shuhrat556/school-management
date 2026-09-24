@@ -54,4 +54,6 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 
 - B4 TUZATILDI: OAuth email bo'yicha bog'lash faqat tasdiqlangan email bilan (Facebook takeover testi avval 200 qaytargan). auth 20/20.
 
-KEYINGI QADAM: PLAN 5-bo'lim B8 — EMAIL_NOT_VERIFIED faqat parol to'g'ri bo'lganda (test bilan), keyin B7 (refresh token xeshi).
+- B8 TUZATILDI: `EMAIL_NOT_VERIFIED` faqat to'g'ri paroldan keyin (test avval yiqildi). auth 21/21.
+
+KEYINGI QADAM: PLAN 5-bo'lim B7 — refresh tokenlarni SHA-256 xesh sifatida saqlash (auth migratsiya, mavjud tokenlar bilan muomala), test.

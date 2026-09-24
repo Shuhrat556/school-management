@@ -264,9 +264,9 @@ public class AuthenticationService : IAuthenticationService
         if (!user.IsActive)
             return null;
 
-        //  Check if email is verified before allowing login
+        // Only someone who knows the password learns that the email is unverified
         if (!user.IsEmailVerified)
-            return null;
+            throw new EmailNotVerifiedException();
 
         // Generate tokens
         var accessToken = _tokenService.GenerateAccessToken(user);

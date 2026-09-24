@@ -40,7 +40,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] B3a: auth per-IP rate limiting + ForwardedHeaders (auth, gateway); test 429
 - [x] B3b: akkaunt lockout (5 xato → 5 daq), auth migratsiya (Down bilan); test
 - [x] B4: Facebook OAuth — email bo'yicha avtomatik bog'lashni faqat tasdiqlangan email bilan; test
-- [ ] B8: login javobida EMAIL_NOT_VERIFIED faqat parol to'g'ri bo'lsa; test
+- [x] B8: login javobida EMAIL_NOT_VERIFIED faqat parol to'g'ri bo'lsa; test
 - [ ] B7: refresh tokenlarni xeshlab saqlash (auth migratsiya, rollback bilan); test
 - [ ] B6: CORS — konfiguratsiyadan originlar ro'yxati (dev: hammasi)
 
