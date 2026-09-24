@@ -62,4 +62,6 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B6 TUZATILDI: gateway CORS konfiguratsiyadan (`Cors:AllowedOrigins`), servislarda CORS yo'q. Yangi `api-gateway/ApiGateway.Tests`
   (+`ApiGateway.slnx`). Testlar: gateway 4, auth 23, school 99.
 
-KEYINGI QADAM: PLAN 6-bo'lim — CI (GitHub Actions workflow fayli), keyin admin-web test (vitest) va 7-bo'lim B11 (school migratsiyalar).
+- CI: `.github/workflows/ci.yml` qo'shildi (branch push qilinganda ishlaydi; men push qilmadim).
+
+KEYINGI QADAM: PLAN 7-bo'lim B11 — school-service'ni EF migratsiyalarga o'tkazish (baseline, mavjud DB uchun history, sinov vaqtinchalik PG'da).

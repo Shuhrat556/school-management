@@ -49,7 +49,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [ ] Auth unit: AuthenticationService (login, refresh rotation, reset code lockout), PasswordHasher
 - [ ] admin-web: vitest + api.js (refresh oqimi), auth.js (rol yo'naltirish)
 - [ ] Flutter: api_service unit (Dio mock), login oqimi widget testi
-- [ ] CI: GitHub Actions — dotnet test, npm lint/build/test, flutter analyze/test (faqat fayl; ulash egasiga)
+- [x] CI: `.github/workflows/ci.yml` — dotnet test (3 servis), EF pending-changes, admin-web lint/build, flutter analyze/test (push qilinmagan)
 
 ## 7. Refaktoring
 - [ ] B11: school-service `EnsureCreated`+raw SQL → EF migratsiyalar (baseline migratsiya, mavjud DB uchun history seed, rollback skripti)
