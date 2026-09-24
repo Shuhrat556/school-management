@@ -1,0 +1,18 @@
+# Root .gitignore — per-app rules live in admin-web/, backend/ and frontend/.
+
+# Secrets and local server notes
+.env
+.env.*
+!.env.example
+docs/server_key.md
+*.pem
+*.key
+
+# AI loop output
+docs/ai/run.log
+
+# OS / tool artefacts
+.DS_Store
+Thumbs.db
+# .NET tooling writes here when HOME points at the repo
+Library/
