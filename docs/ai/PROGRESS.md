@@ -28,4 +28,9 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   `.env commit qilingan`, ochiq registratsiya va PgAdmin paroli haqidagi gaplar tuzatildi. BUGS B17 (hard delete), B18.
 - Disk bo'shadi (16 GB) → Q5 yopildi.
 
-KEYINGI QADAM: egasiga qisqa hisobot; keyin PLAN 5-bo'lim T0 — backend test loyihalari (xUnit + WebApplicationFactory), so'ng B1.
+- T0a: `SchoolService.Tests` (xUnit, WebApplicationFactory, SQLite in-memory); Program.cs'ga `Database:InitializeOnStartup`
+  va `Consul:Enabled` flaglari; Dockerfile'lar faqat API loyihasini restore qiladi + `.dockerignore`. Commit 8395b2b.
+- B1 TUZATILDI: rol atributlari (D4), o'quvchi/o'qituvchi faqat o'z profilini tahrirlaydi; Flutter o'qituvchi ekranidan
+  "delete" tugmasi olib tashlandi. Testlar 78/78. Commit 63ec4bf.
+
+KEYINGI QADAM: PLAN 5-bo'lim B1b — o'quvchi uchun o'qish endpointlarini cheklash + `GET /students/me`, student-portal.js ni moslash.
