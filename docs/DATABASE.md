@@ -16,8 +16,10 @@ account and a school profile is the `AuthUserId` column on `Students` / `Teacher
 | `RefreshTokens` | `Token`, `UserId` → Users, `ExpiresAt`, `RevokedAt` | Stored in plain text (BUGS B7) |
 | `ExternalLogins` | `UserId` → Users, `Provider` (Google/Facebook), `ProviderUserId` | unique per provider |
 
+`Users` also keeps `FailedLoginAttempts` and `LoginLockoutUntil` for the sign-in lockout.
+
 Migrations: `AuthService.Infrastructure/Migrations` — `InitialCreate`, `AddEmailVerificationFields`,
-`AddPasswordResetFields`, `AddExternalLogins`.
+`AddPasswordResetFields`, `AddExternalLogins`, `AddLoginLockout` (2 nullable/defaulted columns; `Down` drops them).
 
 ## school_db
 

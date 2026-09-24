@@ -76,6 +76,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.PasswordResetLockoutUntil)
             .IsRequired(false);
 
+        builder.Property(u => u.FailedLoginAttempts)
+            .HasDefaultValue(0)
+            .IsRequired();
+
+        builder.Property(u => u.LoginLockoutUntil)
+            .IsRequired(false);
+
         // Unique index
         builder.HasIndex(u => u.NormalizedEmail)
             .IsUnique();

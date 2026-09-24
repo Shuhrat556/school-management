@@ -20,7 +20,8 @@ Production'da ishga tushishdan oldin to'xtashi kerak (fail fast).
 ### B3 [YUQORI] Login/parolni tiklash endpointlarida rate limiting yo'q
 `AuthController` — `authenticate`, `request-password-reset`, `request-email-verification-code`, `refresh`.
 Parolni brute-force qilish cheklanmagan (kod tekshiruvida lockout bor, parolda yo'q).
-· QISMAN: per-IP limiter qo'shildi (D5, RateLimitTests). Akkaunt lockout — OCHIQ
+· TUZATILDI: per-IP limiter (D5, RateLimitTests) + akkaunt lockout: ketma-ket 5 xato parol → 5 daq 429 `ACCOUNT_LOCKED`
+(AccountLockoutTests; auth migratsiya `AddLoginLockout`, Down bor). Eslatma: lockout akkaunt mavjudligini bildiradi — qabul qilingan (D5).
 
 ### B4 [YUQORI] Facebook OAuth tasdiqlanmagan email bo'yicha mavjud akkauntga bog'laydi
 `AuthenticationService.AuthenticateExternalAsync` — Facebook uchun email bo'yicha mavjud foydalanuvchiga

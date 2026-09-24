@@ -25,6 +25,16 @@ public class ConfigurationException : Exception
     public ConfigurationException(string message) : base(message) { }
 }
 
+// Thrown when an account is temporarily locked after repeated wrong passwords
+public class AccountLockedException : Exception
+{
+    public DateTime LockedUntil { get; }
+
+    public AccountLockedException(DateTime lockedUntil)
+        : base("Too many failed sign-in attempts. Try again later.")
+        => LockedUntil = lockedUntil;
+}
+
 // Thrown when an operation isn't allowed in the current state
 public class InvalidOperationException : Exception
 {

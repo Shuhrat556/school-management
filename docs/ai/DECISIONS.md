@@ -43,7 +43,9 @@ Keyingi bosqich (B1b): o'qish endpointlarida o'quvchi faqat o'z ma'lumotini ko'r
    (authenticate, oauth/*), `codes` 20/10 daq (request-*, verify-email, reset-password), `refresh` 120/daq.
    `RateLimiting:<policy>:PermitLimit|WindowSeconds` bilan sozlanadi. 429 + `Retry-After` + `{code: "TOO_MANY_REQUESTS"}`.
    Limitlar ataylab yumshoq: butun maktab bitta NAT IP ortida bo'lishi mumkin.
-2. **Akkaunt lockout** (keyingi commit, auth DB migratsiyasi bilan) — bitta akkauntga brute-force'ga qarshi asosiy himoya.
+2. **Akkaunt lockout** — ketma-ket 5 xato parol → 5 daqiqa 429 `ACCOUNT_LOCKED` (to'g'ri parol ham rad etiladi), muvaffaqiyatli
+   kirish hisobni nollaydi. Bu akkaunt mavjudligini bildiradi (mavjud bo'lmagan email hech qachon bloklanmaydi) — ro'yxatdan o'tish yopiq
+   va emaillar maktab tomonidan beriladi, shuning uchun qabul qilindi. Migratsiya `AddLoginLockout` (Down bilan).
 **Real IP:** gateway va auth `UseForwardedHeaders()` bilan faqat xususiy tarmoqlardan (10/8, 172.16/12, 192.168/16, loopback)
 kelgan `X-Forwarded-For` ga ishonadi, `ForwardLimit=1`. Ma'lum cheklov: Next.js `x-forwarded-for ??= socket` qiladi, ya'ni
 admin-web'ga to'g'ridan-to'g'ri yuborilgan soxta XFF saqlanadi → admin-web orqali IP limitni chetlab o'tish mumkin.

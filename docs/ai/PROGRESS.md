@@ -49,4 +49,7 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B3a: auth per-IP rate limiting (D5) + gateway/auth ForwardedHeaders (faqat xususiy tarmoqlar). Testlar 14/14
   (IP bo'yicha ajratish, ishonchsiz peer XFF'i e'tiborsiz). Next.js XFF cheklovi D5 da.
 
-KEYINGI QADAM: PLAN 5-bo'lim B3b — akkaunt lockout (User'ga FailedLoginAttempts/LoginLockoutUntil, EF migratsiya + Down), test.
+- B3b: akkaunt lockout (5 xato → 5 daq 429 ACCOUNT_LOCKED), auth migratsiya `AddLoginLockout` (Down bilan), testlar 17/17.
+  Flutter login xatosi endi `error` kalitini ham ko'rsatadi. **Deploy'da auth migratsiyasi ishga tushadi (startup Migrate) — Q2 ruxsati bilan.**
+
+KEYINGI QADAM: PLAN 5-bo'lim B4 — Facebook OAuth email bo'yicha avtomatik bog'lashni cheklash (test bilan), keyin B8.

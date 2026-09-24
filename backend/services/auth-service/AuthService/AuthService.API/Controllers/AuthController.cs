@@ -1,4 +1,5 @@
 ﻿using AuthService.Application.DTOs.Auth.Request;
+using AuthService.Application.DTOs.Auth.Response;
 using AuthService.Application.DTOs.User;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Enums;
@@ -63,7 +64,24 @@ public class AuthController : ControllerBase
     [EnableRateLimiting(AuthRateLimits.Login)]
     public async Task<IActionResult> Authenticate([FromBody] LoginRequestDto dto)
     {
-        var result = await _authService.AuthenticateAsync(dto.Email, dto.Password);
+        AuthResponseDto? result;
+        try
+        {
+            result = await _authService.AuthenticateAsync(dto.Email, dto.Password);
+        }
+        catch (AuthService.Application.Exceptions.AccountLockedException ex)
+        {
+            var retryAfter = Math.Max(1, (int)Math.Ceiling((ex.LockedUntil - DateTime.UtcNow).TotalSeconds));
+            Response.Headers.RetryAfter = retryAfter.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return StatusCode(StatusCodes.Status429TooManyRequests, new
+            {
+                error = ex.Message,
+                message = ex.Message,
+                code = "ACCOUNT_LOCKED",
+                retryAfterSeconds = retryAfter
+            });
+        }
+
         if (result != null)
             return Ok(result);
 

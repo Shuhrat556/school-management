@@ -36,6 +36,9 @@ public class User : BaseEntity
     public int PasswordResetFailedAttempts { get; private set; }
     public DateTime? PasswordResetLockoutUntil { get; private set; }
 
+    public int FailedLoginAttempts { get; private set; }
+    public DateTime? LoginLockoutUntil { get; private set; }
+
     public DateTime? LastLoginAt { get; private set; }
 
     private readonly List<RefreshToken> _refreshTokens = new();
@@ -107,7 +110,26 @@ public class User : BaseEntity
     }
 
     public void RecordLogin()
-        => LastLoginAt = DateTime.UtcNow;
+    {
+        LastLoginAt = DateTime.UtcNow;
+        FailedLoginAttempts = 0;
+        LoginLockoutUntil = null;
+    }
+
+    public bool IsLoginLockedOut(DateTime now)
+        => LoginLockoutUntil.HasValue && LoginLockoutUntil.Value > now;
+
+    // After maxAttempts wrong passwords in a row the account is locked for
+    // lockoutDuration; the counter restarts so the next lockout needs another run.
+    public void RecordFailedLogin(int maxAttempts, TimeSpan lockoutDuration)
+    {
+        FailedLoginAttempts++;
+        if (FailedLoginAttempts >= maxAttempts)
+        {
+            LoginLockoutUntil = DateTime.UtcNow.Add(lockoutDuration);
+            FailedLoginAttempts = 0;
+        }
+    }
 
     public void ChangeRole(UserRole newRole)
         => Role = newRole;

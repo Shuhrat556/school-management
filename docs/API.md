@@ -18,7 +18,7 @@ Error body (both services):
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | POST | `/register` | anon | Self sign-up — returns 400 while `Registration:Enabled=false` (default) |
-| POST | `/authenticate` | anon | `{email, password}` → `{userId, firstName, lastName, email, role, userRole, token, refreshToken, …}` |
+| POST | `/authenticate` | anon | `{email, password}` → `{userId, firstName, lastName, email, role, userRole, token, refreshToken, …}`. 5 wrong passwords in a row lock the account for 5 min → 429 `ACCOUNT_LOCKED` with `Retry-After` |
 | POST | `/refresh` | anon | `{refreshToken}` → new token pair (old refresh token revoked) |
 | POST | `/logout` | anon | `{refreshToken}` → revokes it |
 | POST | `/request-email-verification-code` | anon | Sends a 6-digit code (60 s resend cooldown) |

@@ -22,6 +22,9 @@ public class AuthenticationService : IAuthenticationService
     private readonly IExternalAuthValidator _externalAuthValidator;
     private readonly bool _registrationEnabled;
 
+    private const int MaxFailedLogins = 5;
+    private static readonly TimeSpan LoginLockoutDuration = TimeSpan.FromMinutes(5);
+
     public AuthenticationService(
         IUserRepository userRepo,
         IPasswordHasher passwordHasher,
@@ -246,9 +249,16 @@ public class AuthenticationService : IAuthenticationService
         if (user == null)
             return null;
 
+        if (user.IsLoginLockedOut(DateTime.UtcNow))
+            throw new AccountLockedException(user.LoginLockoutUntil!.Value);
+
         // Verify password (OAuth-only accounts have no hash and can't use password login)
         if (string.IsNullOrEmpty(user.PasswordHash) || !_passwordHasher.VerifyPassword(user, user.PasswordHash, password))
+        {
+            user.RecordFailedLogin(MaxFailedLogins, LoginLockoutDuration);
+            await _userRepo.UpdateAsync(user);
             return null;
+        }
 
         // Check if user is active
         if (!user.IsActive)

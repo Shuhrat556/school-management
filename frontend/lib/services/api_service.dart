@@ -138,8 +138,8 @@ class ApiService {
       }
     } on DioException catch (e) {
       if (e.response?.data != null && e.response?.data is Map) {
-        final msg = e.response?.data['message'] ?? 'Login failed';
-        throw Exception(msg);
+        final data = e.response?.data as Map;
+        throw Exception(data['message'] ?? data['error'] ?? 'Login failed');
       }
       rethrow;
     }
