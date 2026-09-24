@@ -31,11 +31,11 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 
 ## 5. Kritik xatolar va xavfsizlik (har biri: test → tuzatish → build/test)
 - [x] T0a: `SchoolService.Tests` (xUnit + WebApplicationFactory + SQLite in-memory), sln ga qo'shildi
-- [ ] T0b: `AuthService.Tests` xuddi shunday
+- [x] T0b: `AuthService.Tests` xuddi shunday
 - [x] B1: school-service rol-policy'lari (Admin / Teacher / Student) — yozish endpointlari faqat Admin/Teacher; test: Student 403
 - [x] B1b: Student o'z ma'lumotlarini ko'radi (grades/attendance/submissions/students list — faqat o'ziniki) + `GET /students/me`, student-portal.js dagi "hamma o'quvchini yuklab email bo'yicha qidirish" fallback'ini olib tashlash; test
 - [x] B9: SubmissionsController (+MaterialsController) DI (ISubmissionService) + studentId ni tokendan olish; test
-- [ ] B10: OAuth-only user parol bilan kirganda 500 emas 401; test
+- [x] B10: OAuth-only user parol bilan kirganda 500 emas 401; test
 - [ ] B2: JWT secret yo'q/qisqa bo'lsa Production'da ishga tushmaslik (ikkala servis); test
 - [ ] B3: auth rate limiting (authenticate, refresh, request-*, verify-email, reset-password) + ForwardedHeaders; test 429
 - [ ] B4: Facebook OAuth — email bo'yicha avtomatik bog'lashni faqat tasdiqlangan email bilan; test

@@ -40,4 +40,7 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B9 TUZATILDI: materials va submissions controllerlari interfeys orqali; topshiriq faqat o'z nomidan (token), noma'lum material → 404.
   Avval 7 test 500 bilan yiqildi, tuzatishdan keyin 95/95.
 
-KEYINGI QADAM: PLAN 5-bo'lim T0b — `AuthService.Tests` loyihasi, keyin B10 (OAuth-only user login 500).
+- T0b: `AuthService.Tests` (SQLite, FakeEmailSender), Program.cs'ga o'sha flaglar. Commit 9cfb473.
+- B10 TUZATILDI: NULL parol xeshi bilan login 500 o'rniga 401 (test avval 500 bilan yiqildi).
+
+KEYINGI QADAM: PLAN 5-bo'lim B2 — JWT secret yo'q/qisqa bo'lsa Development/Testing'dan boshqa muhitda ishga tushmaslik (ikkala servis), test bilan.

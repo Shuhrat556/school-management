@@ -45,8 +45,9 @@ ro'yxatdan o'tgan → controller yaratilmaydi. Qo'shimcha: `POST /api/submission
 o'quvchi nomidan topshirishga ruxsat berardi, mavjud bo'lmagan material 500 berardi.
 · TUZATILDI (MaterialsAndSubmissionsTests: avval 7/7 yiqildi, keyin o'tdi)
 
-### B10 [YUQORI] OAuth-only foydalanuvchi parol bilan kirsa 500
-`AuthenticationService.AuthenticateAsync` — `user.PasswordHash!` null bo'lsa `VerifyPassword` da NullReferenceException. · OCHIQ
+### B10 [O'RTA] Parol xeshi NULL bo'lgan akkaunt parol bilan kirsa 500
+`AuthenticationService.AuthenticateAsync` — `user.PasswordHash!` null bo'lsa `VerifyPassword` da NullReferenceException
+(yangi OAuth akkauntlarda `""` saqlanadi, lekin ustun nullable). · TUZATILDI (LoginTests)
 
 ### B11 [O'RTA] School DB sxemasi migratsiyasiz boshqariladi
 `SchoolService.API/Program.cs` — `EnsureCreated()` + qo'lda yozilgan `ALTER TABLE ... IF NOT EXISTS` SQL.

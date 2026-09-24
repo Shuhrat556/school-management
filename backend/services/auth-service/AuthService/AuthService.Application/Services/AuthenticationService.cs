@@ -246,8 +246,8 @@ public class AuthenticationService : IAuthenticationService
         if (user == null)
             return null;
 
-        // Verify password
-        if (!_passwordHasher.VerifyPassword(user, user.PasswordHash!, password))
+        // Verify password (OAuth-only accounts have no hash and can't use password login)
+        if (string.IsNullOrEmpty(user.PasswordHash) || !_passwordHasher.VerifyPassword(user, user.PasswordHash, password))
             return null;
 
         // Check if user is active

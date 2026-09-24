@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using AuthService.Infrastructure.Data;
 using AuthService.Tests.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AuthService.Tests;
 
@@ -47,5 +50,20 @@ public class LoginTests(AuthApiFactory factory) : IClassFixture<AuthApiFactory>
 
         Assert.Equal(HttpStatusCode.OK, refreshed.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, reused.StatusCode);
+    }
+
+    // BUGS B10: PasswordHash is a nullable column; a row without a hash
+    // (OAuth-only account) made password login throw.
+    [Fact]
+    public async Task Password_login_to_an_account_without_password_is_401_not_500()
+    {
+        var email = AuthApiFactory.NewEmail();
+        var user = await factory.CreateUserAsync(email, password: "");
+        await factory.WithScopeAsync(sp => sp.GetRequiredService<AuthDbContext>().Database
+            .ExecuteSqlInterpolatedAsync($"UPDATE \"Users\" SET \"PasswordHash\" = NULL WHERE \"Id\" = {user.Id}"));
+
+        var response = await factory.CreateClient().PostAsJsonAsync("/api/auth/authenticate", new { email, password = "anything" });
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }
