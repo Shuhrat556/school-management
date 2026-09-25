@@ -90,7 +90,8 @@ GET `?classroomId=` or `?teacherId=` (one is required), GET `{id}` — user. POS
 
 ### Grades — `/grades`
 GET `?studentId=&subjectId=&semester=`, GET `{id}` — Staff; a student gets only their own grades
-(`studentId` defaults to their own, any other id → 403). POST, PUT `{id}`, DELETE `{id}` — Staff. Score 0–100.
+(`studentId` defaults to their own, any other id → 403). POST (one grade per student + subject + semester:
+201 when created, 200 when it replaced the existing score), PUT `{id}`, DELETE `{id}` — Staff. Score 0–100.
 
 ### Admin sync — `/admin`
 POST `/admin/sync-profile` — Admin. Creates/updates the school profile linked to an auth account.

@@ -88,7 +88,9 @@ Serverda cron ham, dump fayllar ham yo'q. Deploy'dan oldin `pg_dump` majburiy (R
 
 ### B16 [O'RTA] Ma'lumot yaxlitligi uchun unique cheklovlar yo'q
 school_db: Attendance (StudentId, ClassroomId, Date), StudentGrade (StudentId, SubjectId, Semester),
-Students.Email, Teachers.Email — takroriy yozuvlarga DB darajasida to'siq yo'q. Faqat migratsiya orqali (B11 dan keyin). · OCHIQ
+Students.Email, Teachers.Email — takroriy yozuvlarga DB darajasida to'siq yo'q. Faqat migratsiya orqali (B11 dan keyin).
+· TUZATILDI: `AddNaturalKeyIndexes` (Down bilan), `POST /grades` upsert, BulkMark takrorlarni birlashtiradi. Prod'da dublikat yo'q (SELECT).
+NaturalKeyTests, MigrationTests.Emails_are_unique_ignoring_case
 
 ### B17 [O'RTA] O'quvchini o'chirish — hard delete, baholar/davomat kaskad o'chadi
 `StudentRepository.DeleteAsync` → `Remove()`; FK `StudentGrades/Attendances/Submissions/StudentClassrooms` = CASCADE.

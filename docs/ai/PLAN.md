@@ -53,7 +53,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 
 ## 7. Refaktoring
 - [x] B11: school-service `EnsureCreated`+raw SQL → EF migratsiyalar (baseline, PostgreSQL testlari, rollback sinovi)
-- [ ] B16: unique cheklovlar migratsiyasi (Attendance, StudentGrade, email) + dublikat tekshiruv SQL
+- [x] B16: unique cheklovlar migratsiyasi (Attendance, StudentGrade, email) + dublikat tekshiruv SQL
 - [ ] B12: gateway o'lik Consul kodi — olib tashlash yoki haqiqiy dinamik provider
 - [ ] B13: repo gigiyenasi — .tools/, .idea/, DotSettings.user, Flutter generated fayllarni untrack qilish
 - [ ] admin-web: lint warninglarini tuzatish (21), parallel 401 da bitta refresh (race)

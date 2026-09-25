@@ -70,8 +70,19 @@ Deleting a **Student** removes the row (hard delete) and cascades to `StudentCla
 grades and attendance keep the row with `ClassroomId = NULL`. Subjects referenced by grades or schedules cannot be deleted (RESTRICT).
 
 ### Indexes and constraints
-Every foreign key has an index. There are **no unique constraints** for natural keys — the same student can get two
-attendance rows for one date or two grades for the same subject and semester (BUGS B16).
+Every foreign key has an index. Natural keys (migration `AddNaturalKeyIndexes`):
+- `StudentGrades (StudentId, SubjectId, Semester)` unique — `POST /grades` updates the existing row instead of adding one;
+- `Attendances (StudentId, ClassroomId, Date)` unique — bulk marking updates existing marks;
+- `Students` / `Teachers`: `lower(Email)` unique where `Email` is set (raw SQL in the migration, not in the EF model).
+
+Before applying it to a database that may hold duplicates, check (all counts must be 0):
+```sql
+select count(*) from (select 1 from "StudentGrades" group by "StudentId","SubjectId","Semester" having count(*)>1) d;
+select count(*) from (select 1 from "Attendances" group by "StudentId","ClassroomId","Date" having count(*)>1) d;
+select count(*) from (select 1 from "Students" where "Email" is not null group by lower("Email") having count(*)>1) d;
+select count(*) from (select 1 from "Teachers" where "Email" is not null group by lower("Email") having count(*)>1) d;
+```
+Production had none on 2026-09-25.
 
 ## Local access
 

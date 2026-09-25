@@ -34,6 +34,10 @@ public class GradeRepository : IGradeRepository
             .Include(g => g.Classroom)
             .FirstOrDefaultAsync(g => g.Id == id);
 
+    public async Task<StudentGrade?> GetByStudentSubjectSemesterAsync(Guid studentId, Guid subjectId, string semester)
+        => await _context.StudentGrades
+            .FirstOrDefaultAsync(g => g.StudentId == studentId && g.SubjectId == subjectId && g.Semester == semester);
+
     public async Task AddAsync(StudentGrade grade)
     {
         await _context.StudentGrades.AddAsync(grade);

@@ -38,7 +38,8 @@ public class AttendanceService : IAttendanceService
         var toAdd    = new List<Attendance>();
         var toUpdate = new List<Attendance>();
 
-        foreach (var record in dto.Records)
+        // One mark per student and day; if a student is listed twice the last entry wins.
+        foreach (var record in dto.Records.GroupBy(r => r.StudentId).Select(g => g.Last()))
         {
             var status = (AttendanceStatus)record.Status;
             var existing = await _attendanceRepository.GetByStudentClassroomDateAsync(

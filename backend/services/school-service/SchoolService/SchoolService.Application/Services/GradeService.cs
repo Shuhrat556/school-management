@@ -37,7 +37,7 @@ public class GradeService : IGradeService
         return MapToResponse(grade);
     }
 
-    public async Task<GradeResponseDto> CreateAsync(GradeCreateDto dto)
+    public async Task<(GradeResponseDto Grade, bool Created)> SaveAsync(GradeCreateDto dto)
     {
         var student = await _studentRepository.GetByIdAsync(dto.StudentId);
         if (student == null) throw new NotFoundException("Student", dto.StudentId);
@@ -51,13 +51,23 @@ public class GradeService : IGradeService
             if (classroom == null) throw new NotFoundException("Classroom", dto.ClassroomId.Value);
         }
 
+        var semester = dto.Semester.Trim();
+        var existing = await _gradeRepository.GetByStudentSubjectSemesterAsync(dto.StudentId, dto.SubjectId, semester);
+        if (existing != null)
+        {
+            existing.UpdateScore(dto.Score, semester, (GradingMethod)dto.GradingMethod);
+            await _gradeRepository.UpdateAsync(existing);
+            existing = await _gradeRepository.GetByIdAsync(existing.Id) ?? existing;
+            return (MapToResponse(existing), false);
+        }
+
         var grade = new StudentGrade(
-            dto.StudentId, dto.SubjectId, dto.Score, dto.Semester,
+            dto.StudentId, dto.SubjectId, dto.Score, semester,
             dto.ClassroomId, (GradingMethod)dto.GradingMethod);
         await _gradeRepository.AddAsync(grade);
 
         grade = await _gradeRepository.GetByIdAsync(grade.Id) ?? grade;
-        return MapToResponse(grade);
+        return (MapToResponse(grade), true);
     }
 
     public async Task<GradeResponseDto> UpdateAsync(Guid id, GradeUpdateDto dto)

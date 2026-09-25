@@ -68,4 +68,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   bilan solishtirildi — mos. 3 ta PostgreSQL testi (SCHOOL_TEST_POSTGRES), CI'da postgres service. school 102/102.
   **Deploy'da school_db ga `__EFMigrationsHistory` qo'shiladi — Q2 ruxsati bilan.**
 
-KEYINGI QADAM: PLAN 7-bo'lim B16 — unique cheklovlar migratsiyasi (Attendance, StudentGrade; avval dublikatlarni tekshirish), keyin B17 soft delete.
+- B16 TUZATILDI: `AddNaturalKeyIndexes` migratsiyasi (grade/attendance unique, email lower() unique), grade upsert (D7),
+  BulkMark dedupe. Legacy test endi haqiqiy eski sxemani simulyatsiya qiladi (baseline'gacha migrate + history'siz) —
+  shu tufayli "eski indeks yo'q" holati topildi va `DROP INDEX IF EXISTS` qilindi. school 106/106 (PostgreSQL bilan).
+
+KEYINGI QADAM: PLAN 7-bo'lim B17 — o'quvchi/o'qituvchi soft delete (DeletedAt + query filter), test; keyin B12/B13.

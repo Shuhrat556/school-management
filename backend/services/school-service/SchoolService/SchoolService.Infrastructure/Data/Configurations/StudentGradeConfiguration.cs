@@ -17,6 +17,9 @@ public class StudentGradeConfiguration : IEntityTypeConfiguration<StudentGrade>
             .IsRequired()
             .HasMaxLength(20);
 
+        // A student has one final score per subject and semester
+        builder.HasIndex(g => new { g.StudentId, g.SubjectId, g.Semester }).IsUnique();
+
         builder.Property(g => g.GradingMethod)
             .HasConversion<int>();
 

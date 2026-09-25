@@ -52,8 +52,9 @@ public class GradesController : ControllerBase
     [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<GradeResponseDto>> Create([FromBody] GradeCreateDto dto)
     {
-        var created = await _gradeService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        // Saving a grade that already exists for the student, subject and semester updates it.
+        var (grade, created) = await _gradeService.SaveAsync(dto);
+        return created ? CreatedAtAction(nameof(GetById), new { id = grade.Id }, grade) : Ok(grade);
     }
 
     [HttpPut("{id:guid}")]

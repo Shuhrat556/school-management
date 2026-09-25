@@ -66,3 +66,8 @@ auth-service bilan bir xil yondashuv; EF 9+ migratsiya lock'i bor.
 **Nozik joy:** Npgsql 10 da `IHistoryRepository.ExistsAsync()` jadval yo'q bo'lsa ham `true` qaytaradi — shuning uchun `to_regclass`.
 **Manba:** [Applying Migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying)
 ("Don't call EnsureCreated before Migrate").
+
+## D7 — `POST /grades` upsert (2026-09-25)
+**Qaror:** (student, fan, semestr) uchun baho allaqachon bo'lsa, POST uni yangilaydi va 200 qaytaradi (yangi bo'lsa 201).
+**Sabab:** `StudentGrade` — semestr yakuniy bahosi; Flutter va admin-web qayta kiritishda POST yuboradi (`updateGrade` ishlatilmaydi),
+409 qaytarish o'qituvchi oqimini buzardi. Unique indeks poyga holatida 409 bilan himoya qiladi.
