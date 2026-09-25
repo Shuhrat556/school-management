@@ -27,7 +27,7 @@ export default function LoginPage() {
       }
 
       const userRole = data.role ?? data.user?.role;
-      if (![1, 2, 4].includes(userRole)) {
+      if (![1, 2, 3, 4].includes(userRole)) {
         setError('Access denied. Unrecognized role.');
         return;
       }
@@ -57,6 +57,8 @@ export default function LoginPage() {
         router.replace('/teacher/dashboard');
       } else if (userRole === 2) {
         router.replace('/student/dashboard');
+      } else if (userRole === 3) {
+        router.replace('/parent/dashboard');
       }
     } catch {
       setError('Cannot connect to the server. Make sure the backend is running.');

@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { getStudent, updateStudent } from '@/lib/api';
+import StudentParentsPanel from '@/components/StudentParentsPanel';
 import { GraduationCap, ArrowLeft, AlertCircle, Save, User, Phone, Calendar, MapPin, Users, Mail, Power } from 'lucide-react';
 
 const inputCls = 'admin-input';
@@ -195,6 +196,8 @@ export default function EditStudentPage() {
           </button>
         </div>
       </form>
+
+      <StudentParentsPanel studentId={id} />
     </div>
   );
 }

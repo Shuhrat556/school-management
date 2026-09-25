@@ -298,6 +298,28 @@ export async function getMyStudent() {
   return res.ok ? res.json() : null;
 }
 
+// Parent links (admin manages them; a parent reads their own children)
+export async function getStudentParents(studentId) {
+  const res = await request(`/api/school/students/${studentId}/parents`);
+  return res.ok ? res.json() : null;
+}
+
+export async function linkStudentParent(studentId, data) {
+  return request(`/api/school/students/${studentId}/parents`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function unlinkStudentParent(studentId, parentAuthUserId) {
+  return request(`/api/school/students/${studentId}/parents/${parentAuthUserId}`, { method: 'DELETE' });
+}
+
+export async function getMyChildren() {
+  const res = await request('/api/school/parents/me/children');
+  return res.ok ? res.json() : null;
+}
+
 export async function getStudentClassrooms(studentId) {
   const res = await request(`/api/school/students/${studentId}/classrooms`);
   return res.ok ? res.json() : null;

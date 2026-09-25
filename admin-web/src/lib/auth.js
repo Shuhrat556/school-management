@@ -47,6 +47,7 @@ export function useAuth(allowedRoles = []) {
         if (user.role === 4) router.replace('/admin/dashboard');
         else if (user.role === 1) router.replace('/teacher/dashboard');
         else if (user.role === 2) router.replace('/student/dashboard');
+        else if (user.role === 3) router.replace('/parent/dashboard');
         else router.replace('/login');
       }
     } catch {

@@ -93,6 +93,17 @@ GET `?studentId=&subjectId=&semester=`, GET `{id}` — Staff; a student gets onl
 (`studentId` defaults to their own, any other id → 403). POST (one grade per student + subject + semester:
 201 when created, 200 when it replaced the existing score), PUT `{id}`, DELETE `{id}` — Staff. Score 0–100.
 
+### Parents
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/students/{id}/parents` | Staff | Parent accounts linked to the student |
+| POST | `/students/{id}/parents` | Admin | `{parentAuthUserId, fullName, email?, relationship?}`; linking again updates the details |
+| DELETE | `/students/{id}/parents/{parentAuthUserId}` | Admin | |
+| GET | `/parents/me/children` | Parent | Linked children (deleted students left out) |
+
+A linked parent can also read the child through `/students/{id}`, `/students/{id}/classrooms`, `/grades?studentId=`
+(required for parents), `/attendance/{id}/history` and `/api/submissions/student/{id}`.
+
 ### Admin sync — `/admin`
 POST `/admin/sync-profile` — Admin. Creates/updates the school profile linked to an auth account.
 

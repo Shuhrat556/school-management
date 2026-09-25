@@ -52,6 +52,7 @@ TeacherDepartments TeacherSubjects├─* Schedules
 | `Announcements` | Teacher announcement, optional classroom | `Title`, `Body`, `PublishedAt` |
 | `Materials` | Learning material / assignment in a classroom | `Title`, `Url`, `Type` |
 | `Submissions` | Student hand-in for a material | `SubmissionUrl`, `SubmittedAt`, `Grade`, `Feedback` |
+| `StudentParents` | Parent account ↔ student link (parent portal) | `StudentId`, `ParentAuthUserId` (auth user id), `FullName`, `Email`, `Relationship`; unique per student + parent |
 
 ### Migrations and the legacy baseline
 Until 2026-09 school_db was created with `EnsureCreated()` plus hand-written SQL, so those databases have the full schema

@@ -82,4 +82,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 
 - B20 TUZATILDI: admin-web 401 refresh race (bitta umumiy refresh). `npm test` = Node o'rnatilgan test runner (yangi paket yo'q), CI'da.
 
-KEYINGI QADAM: admin-web lint warninglari (react-hooks/set-state-in-effect — sahifalardagi useEffect yuklash naqshi), keyin 8-bo'lim F1 (Parent portali dizayni).
+- F1 (backend) va F2 (admin-web) TAYYOR: `StudentParents` bog'lanishi, `/parents/me/children`, ota-ona uchun farzand ma'lumotlariga
+  kirish; `/parent/dashboard` (o'rtacha ball, GPA, davomat, oxirgi baholar/qoldirilgan darslar), admin "Parents" paneli,
+  login/Sidebar/useAuth'da role 3. school 114/114, admin-web build OK. Docker hali ham ishlamayapti (Q6).
+
+KEYINGI QADAM: PLAN 8-bo'lim F4 — o'quvchi hisobot kartasi API (semestr o'rtachasi + davomat %) + CSV; keyin F3 bildirishnomalar.

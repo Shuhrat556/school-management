@@ -98,10 +98,20 @@ const studentSections = [
   },
 ];
 
+const parentSections = [
+  {
+    title: 'Family',
+    items: [
+      { href: '/parent/dashboard', label: 'My children', icon: Users },
+    ],
+  },
+];
+
 function getRoleMeta(role) {
   if (role === 4) return { label: 'Administrator', sections: adminSections };
   if (role === 1) return { label: 'Teacher', sections: teacherSections };
   if (role === 2) return { label: 'Student', sections: studentSections };
+  if (role === 3) return { label: 'Parent', sections: parentSections };
   return { label: 'Workspace', sections: [] };
 }
 

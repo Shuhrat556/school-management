@@ -123,6 +123,11 @@ A full-stack school management platform built with **.NET microservices**, a **F
 - Profile sync across auth and school databases
 - Consul service health monitoring
 
+### Parent Portal (web)
+
+- Admins link parent accounts (role Parent) to students on the student page
+- Parents sign in to the web app and see each child's grades, GPA, attendance rate and recent absences
+
 ### Mobile App (Flutter)
 
 - Role-based dashboards (Student / Teacher)
