@@ -74,7 +74,9 @@ MigrationTests (PostgreSQL) + CI'da postgres service va `has-pending-model-chang
 ### B13 [PAST] Keraksiz fayllar repoda
 `backend/.tools/` (dotnet-ef 8.0.11 binarlari, .exe), `.idea/`, `*.DotSettings.user`, Flutter generated
 fayllar (`ios/Flutter/Generated.xcconfig`, `ephemeral/`), `School_Management_System_Documentation.docx`,
-`make-zip.ps1`. .gitignore ularni e'tiborsiz qoldiradi, lekin ular allaqachon track qilingan. · OCHIQ
+`make-zip.ps1`. .gitignore ularni e'tiborsiz qoldiradi, lekin ular allaqachon track qilingan.
+· TUZATILDI: 47 fayl indeksdan chiqarildi (lokal nusxalar joyida), `backend/.gitignore` ga `.tools/`. Docx va make-zip.ps1
+qoldirildi (SETUP.md da ishlatiladi / hujjat).
 
 ## Server / infratuzilma
 

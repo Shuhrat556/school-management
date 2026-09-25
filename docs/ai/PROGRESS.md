@@ -78,4 +78,6 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 
 - B12 TUZATILDI: gateway'dan o'lik Consul discovery kodi olib tashlandi; ARCHITECTURE.md "Access rules" + yangilangan "Known gaps".
 
-KEYINGI QADAM: PLAN 7-bo'lim B13 (repo gigiyenasi: .tools/, .idea/, DotSettings.user, Flutter generated fayllarni untrack), keyin admin-web.
+- B13: 47 ta generated/IDE/eskirgan tool fayli untrack qilindi (`git rm --cached`, lokal fayllar saqlangan).
+
+KEYINGI QADAM: PLAN 7-bo'lim admin-web — lint warninglari (21) va parallel 401 da bitta refresh (race), vitest bilan test.
