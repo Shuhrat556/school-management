@@ -66,7 +66,8 @@ o'quvchi nomidan topshirishga ruxsat berardi, mavjud bo'lmagan material 500 bera
 MigrationTests (PostgreSQL) + CI'da postgres service va `has-pending-model-changes`.
 
 ### B12 [PAST] Gateway Consul discovery natijasi tashlab yuboriladi (o'lik kod)
-`ApiGateway/Program.cs` — `BuildFromConsul` natijasi ishlatilmaydi; YARP doim statik konfiguratsiyada. · OCHIQ
+`ApiGateway/Program.cs` — `BuildFromConsul` natijasi ishlatilmaydi; YARP doim statik konfiguratsiyada.
+· TUZATILDI: o'lik kod, `DiscoveryProxyConfigProvider.cs`, Consul paketi va `consul`/`spring` sozlamalari gateway'dan olib tashlandi.
 
 ## Repo gigiyenasi
 

@@ -76,4 +76,6 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   push qilinmagan commit amend qilindi (a517e77), ishchi daraxtdagi o'zgarish saqlandi; CLAUDE.md ga qoida qo'shildi.
 - B17 TUZATILDI: o'quvchi/o'qituvchi soft delete (D8). school 108/108 (PostgreSQL bilan).
 
-KEYINGI QADAM: PLAN 7-bo'lim B12 (gateway o'lik Consul kodi) va B13 (repo gigiyenasi), keyin admin-web lint warninglari va 401 refresh race.
+- B12 TUZATILDI: gateway'dan o'lik Consul discovery kodi olib tashlandi; ARCHITECTURE.md "Access rules" + yangilangan "Known gaps".
+
+KEYINGI QADAM: PLAN 7-bo'lim B13 (repo gigiyenasi: .tools/, .idea/, DotSettings.user, Flutter generated fayllarni untrack), keyin admin-web.

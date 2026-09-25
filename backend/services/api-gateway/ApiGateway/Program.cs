@@ -2,8 +2,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.HttpOverrides;
-using Yarp.ReverseProxy;
-using Yarp.ReverseProxy.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,13 +24,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSingleton<Consul.IConsulClient>(sp => new Consul.ConsulClient(cfg =>
-{
-    var consulHost = builder.Configuration["consul:host"] ?? "consul";
-    var consulPort = int.TryParse(builder.Configuration["consul:port"], out var p) ? p : 8500;
-    cfg.Address = new Uri($"http://{consulHost}:{consulPort}");
-}));
-
 // admin-web and the web-app nginx sit in front of the gateway on the private
 // Docker network; trust their X-Forwarded-For so YARP passes the real client
 // IP on to the services (auth-service rate-limits per client IP).
@@ -51,35 +42,6 @@ builder.Services.AddReverseProxy()
 var app = builder.Build();
 
 app.UseForwardedHeaders();
-
-_ = Task.Run(async () =>
-{
-    var consulHost = builder.Configuration["consul:host"] ?? "consul";
-    var consulPort = int.TryParse(builder.Configuration["consul:port"], out var p) ? p : 8500;
-
-    var maxAttempts = 15;
-    var delay = TimeSpan.FromSeconds(2);
-
-    for (int attempt = 1; attempt <= maxAttempts; attempt++)
-    {
-        try
-        {
-            var (routes, clusters) = ApiGateway.DiscoveryConfigFactory.BuildFromConsul(consulHost, consulPort);
-            Console.WriteLine($"Discovered {clusters.Count} service clusters from Consul.");
-            break;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Attempt {attempt} to discover services from Consul failed: {ex.Message}");
-            if (attempt == maxAttempts)
-            {
-                Console.WriteLine("Could not reach Consul, falling back to static YARP configuration.");
-                break;
-            }
-            await Task.Delay(delay);
-        }
-    }
-});
 
 if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("Swagger:Enabled"))
 {

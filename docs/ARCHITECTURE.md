@@ -24,7 +24,7 @@ a Next.js web app (admin, teacher and student portals) and a Flutter app (mobile
 | api-gateway | `backend/services/api-gateway/ApiGateway` | YARP reverse proxy (static routes in `appsettings.json`), one Swagger UI that proxies both services' OpenAPI documents, global error shape for upstream failures |
 | auth-service | `backend/services/auth-service/AuthService` | Accounts, login, JWT access + refresh tokens, email verification, password reset, Google/Facebook sign-in, admin user management |
 | school-service | `backend/services/school-service/SchoolService` | Students, teachers, departments, subjects, classrooms (course sections), enrolment, rooms, schedules, attendance, grades, announcements, materials, submissions |
-| consul | image `hashicorp/consul` | Service registry; services self-register on start. The gateway currently routes by static config (see "Known gaps") |
+| consul | image `hashicorp/consul` | Service registry; services self-register on start and school-service reads it for the admin health page. The gateway routes by the static YARP config in its `appsettings.json` |
 | admin-web | `admin-web/` | Next.js App Router, plain JS + Tailwind. Route groups `/admin/*`, `/teacher/*`, `/student/*`. Calls the gateway through Next.js rewrites |
 | web-app / Flutter | `frontend/` | Flutter app (student + teacher dashboards). The web build is served by nginx, which proxies `/api/` to the gateway |
 
@@ -70,9 +70,14 @@ admin-web `/teacher/grades` → `POST /api/school/grades` (Next.js rewrite) → 
 | `API_URL` (admin-web) | build arg + env | baked into Next.js rewrites at build time |
 | `API_BASE_URL` (Flutter) | `--dart-define` | empty = same origin (web build behind nginx) |
 
+## Access rules
+
+- school-service: writes need `Admin` or `Teacher`, deletes and most structural changes need `Admin`; a student reads
+  and edits only their own profile and reads only their own grades, attendance and submissions (`ProfileAccess`).
+- auth-service: anonymous endpoints are rate-limited per client IP; five wrong passwords lock an account for five minutes.
+- Services trust `X-Forwarded-For` only from private networks (the gateway and the web front ends).
+
 ## Known gaps
 
-Tracked with IDs in [`docs/ai/BUGS.md`](ai/BUGS.md). The most important:
-school-service endpoints check only that a user is signed in, not the role (B1);
-school-db schema is created with `EnsureCreated()` plus hand-written SQL instead of migrations (B11);
-the gateway's Consul discovery result is computed and discarded (B12).
+Tracked with IDs in [`docs/ai/BUGS.md`](ai/BUGS.md). Open at the time of writing: production runs over plain HTTP
+without backups (B14, B15 — need the owner's go-ahead), and old secrets are in git history (B5).

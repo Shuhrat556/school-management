@@ -9,7 +9,6 @@
   <ItemGroup>
     <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
-    <PackageReference Include="Consul" Version="1.8.0" />
   </ItemGroup>
 
 </Project>

@@ -8,7 +8,7 @@ A full-stack school management platform built with **.NET microservices**, a **F
 
 | Layer             | Technology                                         |
 | ----------------- | -------------------------------------------------- |
-| API Gateway       | ASP.NET Core 10 + YARP reverse proxy + Consul      |
+| API Gateway       | ASP.NET Core 10 + YARP reverse proxy (static routes) |
 | Auth Service      | ASP.NET Core 10 + EF Core + PostgreSQL + JWT       |
 | School Service    | ASP.NET Core 10 + EF Core + PostgreSQL             |
 | Service Discovery | HashiCorp Consul 1.22                              |
@@ -234,7 +234,7 @@ school-management/
 ├── backend/
 │   ├── docker-compose.yml
 │   └── services/
-│       ├── api-gateway/              # YARP + Consul reverse proxy
+│       ├── api-gateway/              # YARP reverse proxy
 │       │   └── ApiGateway/
 │       ├── auth-service/             # JWT, OAuth, email, user management
 │       │   └── AuthService/
