@@ -73,6 +73,6 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 
 ## 9. Deploy
 - [x] docs/DEPLOYMENT.md: runbook, backup (pg_dump), rollback rejasi
-- [ ] scripts/backup-db.sh (lokal/serverda ishlatish uchun, faqat fayl)
+- [x] scripts/backup-db.sh (rotatsiya va buzilgan dump tekshiruvi soxta docker bilan sinaldi)
 - [!] Serverda backup olish va yangi versiyani deploy qilish — RUXSAT KERAK (QUESTIONS Q2)
 - [!] TLS/domen uchun nginx konfiguratsiyasi — RUXSAT KERAK (QUESTIONS Q3)

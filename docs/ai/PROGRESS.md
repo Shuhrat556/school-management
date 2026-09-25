@@ -97,5 +97,6 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 
 - B21/B22 TUZATILDI: e'lon muallifi tokendan, faqat muallif/Admin o'zgartiradi, qoralamalar faqat Staff'ga. school 118/118.
 
-KEYINGI QADAM: 9-bo'lim tayyorgarligi — `scripts/backup-db.sh` (serverda ishlatish uchun, faqat fayl), deploy buyruqlari ro'yxati Q2 uchun;
-keyin F4 (hisobot kartasi) / F5 (audit log).
+- `scripts/backup-db.sh` (+ DEPLOYMENT.md cron taklifi); QUESTIONS Q2 ga aniq deploy/rollback rejasi yozildi (ruxsat kutilmoqda).
+
+KEYINGI QADAM: F4 — o'quvchi hisobot kartasi (server tomonda semestr bo'yicha xulosa + CSV) yoki F5 audit log; ruxsat kelsa — Q2 deploy.

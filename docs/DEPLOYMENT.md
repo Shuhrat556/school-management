@@ -81,8 +81,12 @@ docker compose exec -T auth-db   pg_dump -U auth_user   -Fc auth_db   > "$dir/au
 docker compose exec -T school-db pg_dump -U school_user -Fc school_db > "$dir/school_db-$ts.dump"
 ls -lh "$dir" | tail -2
 ```
-The same steps are scripted in `scripts/backup-db.sh` (planned — PLAN.md §9). Keep at least the last 7 dumps and copy
-them off the server.
+The same steps are scripted in `scripts/backup-db.sh` (custom-format dumps, checks the `PGDMP` header, keeps the newest
+14 of each database, files `600`, directory `700`). Suggested cron (daily 03:15, needs the owner's approval to install):
+```
+15 3 * * * $HOME/apps/school-management/scripts/backup-db.sh >> $HOME/backups/school-management/backup.log 2>&1
+```
+Copy the dumps off the server as well — a backup on the same disk does not survive losing the VM.
 
 Restore (only after a failed release, and only with the owner's approval):
 ```bash

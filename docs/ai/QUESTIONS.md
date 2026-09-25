@@ -15,6 +15,19 @@ zaxirasini olish, (b) kodni yangilab `docker compose up -d --build` qilish, (c) 
 o'tkazish (baseline — mavjud jadvallarga tegmaydi, faqat `__EFMigrationsHistory` yaratadi). Hozircha hech narsa qilinmagan;
 tayyor bo'lganda aniq buyruqlar ro'yxati bilan qayta so'rayman.
 
+**Tayyor reja (2026-09-25).** Ruxsat berilsa, aynan shu tartibda:
+1. `git push origin ai/improvements` (GitHub'ga branch; main'ga merge — siz PR orqali yoki men, ayting).
+2. Serverda (SSH): `cd ~/apps/school-management && git fetch origin-canonical && git checkout ai/improvements`
+   (yoki merge'dan keyin `main`), oldingi commit: `b4db3c3` (rollback nuqtasi).
+3. `grep -cE '^JWT_SECRET=.{32,}$' backend/.env` → `1` bo'lishi shart (aks holda servislar ishga tushmaydi).
+4. Backup: `scripts/backup-db.sh` → ikkala dump hajmini tekshirish.
+5. `cd backend && docker compose build && docker compose up -d`.
+   Startup'da avtomatik: auth — `AddLoginLockout`, `HashRefreshTokens` migratsiyalari; school — legacy baseline
+   (history jadvali), so'ng `AddNaturalKeyIndexes`, `AddStudentParents`, `AddNotifications` (hammasi Down bilan; prod'da dublikat yo'q).
+6. Tekshiruv: `/health` (5001/5002/5003), admin-web login, `docker compose logs --since 10m` da xato yo'q.
+7. Muammo bo'lsa: `git checkout b4db3c3 && docker compose build && docker compose up -d`; school/auth migratsiyalari additive —
+   eski kod yangi jadval/ustunlarni e'tiborsiz qoldiradi; kerak bo'lsa DEPLOYMENT.md "Rollback plan".
+
 ## Q3 — TLS va domen (OCHIQ)
 RUXSAT KERAK: school-management hozir HTTP portlarda (3100/3200/5001) ochiq (BUGS B14). Taklif: subdomen
 (masalan `school.<domeningiz>`) + serverdagi mavjud nginx/certbot orqali HTTPS, portlarni 127.0.0.1 ga yopish.
