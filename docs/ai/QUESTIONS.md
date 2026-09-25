@@ -30,3 +30,9 @@ yangilash (Google hisobida eski App Password'ni bekor qilish). Git tarixini toza
 - `cd frontend && flutter clean` — ~2.4 GB (`frontend/build`, 22-sentabrdagi Android build qoldig'i);
 - Docker Desktop → Troubleshoot → "Clean / Purge data" — ~0.7 GB (VM diski, 24-sentabrda men ishga tushirganimda yaratilgan).
 Joy bo'shamaguncha: Docker smoke test va yangi NuGet paketlari kerak bo'lgan test loyihalari kechiktiriladi.
+
+## Q6 — Docker Desktop ishga tushmayapti (OCHIQ, egasi bajaradi)
+Disk to'lgan paytdagi yiqilishdan keyin Docker Desktop backend jarayoni ishlaydi, lekin API (`~/.docker/run/docker.sock`)
+3 daqiqadan keyin ham ko'tarilmadi — ehtimol ilova oynasida tasdiq/qayta ishga tushirish kutilmoqda. Docker ma'lumotlarini
+reset qilmadim. Iltimos, Docker Desktop'ni qo'lda oching; ishlasa, lokal smoke test (`docker compose up -d --build` web-app/pgadmin'siz)
+PLAN 1-bo'limda kutib turibdi. Migratsiyalar bu orada vaqtinchalik PostgreSQL 16 da sinaldi.
