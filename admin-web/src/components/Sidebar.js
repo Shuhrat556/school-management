@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { logout, getUser } from '@/lib/auth';
+import { getUnreadNotificationCount } from '@/lib/api';
 import {
   Activity,
   BarChart3,
+  Bell,
   BookOpen,
   Building2,
   CalendarDays,
@@ -76,6 +78,7 @@ const studentSections = [
     title: 'Overview',
     items: [
       { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/notifications', label: 'Notifications', icon: Bell, showUnread: true },
     ],
   },
   {
@@ -103,6 +106,7 @@ const parentSections = [
     title: 'Family',
     items: [
       { href: '/parent/dashboard', label: 'My children', icon: Users },
+      { href: '/notifications', label: 'Notifications', icon: Bell, showUnread: true },
     ],
   },
 ];
@@ -127,6 +131,20 @@ export default function Sidebar() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Students and parents see how many notifications they haven't read yet
+  const [unread, setUnread] = useState(0);
+  const role = user?.role;
+  useEffect(() => {
+    if (role !== 2 && role !== 3) return;
+    let active = true;
+    getUnreadNotificationCount().then((count) => {
+      if (active) setUnread(count);
+    });
+    return () => {
+      active = false;
+    };
+  }, [role, pathname]);
 
   const roleMeta = getRoleMeta(user?.role);
 
@@ -194,7 +212,7 @@ export default function Sidebar() {
                 {section.title}
               </p>
               <div className="mt-2 space-y-1.5">
-                {section.items.map(({ href, label, icon: Icon }) => {
+                {section.items.map(({ href, label, icon: Icon, showUnread }) => {
                   const active = pathname === href || pathname.startsWith(`${href}/`);
 
                   return (
@@ -217,6 +235,11 @@ export default function Sidebar() {
                         <Icon className="h-[18px] w-[18px]" />
                       </span>
                       <span className="flex-1">{label}</span>
+                      {showUnread && unread > 0 ? (
+                        <span className="rounded-full bg-rose-500 px-2 py-0.5 text-xs font-semibold text-white">
+                          {unread > 99 ? '99+' : unread}
+                        </span>
+                      ) : null}
                       <ChevronRight
                         className={[
                           'h-4 w-4 transition',

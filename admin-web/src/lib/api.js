@@ -315,6 +315,27 @@ export async function unlinkStudentParent(studentId, parentAuthUserId) {
   return request(`/api/school/students/${studentId}/parents/${parentAuthUserId}`, { method: 'DELETE' });
 }
 
+// In-app notifications (students and parents)
+export async function getNotifications({ unreadOnly = false, take = 50 } = {}) {
+  const res = await request(`/api/school/notifications?unreadOnly=${unreadOnly}&take=${take}`);
+  return res.ok ? res.json() : null;
+}
+
+export async function getUnreadNotificationCount() {
+  const res = await request('/api/school/notifications/unread-count');
+  if (!res.ok) return 0;
+  const data = await res.json();
+  return data?.count ?? 0;
+}
+
+export async function markNotificationRead(id) {
+  return request(`/api/school/notifications/${id}/read`, { method: 'POST' });
+}
+
+export async function markAllNotificationsRead() {
+  return request('/api/school/notifications/read-all', { method: 'POST' });
+}
+
 export async function getMyChildren() {
   const res = await request('/api/school/parents/me/children');
   return res.ok ? res.json() : null;

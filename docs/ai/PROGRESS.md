@@ -89,4 +89,6 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - F3 backend TAYYOR: `Notifications` (migratsiya `AddNotifications`), baho/davomat/e'lon ilgaklari, 4 endpoint (D11). school 119/119.
   B21 (e'lon muallifi) topildi.
 
-KEYINGI QADAM: F3b — admin-web'da bildirishnomalar (Sidebar'da o'qilmaganlar soni, `/notifications` sahifasi, student+parent).
+- F3b: admin-web `/notifications` sahifasi (o'qilgan/o'qilmagan, hammasini o'qish) va Sidebar'da o'qilmaganlar soni. Build OK.
+
+KEYINGI QADAM: F3c — Flutter `notification_student_role.dart` ni `/api/school/notifications` ga ulash (hozir statikmi — tekshirish), widget test.
