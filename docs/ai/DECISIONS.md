@@ -79,3 +79,10 @@ auth-service bilan bir xil yondashuv; EF 9+ migratsiya lock'i bor.
 baholar/e'lonlarni kutilmaganda yashirardi. Aniq filtr ta'sir doirasini faqat profil endpointlari bilan cheklaydi;
 tarixiy yozuvlar (baho, davomat) ro'yxatlarda qoladi.
 **Manba:** [Global query filters — required navigation](https://learn.microsoft.com/en-us/ef/core/querying/filters#accessing-entity-with-query-filter-using-required-navigation)
+
+## D9 — admin-web lint ogohlantirishlari qoldiriladi (2026-09-25)
+**Qaror:** `react-hooks/set-state-in-effect` (16), `exhaustive-deps` (3), `no-location-assign` (2) — o'zgartirilmaydi.
+**Sabab:** egasi 5801210 da `set-state-in-effect` ni ataylab `warn` qilgan; bular `useEffect(() => { load() }, [])` yuklash naqshi,
+`localStorage` ni mount'dan keyin o'qish (hydration uchun zarur) va sign-out'dan keyin to'liq qayta yuklash. UI testlarisiz 16 sahifani
+qayta yozish regressiya xavfi foydadan katta. `auth.js` dagi `allowedRoles` dependency'si qo'shilsa, har renderda yangi massiv sabab
+effect cheksiz qayta ishga tushadi — izohda aytilgan. Xatolar (errors) 0 — CI o'tadi.

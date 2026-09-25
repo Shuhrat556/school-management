@@ -58,7 +58,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] B12: gateway o'lik Consul kodi — olib tashlash yoki haqiqiy dinamik provider
 - [x] B13: repo gigiyenasi — .tools/, .idea/, DotSettings.user, Flutter generated fayllarni untrack qilish
 - [x] admin-web: parallel 401 da bitta refresh (B20) + `npm test` (node:test)
-- [ ] admin-web: lint warninglarini tuzatish (21: 16 set-state-in-effect, 3 exhaustive-deps, 2 location)
+- [x] admin-web lint: qolgan 21 ogohlantirish ataylab qoldirildi (D9); test fayllari uchun override
 - [ ] admin-web Dockerfile: `output: 'standalone'`
 
 ## 8. Yangi funksiyalar (RESEARCH.md: Majburiy/Muhim)
