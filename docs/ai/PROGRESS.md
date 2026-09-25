@@ -95,4 +95,7 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   pull-to-refresh, o'qildi belgisi; 2 ta widget test. Eslatma: `dart format` bu repoda ishlatilmagan (eski formatlash) — butun faylni
   formatlamang, faqat o'zgargan joylar.
 
-KEYINGI QADAM: B21 (e'lon muallifi tokendan), keyin F4 hisobot kartasi yoki F5 audit log; deploy tayyorligi (backup skripti).
+- B21/B22 TUZATILDI: e'lon muallifi tokendan, faqat muallif/Admin o'zgartiradi, qoralamalar faqat Staff'ga. school 118/118.
+
+KEYINGI QADAM: 9-bo'lim tayyorgarligi — `scripts/backup-db.sh` (serverda ishlatish uchun, faqat fayl), deploy buyruqlari ro'yxati Q2 uchun;
+keyin F4 (hisobot kartasi) / F5 (audit log).

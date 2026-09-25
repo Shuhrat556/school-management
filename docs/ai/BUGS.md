@@ -116,4 +116,9 @@ ishlatilgan token bilan yiqilib, foydalanuvchi tizimdan chiqarib yuborilardi (da
 
 ### B21 [PAST] E'lon muallifi so'rov tanasidan olinadi
 `AnnouncementCreateDto.AuthorTeacherId` — o'qituvchi boshqa o'qituvchi nomidan e'lon yozishi mumkin. Tavsiya: muallifni tokendan
-(`/teachers/me`) olish, Admin uchun ixtiyoriy. · OCHIQ
+(`/teachers/me`) olish, Admin uchun ixtiyoriy.
+· TUZATILDI: o'qituvchi faqat o'z nomidan yozadi va faqat o'z e'lonlarini o'zgartiradi (AnnouncementTests)
+
+### B22 [O'RTA] Qoralama e'lonlar o'quvchi va ota-onaga ko'rinadi
+`GET /api/announcements` publish qilinmaganlarni ham qaytarardi. · TUZATILDI: Staff'dan boshqalar faqat publish qilinganlarni ko'radi,
+qoralama `GET {id}` → 404 (AnnouncementTests)

@@ -9,13 +9,14 @@ namespace SchoolService.Tests;
 // F3: students and their parents hear about new grades, absences and class announcements.
 public class NotificationTests(SchoolApiFactory factory) : IClassFixture<SchoolApiFactory>
 {
-    private sealed record World(Student Student, Guid StudentAuthId, Guid ParentId, Subject Subject, Classroom Classroom, Teacher Teacher);
+    private sealed record World(Student Student, Guid StudentAuthId, Guid ParentId, Subject Subject, Classroom Classroom, Teacher Teacher, Guid TeacherAuthId);
 
     private async Task<World> SeedAsync()
     {
         var studentAuthId = Guid.NewGuid();
         var student = new Student("Nodira", "Aliyeva", studentAuthId);
-        var teacher = new Teacher("Anvar", "Qodirov");
+        var teacherAuthId = Guid.NewGuid();
+        var teacher = new Teacher("Anvar", "Qodirov", teacherAuthId);
         var department = new Department($"Dept {Guid.NewGuid():N}");
         Subject subject = null!;
         Classroom classroom = null!;
@@ -38,7 +39,7 @@ public class NotificationTests(SchoolApiFactory factory) : IClassFixture<SchoolA
         var parentId = Guid.NewGuid();
         await factory.CreateClientAs("Admin").PostAsJsonAsync($"/api/school/students/{student.Id}/parents",
             new { parentAuthUserId = parentId, fullName = "Parent Aliyeva" });
-        return new World(student, studentAuthId, parentId, subject, classroom, teacher);
+        return new World(student, studentAuthId, parentId, subject, classroom, teacher, teacherAuthId);
     }
 
     private static async Task<JsonElement[]> FeedAsync(HttpClient client)
@@ -103,7 +104,7 @@ public class NotificationTests(SchoolApiFactory factory) : IClassFixture<SchoolA
     {
         var w = await SeedAsync();
 
-        var created = await factory.CreateClientAs("Teacher").PostAsJsonAsync("/api/announcements", new
+        var created = await factory.CreateClientAs("Teacher", w.TeacherAuthId).PostAsJsonAsync("/api/announcements", new
         {
             title = "Field trip",
             body = "Bring a signed permission slip on Friday.",

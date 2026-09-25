@@ -28,16 +28,22 @@ public class RoleAuthorizationTests(SchoolApiFactory factory) : IClassFixture<Sc
         { "POST", "/api/school/grades" },
         { "PUT", $"/api/school/grades/{Id}" },
         { "DELETE", $"/api/school/grades/{Id}" },
-        { "POST", "/api/announcements" },
-        { "PUT", $"/api/announcements/{Id}" },
-        { "POST", $"/api/announcements/{Id}/publish" },
-        { "POST", $"/api/announcements/{Id}/unpublish" },
-        { "DELETE", $"/api/announcements/{Id}" },
         { "POST", "/api/materials" },
         { "PUT", $"/api/materials/{Id}" },
         { "DELETE", $"/api/materials/{Id}" },
         { "GET", $"/api/submissions/material/{Id}" },
         { "PATCH", $"/api/submissions/{Id}/grade" },
+    };
+
+    // Staff endpoints that also check ownership (a teacher needs their own
+    // profile and may only touch their own announcements) — see AnnouncementTests.
+    public static TheoryData<string, string> StaffOwned => new()
+    {
+        { "POST", "/api/announcements" },
+        { "PUT", $"/api/announcements/{Id}" },
+        { "POST", $"/api/announcements/{Id}/publish" },
+        { "POST", $"/api/announcements/{Id}/unpublish" },
+        { "DELETE", $"/api/announcements/{Id}" },
     };
 
     // Endpoints that only an Admin may call.
@@ -54,6 +60,7 @@ public class RoleAuthorizationTests(SchoolApiFactory factory) : IClassFixture<Sc
 
     [Theory]
     [MemberData(nameof(StaffOnly))]
+    [MemberData(nameof(StaffOwned))]
     [MemberData(nameof(AdminOnly))]
     public async Task Student_is_forbidden(string method, string path)
     {
