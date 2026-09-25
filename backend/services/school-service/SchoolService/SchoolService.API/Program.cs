@@ -90,6 +90,7 @@ builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
 
 // Service Registrations
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
@@ -104,6 +105,7 @@ builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+builder.Services.AddScoped<IParentService, ParentService>();
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<ProfileAccess>();
 

@@ -26,8 +26,13 @@ public class GradesController : ControllerBase
         [FromQuery] Guid? subjectId,
         [FromQuery] string? semester)
     {
-        // A student only ever sees their own grades.
-        if (!User.IsStaff())
+        // A parent picks one of their children; a student only ever sees their own grades.
+        if (User.IsInRole(Roles.Parent))
+        {
+            if (!studentId.HasValue || !await _access.CanAccessStudentAsync(User, studentId.Value))
+                return Forbid();
+        }
+        else if (!User.IsStaff())
         {
             var own = await _access.GetOwnStudentAsync(User);
             if (own == null || (studentId.HasValue && studentId != own.Id))

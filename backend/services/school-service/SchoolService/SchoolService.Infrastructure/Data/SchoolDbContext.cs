@@ -22,6 +22,7 @@ public class SchoolDbContext : DbContext
     public DbSet<Material>          Materials          => Set<Material>();
     public DbSet<Submission>        Submissions        => Set<Submission>();
     public DbSet<Announcement>      Announcements      => Set<Announcement>();
+    public DbSet<StudentParent>     StudentParents     => Set<StudentParent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

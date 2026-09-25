@@ -86,3 +86,16 @@ tarixiy yozuvlar (baho, davomat) ro'yxatlarda qoladi.
 `localStorage` ni mount'dan keyin o'qish (hydration uchun zarur) va sign-out'dan keyin to'liq qayta yuklash. UI testlarisiz 16 sahifani
 qayta yozish regressiya xavfi foydadan katta. `auth.js` dagi `allowedRoles` dependency'si qo'shilsa, har renderda yangi massiv sabab
 effect cheksiz qayta ishga tushadi — izohda aytilgan. Xatolar (errors) 0 — CI o'tadi.
+
+## D10 — F1: ota-ona (Parent) portali dizayni (2026-09-25)
+**Qaror:** alohida Parent profili yaratilmaydi; school_db ga `StudentParents` bog'lanish jadvali qo'shiladi:
+`Id, StudentId (FK → Students, cascade), ParentAuthUserId (auth user id), FullName, Email, Relationship, CreatedAt`,
+unique (StudentId, ParentAuthUserId). Ota-onaning shaxsi JWT `sub` dan olinadi.
+- Admin: `GET/POST /api/school/students/{id}/parents`, `DELETE /api/school/students/{id}/parents/{parentAuthUserId}`.
+- Parent: `GET /api/school/parents/me/children`. Mavjud o'qish endpointlari (`students/{id}`, `students/{id}/classrooms`,
+  `grades?studentId=`, `attendance/{id}/history`, `submissions/student/{id}`) `ProfileAccess.CanAccessStudentAsync` orqali
+  bog'langan farzand uchun ochiladi; `grades` da Parent `studentId` ni ko'rsatishi shart.
+- admin-web: `/parent/*` sahifalari (farzandlar, baho, davomat), login'da `role 3`, admin o'quvchi sahifasida "Parents" bo'limi
+  (auth'dagi Parent akkauntlaridan tanlash).
+**Sabab:** eng kichik o'zgarish bilan raqobatchilardagi asosiy funksiya (RESEARCH "Muhim" 1); ota-ona ma'lumoti auth'da bor,
+dublikat profil sinxronlash muammosini yaratardi. Flutter ota-ona ilovasi — Kelajakda.

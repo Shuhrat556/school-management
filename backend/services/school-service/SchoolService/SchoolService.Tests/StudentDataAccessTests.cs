@@ -138,7 +138,7 @@ public class StudentDataAccessTests(SchoolApiFactory factory) : IClassFixture<Sc
     }
 
     [Fact]
-    public async Task Parent_cannot_read_student_data_yet()
+    public async Task Unlinked_parent_cannot_read_student_data()
     {
         var s = await SeedAsync();
 

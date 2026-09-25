@@ -6,17 +6,19 @@ using SchoolService.Application.Interfaces;
 namespace SchoolService.API.Authorization;
 
 // Resolves the caller's own school profile and answers "may this caller see
-// student X?". Staff see everyone; a student sees only themselves; any other
-// role (e.g. Parent, until parent links exist) sees no student data.
+// student X?". Staff see everyone, a student sees only themselves and a parent
+// sees the children linked to their account.
 public class ProfileAccess
 {
     private readonly IStudentService _students;
     private readonly ITeacherService _teachers;
+    private readonly IParentService _parents;
 
-    public ProfileAccess(IStudentService students, ITeacherService teachers)
+    public ProfileAccess(IStudentService students, ITeacherService teachers, IParentService parents)
     {
         _students = students;
         _teachers = teachers;
+        _parents = parents;
     }
 
     public async Task<StudentResponseDto?> GetOwnStudentAsync(ClaimsPrincipal user)
@@ -36,5 +38,16 @@ public class ProfileAccess
     }
 
     public async Task<bool> CanAccessStudentAsync(ClaimsPrincipal user, Guid studentId)
-        => user.IsStaff() || (await GetOwnStudentAsync(user))?.Id == studentId;
+    {
+        if (user.IsStaff())
+            return true;
+
+        if (user.IsInRole(Roles.Parent))
+        {
+            var parentId = user.GetAuthUserId();
+            return parentId.HasValue && await _parents.IsParentOfAsync(parentId.Value, studentId);
+        }
+
+        return (await GetOwnStudentAsync(user))?.Id == studentId;
+    }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SchoolService.API.Authorization;
 using SchoolService.Application.DTOs;
+using SchoolService.Application.DTOs.Parents;
 using SchoolService.Application.DTOs.Students;
 using SchoolService.Application.Interfaces;
 
@@ -15,12 +16,15 @@ public class StudentsController : ControllerBase
     private readonly IStudentService _studentService;
     private readonly IClassroomService _classroomService;
     private readonly ProfileAccess _access;
+    private readonly IParentService _parentService;
 
-    public StudentsController(IStudentService studentService, IClassroomService classroomService, ProfileAccess access)
+    public StudentsController(IStudentService studentService, IClassroomService classroomService, ProfileAccess access,
+        IParentService parentService)
     {
         _studentService = studentService;
         _classroomService = classroomService;
         _access = access;
+        _parentService = parentService;
     }
 
     [HttpGet]
@@ -81,6 +85,24 @@ public class StudentsController : ControllerBase
 
         var classrooms = await _classroomService.GetByStudentIdAsync(id);
         return Ok(classrooms);
+    }
+
+    [HttpGet("{id:guid}/parents")]
+    [Authorize(Roles = Roles.Staff)]
+    public async Task<ActionResult> GetParents(Guid id)
+        => Ok(await _parentService.GetParentsAsync(id));
+
+    [HttpPost("{id:guid}/parents")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<StudentParentResponseDto>> LinkParent(Guid id, [FromBody] StudentParentCreateDto dto)
+        => Ok(await _parentService.LinkAsync(id, dto));
+
+    [HttpDelete("{id:guid}/parents/{parentAuthUserId:guid}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> UnlinkParent(Guid id, Guid parentAuthUserId)
+    {
+        await _parentService.UnlinkAsync(id, parentAuthUserId);
+        return NoContent();
     }
 
     [HttpPost]
