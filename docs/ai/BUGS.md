@@ -113,3 +113,7 @@ Deploy'dan keyin 10 daqiqa ichida yuborilgan eski kodlar yaroqsiz bo'ladi — xo
 `admin-web/src/lib/api.js` — har bir 401 o'z `/api/auth/refresh` ini chaqirardi; refresh token rotatsiyasi sababli ikkinchisi
 ishlatilgan token bilan yiqilib, foydalanuvchi tizimdan chiqarib yuborilardi (dashboard bir vaqtda 5-10 so'rov yuboradi).
 · TUZATILDI: bitta umumiy in-flight refresh (tests/api-refresh.test.mjs, avval 3 ta refresh chaqirilgan).
+
+### B21 [PAST] E'lon muallifi so'rov tanasidan olinadi
+`AnnouncementCreateDto.AuthorTeacherId` — o'qituvchi boshqa o'qituvchi nomidan e'lon yozishi mumkin. Tavsiya: muallifni tokendan
+(`/teachers/me`) olish, Admin uchun ixtiyoriy. · OCHIQ

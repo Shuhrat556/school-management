@@ -64,7 +64,8 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 ## 8. Yangi funksiyalar (RESEARCH.md: Majburiy/Muhim)
 - [x] F1: Parent portali — ota-ona ↔ o'quvchi bog'lash (`StudentParents` migratsiya), Parent API (D10, ParentPortalTests)
 - [x] F2: Parent UI (admin-web `/parent/dashboard`, admin o'quvchi sahifasida "Parents" paneli)
-- [ ] F3: In-app bildirishnomalar (yangi baho, qoldirilgan dars, e'lon)
+- [x] F3: In-app bildirishnomalar — backend (D11, NotificationTests)
+- [ ] F3b: bildirishnomalar UI — admin-web (student/parent) va Flutter
 - [ ] F4: O'quvchi hisobot kartasi (semestr bo'yicha o'rtacha + davomat %) API + CSV eksport
 - [ ] F5: Baho o'zgarishlari audit log'i
 - [ ] F6: Profil sahifasidan Google/Facebook akkauntini bog'lash (`POST /api/auth/link/{provider}`, Bearer bilan)

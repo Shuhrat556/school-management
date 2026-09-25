@@ -104,6 +104,17 @@ GET `?studentId=&subjectId=&semester=`, GET `{id}` — Staff; a student gets onl
 A linked parent can also read the child through `/students/{id}`, `/students/{id}/classrooms`, `/grades?studentId=`
 (required for parents), `/attendance/{id}/history` and `/api/submissions/student/{id}`.
 
+### Notifications — `/notifications` (Student, Parent)
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/notifications?unreadOnly=&take=` | Newest first, `take` ≤ 200 (default 50). A student sees their own; a parent sees all their children's |
+| GET | `/notifications/unread-count` | `{count}` |
+| POST | `/notifications/{id}/read` | 404 if it isn't the caller's |
+| POST | `/notifications/read-all` | |
+
+Created automatically for: a new or changed grade, a first absent/late mark for a day, and a class announcement when it is
+first published. Each goes to the student and to every linked parent.
+
 ### Admin sync — `/admin`
 POST `/admin/sync-profile` — Admin. Creates/updates the school profile linked to an auth account.
 

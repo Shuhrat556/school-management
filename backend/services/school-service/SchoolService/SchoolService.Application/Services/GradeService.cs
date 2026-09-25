@@ -11,17 +11,20 @@ public class GradeService : IGradeService
     private readonly IStudentRepository _studentRepository;
     private readonly ISubjectRepository _subjectRepository;
     private readonly IClassroomRepository _classroomRepository;
+    private readonly INotificationService _notifications;
 
     public GradeService(
         IGradeRepository gradeRepository,
         IStudentRepository studentRepository,
         ISubjectRepository subjectRepository,
-        IClassroomRepository classroomRepository)
+        IClassroomRepository classroomRepository,
+        INotificationService notifications)
     {
         _gradeRepository    = gradeRepository;
         _studentRepository  = studentRepository;
         _subjectRepository  = subjectRepository;
         _classroomRepository = classroomRepository;
+        _notifications      = notifications;
     }
 
     public async Task<IReadOnlyList<GradeResponseDto>> GetAllAsync(Guid? studentId, Guid? subjectId, string? semester)
@@ -55,8 +58,12 @@ public class GradeService : IGradeService
         var existing = await _gradeRepository.GetByStudentSubjectSemesterAsync(dto.StudentId, dto.SubjectId, semester);
         if (existing != null)
         {
+            var previousScore = existing.Score;
             existing.UpdateScore(dto.Score, semester, (GradingMethod)dto.GradingMethod);
             await _gradeRepository.UpdateAsync(existing);
+            if (previousScore != dto.Score)
+                await _notifications.NotifyStudentAsync(dto.StudentId, NotificationType.Grade,
+                    $"Grade updated in {subject.SubjectName}", $"Score {dto.Score:0.##} for semester {semester} (was {previousScore:0.##}).");
             existing = await _gradeRepository.GetByIdAsync(existing.Id) ?? existing;
             return (MapToResponse(existing), false);
         }
@@ -65,6 +72,8 @@ public class GradeService : IGradeService
             dto.StudentId, dto.SubjectId, dto.Score, semester,
             dto.ClassroomId, (GradingMethod)dto.GradingMethod);
         await _gradeRepository.AddAsync(grade);
+        await _notifications.NotifyStudentAsync(dto.StudentId, NotificationType.Grade,
+            $"New grade in {subject.SubjectName}", $"Score {dto.Score:0.##} for semester {semester}.");
 
         grade = await _gradeRepository.GetByIdAsync(grade.Id) ?? grade;
         return (MapToResponse(grade), true);

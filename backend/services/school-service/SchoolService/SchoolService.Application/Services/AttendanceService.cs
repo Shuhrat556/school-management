@@ -10,12 +10,16 @@ public class AttendanceService : IAttendanceService
     private readonly IAttendanceRepository _attendanceRepository;
     private readonly IClassroomRepository _classroomRepository;
 
+    private readonly INotificationService _notifications;
+
     public AttendanceService(
         IAttendanceRepository attendanceRepository,
-        IClassroomRepository classroomRepository)
+        IClassroomRepository classroomRepository,
+        INotificationService notifications)
     {
         _attendanceRepository = attendanceRepository;
         _classroomRepository = classroomRepository;
+        _notifications = notifications;
     }
 
     public async Task<IReadOnlyList<AttendanceResponseDto>> GetByClassroomAndDateAsync(Guid classroomId, DateOnly date)
@@ -37,6 +41,7 @@ public class AttendanceService : IAttendanceService
 
         var toAdd    = new List<Attendance>();
         var toUpdate = new List<Attendance>();
+        var toNotify = new List<(Guid StudentId, AttendanceStatus Status)>();
 
         // One mark per student and day; if a student is listed twice the last entry wins.
         foreach (var record in dto.Records.GroupBy(r => r.StudentId).Select(g => g.Last()))
@@ -44,6 +49,10 @@ public class AttendanceService : IAttendanceService
             var status = (AttendanceStatus)record.Status;
             var existing = await _attendanceRepository.GetByStudentClassroomDateAsync(
                 record.StudentId, dto.ClassroomId, dto.Date);
+
+            // Tell the family about an absence or late arrival once, not on every re-save
+            if ((status is AttendanceStatus.Absent or AttendanceStatus.Late) && existing?.Status != status)
+                toNotify.Add((record.StudentId, status));
 
             if (existing != null)
             {
@@ -61,6 +70,11 @@ public class AttendanceService : IAttendanceService
 
         foreach (var a in toUpdate)
             await _attendanceRepository.UpdateAsync(a);
+
+        foreach (var (studentId, status) in toNotify)
+            await _notifications.NotifyStudentAsync(studentId, NotificationType.Attendance,
+                status == AttendanceStatus.Absent ? "Marked absent" : "Marked late",
+                $"{classroom.Name} on {dto.Date:yyyy-MM-dd}.");
     }
 
     private static AttendanceResponseDto MapToResponse(Attendance a) => new()

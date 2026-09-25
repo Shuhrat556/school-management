@@ -11,15 +11,26 @@ public class AnnouncementService : IAnnouncementService
     private readonly ITeacherRepository _teacherRepository;
     private readonly IClassroomRepository _classroomRepository;
 
+    private readonly INotificationService _notifications;
+
     public AnnouncementService(
         IAnnouncementRepository repository,
         ITeacherRepository teacherRepository,
-        IClassroomRepository classroomRepository)
+        IClassroomRepository classroomRepository,
+        INotificationService notifications)
     {
         _repository          = repository;
         _teacherRepository   = teacherRepository;
         _classroomRepository = classroomRepository;
+        _notifications       = notifications;
     }
+
+    // Classroom announcements reach the enrolled students and their parents when first published.
+    private Task NotifyPublishedAsync(Announcement a)
+        => a.ClassroomId is { } classroomId
+            ? _notifications.NotifyClassroomAsync(classroomId, NotificationType.Announcement,
+                $"New announcement: {a.Title}", a.Body.Length > 200 ? a.Body[..200] + "…" : a.Body)
+            : Task.CompletedTask;
 
     public async Task<IReadOnlyList<AnnouncementResponseDto>> GetAllAsync(Guid? classroomId = null)
     {
@@ -49,6 +60,8 @@ public class AnnouncementService : IAnnouncementService
         if (dto.PublishImmediately) announcement.Publish();
 
         await _repository.AddAsync(announcement);
+        if (dto.PublishImmediately)
+            await NotifyPublishedAsync(announcement);
 
         var loaded = await _repository.GetByIdAsync(announcement.Id);
         return MapToResponse(loaded ?? announcement);
@@ -69,8 +82,11 @@ public class AnnouncementService : IAnnouncementService
         var a = await _repository.GetByIdAsync(id);
         if (a == null) throw new NotFoundException("Announcement", id);
 
+        var wasPublished = a.PublishedAt.HasValue;
         a.Publish();
         await _repository.UpdateAsync(a);
+        if (!wasPublished)
+            await NotifyPublishedAsync(a);
         return MapToResponse(a);
     }
 

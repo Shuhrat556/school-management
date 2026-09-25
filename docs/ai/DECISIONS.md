@@ -99,3 +99,12 @@ unique (StudentId, ParentAuthUserId). Ota-onaning shaxsi JWT `sub` dan olinadi.
   (auth'dagi Parent akkauntlaridan tanlash).
 **Sabab:** eng kichik o'zgarish bilan raqobatchilardagi asosiy funksiya (RESEARCH "Muhim" 1); ota-ona ma'lumoti auth'da bor,
 dublikat profil sinxronlash muammosini yaratardi. Flutter ota-ona ilovasi — Kelajakda.
+
+## D11 — F3: ilova ichidagi bildirishnomalar (2026-09-25)
+**Qaror:** school_db `Notifications` (StudentId, ParentAuthUserId null=o'quvchiga / aks holda ota-onaga, Type, Title, Body, CreatedAt, ReadAt).
+Yaratiladi: baho qo'yilganda/ball o'zgarganda, "kelmadi"/"kechikdi" birinchi marta belgilanganda, sinf e'loni birinchi publish'da
+(o'quvchi + bog'langan ota-onalar). Best-effort: xato log qilinadi, asosiy amal buzilmaydi. API: `GET /api/school/notifications`,
+`GET .../unread-count`, `POST .../{id}/read`, `POST .../read-all` (Student, Parent).
+**Sabab:** eMaktab/ManageBac'dagi asosiy imkoniyat; o'quvchi manzili `AuthUserId` ga emas `StudentId` ga bog'langani uchun bog'lanmagan
+seed profillar ham ishlaydi. Email/push — tashqi xizmat (Gmail allaqachon sozlangan, lekin ommaviy yuborish limitlari) → Kelajakda.
+Eslatma: umumiy (sinfsiz) e'lonlar hozircha bildirishnoma yaratmaydi — butun maktabga fan-out keyinroq (queue bilan).

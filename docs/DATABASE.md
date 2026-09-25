@@ -52,6 +52,7 @@ TeacherDepartments TeacherSubjects├─* Schedules
 | `Announcements` | Teacher announcement, optional classroom | `Title`, `Body`, `PublishedAt` |
 | `Materials` | Learning material / assignment in a classroom | `Title`, `Url`, `Type` |
 | `Submissions` | Student hand-in for a material | `SubmissionUrl`, `SubmittedAt`, `Grade`, `Feedback` |
+| `Notifications` | In-app messages about a student | `StudentId`, `ParentAuthUserId` (null = for the student), `Type` (1 Grade, 2 Attendance, 3 Announcement), `Title`, `Body`, `ReadAt` |
 | `StudentParents` | Parent account ↔ student link (parent portal) | `StudentId`, `ParentAuthUserId` (auth user id), `FullName`, `Email`, `Relationship`; unique per student + parent |
 
 ### Migrations and the legacy baseline
