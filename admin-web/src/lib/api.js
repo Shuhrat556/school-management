@@ -11,6 +11,44 @@ function getRefreshToken() {
   return localStorage.getItem('refreshToken');
 }
 
+// Several requests can get a 401 at the same moment. The server rotates refresh
+// tokens (each one works once), so they must share a single refresh call —
+// otherwise the second call uses a spent token and the user is signed out.
+let refreshInFlight = null;
+
+function refreshAccessToken() {
+  refreshInFlight ??= requestNewAccessToken().finally(() => {
+    refreshInFlight = null;
+  });
+  return refreshInFlight;
+}
+
+async function requestNewAccessToken() {
+  try {
+    const refreshRes = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: getRefreshToken() }),
+    });
+
+    if (!refreshRes.ok) {
+      console.error(`Token refresh failed with status ${refreshRes.status}`);
+      return null;
+    }
+
+    const data = await refreshRes.json();
+    const token = data?.accessToken ?? data?.token;
+    if (!token) throw new Error('Invalid refresh response: missing token');
+
+    localStorage.setItem('token', token);
+    if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+    return token;
+  } catch (err) {
+    console.error('Token refresh failed', err);
+    return null;
+  }
+}
+
 async function request(path, options = {}) {
   let token = getToken();
   let res = await fetch(path, {
@@ -29,40 +67,17 @@ async function request(path, options = {}) {
     try { user = JSON.parse(userString); } catch {}
 
     if (token && refreshToken && user?.email) {
-      try {
-        const refreshRes = await fetch('/api/auth/refresh', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken }),
+      token = await refreshAccessToken();
+      if (token) {
+        // Retry original request
+        return fetch(path, {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            ...options.headers,
+            Authorization: `Bearer ${token}`,
+          },
         });
-        
-        if (refreshRes.ok) {
-          const data = await refreshRes.json();
-          
-          // Validate response has required fields
-          if (!data || !data.token && !data.accessToken) {
-            throw new Error('Invalid refresh response: missing token');
-          }
-          
-          localStorage.setItem('token', data.accessToken ?? data.token);
-          if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
-          token = data.accessToken ?? data.token;
-          
-          // Retry original request
-          res = await fetch(path, {
-            ...options,
-            headers: {
-              'Content-Type': 'application/json',
-              ...options.headers,
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          return res;
-        } else {
-          console.error(`Token refresh failed with status ${refreshRes.status}`);
-        }
-      } catch (err) {
-        console.error('Token refresh failed', err);
       }
     }
 

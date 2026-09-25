@@ -108,3 +108,8 @@ NaturalKeyTests, MigrationTests.Emails_are_unique_ignoring_case
 `AuthService.API/appsettings.json` — `EmailVerification:Pepper` ochiq turardi (email tasdiqlash va parol tiklash kodlari HMAC'i
 uchun). · TUZATILDI: bo'lim olib tashlandi, pepper endi `Jwt:Secret` dan olinadi (PasswordResetTests end-to-end tekshiradi).
 Deploy'dan keyin 10 daqiqa ichida yuborilgan eski kodlar yaroqsiz bo'ladi — xolos.
+
+### B20 [O'RTA] admin-web: bir vaqtdagi 401'lar bir nechta refresh chaqiradi
+`admin-web/src/lib/api.js` — har bir 401 o'z `/api/auth/refresh` ini chaqirardi; refresh token rotatsiyasi sababli ikkinchisi
+ishlatilgan token bilan yiqilib, foydalanuvchi tizimdan chiqarib yuborilardi (dashboard bir vaqtda 5-10 so'rov yuboradi).
+· TUZATILDI: bitta umumiy in-flight refresh (tests/api-refresh.test.mjs, avval 3 ta refresh chaqirilgan).

@@ -47,7 +47,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 ## 6. Testlar (qamrov)
 - [ ] School-service unit: GradeService, AttendanceService, ClassroomService (enroll/unenroll), StudentService
 - [ ] Auth unit: AuthenticationService (login, refresh rotation, reset code lockout), PasswordHasher
-- [ ] admin-web: vitest + api.js (refresh oqimi), auth.js (rol yo'naltirish)
+- [x] admin-web: api.js refresh oqimi testi (node:test, yangi dependency'siz)
 - [ ] Flutter: api_service unit (Dio mock), login oqimi widget testi
 - [x] CI: `.github/workflows/ci.yml` — dotnet test (3 servis), EF pending-changes, admin-web lint/build, flutter analyze/test (push qilinmagan)
 
@@ -57,7 +57,8 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] B17: o'quvchi/o'qituvchi soft delete (SoftDeleteTests)
 - [x] B12: gateway o'lik Consul kodi — olib tashlash yoki haqiqiy dinamik provider
 - [x] B13: repo gigiyenasi — .tools/, .idea/, DotSettings.user, Flutter generated fayllarni untrack qilish
-- [ ] admin-web: lint warninglarini tuzatish (21), parallel 401 da bitta refresh (race)
+- [x] admin-web: parallel 401 da bitta refresh (B20) + `npm test` (node:test)
+- [ ] admin-web: lint warninglarini tuzatish (21: 16 set-state-in-effect, 3 exhaustive-deps, 2 location)
 - [ ] admin-web Dockerfile: `output: 'standalone'`
 
 ## 8. Yangi funksiyalar (RESEARCH.md: Majburiy/Muhim)

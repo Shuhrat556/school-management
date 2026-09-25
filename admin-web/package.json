@@ -6,7 +6,8 @@
     "dev": "next dev --port 3000 --turbopack",
     "build": "next build",
     "start": "next start --port 3000",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node --test 'tests/**/*.test.mjs'"
   },
   "dependencies": {
     "lucide-react": "^0.575.0",

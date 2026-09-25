@@ -80,4 +80,6 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 
 - B13: 47 ta generated/IDE/eskirgan tool fayli untrack qilindi (`git rm --cached`, lokal fayllar saqlangan).
 
-KEYINGI QADAM: PLAN 7-bo'lim admin-web — lint warninglari (21) va parallel 401 da bitta refresh (race), vitest bilan test.
+- B20 TUZATILDI: admin-web 401 refresh race (bitta umumiy refresh). `npm test` = Node o'rnatilgan test runner (yangi paket yo'q), CI'da.
+
+KEYINGI QADAM: admin-web lint warninglari (react-hooks/set-state-in-effect — sahifalardagi useEffect yuklash naqshi), keyin 8-bo'lim F1 (Parent portali dizayni).
