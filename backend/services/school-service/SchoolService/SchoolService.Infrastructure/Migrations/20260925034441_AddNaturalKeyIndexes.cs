@@ -27,12 +27,12 @@ namespace SchoolService.Infrastructure.Migrations
                 columns: new[] { "StudentId", "ClassroomId", "Date" },
                 unique: true);
 
-            // Emails identify the profile for sign-in lookups: unique ignoring case, only
-            // where set. EF can't model expression indexes, so these live here only.
+            // Emails identify the profile for sign-in lookups: unique ignoring case, among
+            // profiles that have one and aren't deleted. EF can't model expression indexes.
             migrationBuilder.Sql(
-                "CREATE UNIQUE INDEX \"IX_Students_Email_Lower\" ON \"Students\" (lower(\"Email\")) WHERE \"Email\" IS NOT NULL;");
+                "CREATE UNIQUE INDEX \"IX_Students_Email_Lower\" ON \"Students\" (lower(\"Email\")) WHERE \"Email\" IS NOT NULL AND \"DeletedAt\" IS NULL;");
             migrationBuilder.Sql(
-                "CREATE UNIQUE INDEX \"IX_Teachers_Email_Lower\" ON \"Teachers\" (lower(\"Email\")) WHERE \"Email\" IS NOT NULL;");
+                "CREATE UNIQUE INDEX \"IX_Teachers_Email_Lower\" ON \"Teachers\" (lower(\"Email\")) WHERE \"Email\" IS NOT NULL AND \"DeletedAt\" IS NULL;");
         }
 
         /// <inheritdoc />

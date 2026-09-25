@@ -101,5 +101,13 @@ public class MigrationTests
         db.Students.Add(second);
 
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
+
+        // Once the first profile is deleted its email can be used again.
+        db.ChangeTracker.Clear();
+        first.SoftDelete();
+        db.Students.Update(first);
+        await db.SaveChangesAsync();
+        db.Students.Add(second);
+        await db.SaveChangesAsync();
     }
 }

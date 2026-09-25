@@ -65,15 +65,16 @@ Tests: `MigrationTests` (fresh database, legacy baseline, rolling back every mig
 points at a PostgreSQL server, as in CI.
 
 ### Delete behaviour
-Deleting a **Student** removes the row (hard delete) and cascades to `StudentClassrooms`, `StudentGrades`,
-`Attendances` and `Submissions` (BUGS B17). Deleting a Classroom cascades to schedules, enrolments and materials;
+Deleting a **Student** or **Teacher** through the API is a soft delete: `DeletedAt` is set, `IsActive` becomes false and
+the repositories never return the row again. A deleted student's active enrolments are marked `Dropped`; grades,
+attendance and submissions stay. The database-level cascades below only matter for rows removed by hand. Deleting a Classroom cascades to schedules, enrolments and materials;
 grades and attendance keep the row with `ClassroomId = NULL`. Subjects referenced by grades or schedules cannot be deleted (RESTRICT).
 
 ### Indexes and constraints
 Every foreign key has an index. Natural keys (migration `AddNaturalKeyIndexes`):
 - `StudentGrades (StudentId, SubjectId, Semester)` unique — `POST /grades` updates the existing row instead of adding one;
 - `Attendances (StudentId, ClassroomId, Date)` unique — bulk marking updates existing marks;
-- `Students` / `Teachers`: `lower(Email)` unique where `Email` is set (raw SQL in the migration, not in the EF model).
+- `Students` / `Teachers`: `lower(Email)` unique among rows with an email that aren't deleted (raw SQL in the migration, not in the EF model).
 
 Before applying it to a database that may hold duplicates, check (all counts must be 0):
 ```sql

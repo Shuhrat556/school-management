@@ -71,3 +71,11 @@ auth-service bilan bir xil yondashuv; EF 9+ migratsiya lock'i bor.
 **Qaror:** (student, fan, semestr) uchun baho allaqachon bo'lsa, POST uni yangilaydi va 200 qaytaradi (yangi bo'lsa 201).
 **Sabab:** `StudentGrade` — semestr yakuniy bahosi; Flutter va admin-web qayta kiritishda POST yuboradi (`updateGrade` ishlatilmaydi),
 409 qaytarish o'qituvchi oqimini buzardi. Unique indeks poyga holatida 409 bilan himoya qiladi.
+
+## D8 — Soft delete aniq filtr bilan, global query filter'siz (2026-09-25)
+**Qaror:** `StudentRepository`/`TeacherRepository` barcha o'qishlarni `DeletedAt == null` bilan cheklaydi; `DeleteAsync` =
+`SoftDelete()` + `Deactivate()` (+ o'quvchining faol yozilishlari `Dropped`). Email unique indeksi o'chirilganlarni hisobga olmaydi.
+**Sabab:** global filter majburiy navigatsiyalarda (StudentGrade→Student va h.k.) EF ogohlantirishi va INNER JOIN orqali
+baholar/e'lonlarni kutilmaganda yashirardi. Aniq filtr ta'sir doirasini faqat profil endpointlari bilan cheklaydi;
+tarixiy yozuvlar (baho, davomat) ro'yxatlarda qoladi.
+**Manba:** [Global query filters — required navigation](https://learn.microsoft.com/en-us/ef/core/querying/filters#accessing-entity-with-query-filter-using-required-navigation)

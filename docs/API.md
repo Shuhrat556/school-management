@@ -54,11 +54,11 @@ Base `/api/school` unless noted. Ids are GUIDs.
 | GET | `/students/{id}/classrooms` | Staff, own | |
 | POST | `/students` | Staff | Create |
 | PUT | `/students/{id}` | Staff, own | Update; on their own profile a student cannot change `email` or `isActive` |
-| DELETE | `/students/{id}` | Admin | **Hard** delete — cascades to grades, attendance, submissions (BUGS B17) |
+| DELETE | `/students/{id}` | Admin | Soft delete: the profile disappears from every endpoint and leaves its classes; grades, attendance and submissions are kept |
 
 ### Teachers — `/teachers`
 GET list (`?page=&pageSize=&departmentId=`), GET `{id}` — user. GET `me` — Teacher (own profile, same lookup as `/students/me`).
-POST, DELETE `{id}` — Admin.
+POST, DELETE `{id}` (soft delete) — Admin.
 PUT `{id}` — Admin, or the teacher on their own profile (`email`, `isActive`, `hireDate` stay unchanged).
 POST / DELETE `/teachers/{teacherId}/departments/{departmentId}` — Admin.
 

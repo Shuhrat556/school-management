@@ -145,7 +145,7 @@ public class ClassroomService : IClassroomService
         SubjectName  = c.Subject.SubjectName,
         IsActive     = c.IsActive,
         CreatedAt    = c.CreatedAt,
-        StudentCount = c.StudentClassrooms.Count
+        StudentCount = c.StudentClassrooms.Count(sc => sc.Status == StudentClassroomStatus.Active)
     };
 
     private static ClassroomResponseDto MapToResponseSafe(Classroom c) => new()
@@ -163,7 +163,7 @@ public class ClassroomService : IClassroomService
         SubjectName  = c.Subject?.SubjectName ?? "Unknown Subject",
         IsActive     = c.IsActive,
         CreatedAt    = c.CreatedAt,
-        StudentCount = c.StudentClassrooms.Count
+        StudentCount = c.StudentClassrooms.Count(sc => sc.Status == StudentClassroomStatus.Active)
     };
 
     private static ClassroomDetailResponseDto MapToDetailResponse(Classroom c) => new()
@@ -179,7 +179,7 @@ public class ClassroomService : IClassroomService
         IsActive     = c.IsActive,
         CreatedAt    = c.CreatedAt,
         Students     = c.StudentClassrooms
-            .Where(sc => sc.Student != null)
+            .Where(sc => sc.Student != null && sc.Student.DeletedAt == null)
             .Select(sc => new ClassroomStudentDto
             {
                 StudentId    = sc.StudentId,

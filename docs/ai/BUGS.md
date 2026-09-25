@@ -95,7 +95,8 @@ NaturalKeyTests, MigrationTests.Emails_are_unique_ignoring_case
 ### B17 [O'RTA] O'quvchini o'chirish — hard delete, baholar/davomat kaskad o'chadi
 `StudentRepository.DeleteAsync` → `Remove()`; FK `StudentGrades/Attendances/Submissions/StudentClassrooms` = CASCADE.
 `DeletedAt` ustuni bor, lekin ishlatilmaydi. Bitta xato bosish butun akademik tarixni yo'q qiladi. Tavsiya: soft delete
-(`DeletedAt` + global query filter) yoki `IsActive=false`. · OCHIQ
+(`DeletedAt` + global query filter) yoki `IsActive=false`.
+· TUZATILDI: repozitoriylarda soft delete + aktiv filtr (D8), o'quvchi sinflardan `Dropped`, rosterda ko'rinmaydi. SoftDeleteTests
 
 ### B18 [PAST] `Enrollment` entity o'lik kod
 `SchoolService.Domain/Entities/Enrollment.cs` — DbContext'da yo'q, hech qayerda ishlatilmaydi (o'rnini `StudentClassroom` egallagan). · OCHIQ

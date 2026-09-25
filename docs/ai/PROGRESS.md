@@ -72,4 +72,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   BulkMark dedupe. Legacy test endi haqiqiy eski sxemani simulyatsiya qiladi (baseline'gacha migrate + history'siz) —
   shu tufayli "eski indeks yo'q" holati topildi va `DROP INDEX IF EXISTS` qilindi. school 106/106 (PostgreSQL bilan).
 
-KEYINGI QADAM: PLAN 7-bo'lim B17 — o'quvchi/o'qituvchi soft delete (DeletedAt + query filter), test; keyin B12/B13.
+- XATO TUZATILDI (jarayon): B16 commitiga `git add <dir>` tufayli egasining `DataSeeder.cs` o'zgarishi tushib qolgan edi —
+  push qilinmagan commit amend qilindi (a517e77), ishchi daraxtdagi o'zgarish saqlandi; CLAUDE.md ga qoida qo'shildi.
+- B17 TUZATILDI: o'quvchi/o'qituvchi soft delete (D8). school 108/108 (PostgreSQL bilan).
+
+KEYINGI QADAM: PLAN 7-bo'lim B12 (gateway o'lik Consul kodi) va B13 (repo gigiyenasi), keyin admin-web lint warninglari va 401 refresh race.
