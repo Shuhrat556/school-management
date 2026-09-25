@@ -850,5 +850,52 @@ class ApiService {
     }
     return false;
   }
-}
 
+  // notifications
+
+  // GET /api/school/notifications
+  Future<List<NotificationDto>> getNotifications({
+    bool unreadOnly = false,
+  }) async {
+    try {
+      final response = await _dio.get(
+        ApiConfig.notificationsEndpoint,
+        queryParameters: {'unreadOnly': unreadOnly, 'take': 100},
+      );
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => NotificationDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get notifications error: ${e.message}');
+    }
+    return [];
+  }
+
+  // POST /api/school/notifications/{id}/read
+  Future<bool> markNotificationRead(String id) async {
+    try {
+      final response = await _dio.post(
+        '${ApiConfig.notificationsEndpoint}/$id/read',
+      );
+      return response.statusCode == 204;
+    } on DioException catch (e) {
+      _logger.warning('Mark notification read error: ${e.message}');
+    }
+    return false;
+  }
+
+  // POST /api/school/notifications/read-all
+  Future<bool> markAllNotificationsRead() async {
+    try {
+      final response = await _dio.post(
+        '${ApiConfig.notificationsEndpoint}/read-all',
+      );
+      return response.statusCode == 204;
+    } on DioException catch (e) {
+      _logger.warning('Mark all notifications read error: ${e.message}');
+    }
+    return false;
+  }
+}

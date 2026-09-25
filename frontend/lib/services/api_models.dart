@@ -678,3 +678,43 @@ class ScheduleDto {
   };
 }
 
+// in-app notifications — new grades, absences and class announcements
+
+class NotificationDto {
+  final String id;
+  final String studentId;
+  final String studentName;
+  final String type; // "Grade", "Attendance" or "Announcement"
+  final String title;
+  final String body;
+  final DateTime createdAt;
+  final DateTime? readAt;
+
+  NotificationDto({
+    required this.id,
+    required this.studentId,
+    required this.studentName,
+    required this.type,
+    required this.title,
+    required this.body,
+    required this.createdAt,
+    this.readAt,
+  });
+
+  bool get isRead => readAt != null;
+
+  factory NotificationDto.fromJson(Map<String, dynamic> json) {
+    return NotificationDto(
+      id: json['id'] as String? ?? '',
+      studentId: json['studentId'] as String? ?? '',
+      studentName: json['studentName'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      body: json['body'] as String? ?? '',
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '')?.toLocal() ??
+          DateTime.now(),
+      readAt: DateTime.tryParse(json['readAt'] as String? ?? '')?.toLocal(),
+    );
+  }
+}

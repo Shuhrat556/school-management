@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:tamdansers/services/api_models.dart';
+import 'package:tamdansers/services/api_service.dart';
 
 // --- 1. Notification Data Model ---
 class NotificationItem {
+  final String id;
   final IconData icon;
   final Color iconColor;
   final Color bgColor;
@@ -16,6 +20,7 @@ class NotificationItem {
   bool isNew;
 
   NotificationItem({
+    required this.id,
     required this.icon,
     required this.iconColor,
     required this.bgColor,
@@ -29,8 +34,53 @@ class NotificationItem {
   });
 }
 
+// Look and label for each notification type sent by the school service
+const _typeStyles = {
+  'Grade': (Icons.emoji_events_rounded, Color(0xFFFFB75E), 'Grades'),
+  'Attendance': (Icons.fact_check_rounded, Color(0xFFB86DFF), 'Attendance'),
+  'Announcement': (Icons.campaign_rounded, Color(0xFF4A90E2), 'Announcements'),
+};
+
+String _relativeTime(DateTime time) {
+  final diff = DateTime.now().difference(time);
+  if (diff.inMinutes < 1) return 'Just now';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+  if (diff.inHours < 24) return '${diff.inHours}h ago';
+  if (diff.inHours < 48) return 'Yesterday';
+  return DateFormat('d MMM').format(time);
+}
+
+NotificationItem notificationItemFromDto(NotificationDto dto) {
+  final style =
+      _typeStyles[dto.type] ??
+      (Icons.notifications_rounded, const Color(0xFF0D3B66), 'Other');
+  return NotificationItem(
+    id: dto.id,
+    icon: style.$1,
+    iconColor: style.$2,
+    bgColor: style.$2.withValues(alpha: 0.15),
+    title: dto.title,
+    subtitle: dto.body,
+    fullDescription: dto.body,
+    time: _relativeTime(dto.createdAt),
+    tag: style.$3,
+    tagColor: style.$2,
+    isNew: !dto.isRead,
+  );
+}
+
 class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+  // The data calls can be replaced in tests; by default they go to the API.
+  const NotificationScreen({
+    super.key,
+    this.fetch,
+    this.markRead,
+    this.markAllRead,
+  });
+
+  final Future<List<NotificationDto>> Function()? fetch;
+  final Future<bool> Function(String id)? markRead;
+  final Future<bool> Function()? markAllRead;
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -41,13 +91,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
   String activeFilter = "All";
   final List<String> filters = [
     "All",
+    "Grades",
     "Attendance",
-    "Homework",
-    "Events",
+    "Announcements",
     "Seen",
   ];
 
-  late List<NotificationItem> allNotifications;
+  List<NotificationItem> allNotifications = [];
+  bool _loading = true;
   List<NotificationItem> _filteredList = [];
 
   List<NotificationItem> _applyFilter() {
@@ -61,65 +112,25 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   void initState() {
     super.initState();
-    allNotifications = [
-      NotificationItem(
-        icon: Icons.emoji_events_rounded,
-        iconColor: const Color(0xFFFFB75E),
-        bgColor: const Color(0xFFFFB75E).withValues(alpha: 0.15),
-        title: "New Quiz Results",
-        subtitle: "You scored 95/100 on the Mathematics Chapter 3 quiz.",
-        fullDescription:
-            "Excellent work! Your performance in Mathematics Chapter 3: Algebra has been outstanding. You correctly answered 19 out of 20 questions. Keep up this momentum for the upcoming finals.",
-        time: "2h ago",
-        tag: "Homework",
-        tagColor: const Color(0xFFFFB75E),
-        isNew: true,
-      ),
-      NotificationItem(
-        icon: Icons.menu_book_rounded,
-        iconColor: const Color(0xFF50E3C2),
-        bgColor: const Color(0xFF50E3C2).withValues(alpha: 0.15),
-        title: "New Homework Assigned",
-        subtitle: "Your Khmer teacher assigned a new essay: 'Environment'.",
-        fullDescription:
-            "A new essay topic 'Environmental Protection' has been assigned by Teacher Sokha. Due date: Friday, Oct 25th. Please ensure you follow the standard formatting guidelines for Khmer literature.",
-        time: "5h ago",
-        tag: "Homework",
-        tagColor: const Color(0xFF50E3C2),
-        isNew: true,
-      ),
-      NotificationItem(
-        icon: Icons.event_available_rounded,
-        iconColor: const Color(0xFF4A90E2),
-        bgColor: const Color(0xFF4A90E2).withValues(alpha: 0.15),
-        title: "Event Reminder",
-        subtitle: "Don't forget the 'Annual School Sports Day' tomorrow.",
-        fullDescription:
-            "Join us at the main stadium at 8:00 AM for the Annual Sports Day. Please bring your sports kit and water bottle. Lunch will be provided by the school cafeteria for all participants.",
-        time: "Yesterday",
-        tag: "Events",
-        tagColor: const Color(0xFF4A90E2),
-        isNew: false,
-      ),
-      NotificationItem(
-        icon: Icons.fact_check_rounded,
-        iconColor: const Color(0xFFB86DFF),
-        bgColor: const Color(0xFFB86DFF).withValues(alpha: 0.15),
-        title: "Attendance Confirmed",
-        subtitle: "Your attendance record for September has been verified.",
-        fullDescription:
-            "Your attendance report for September 2024 shows 98% presence. This has been verified by the administration office and added to your permanent academic record.",
-        time: "2 days ago",
-        tag: "Attendance",
-        tagColor: const Color(0xFFB86DFF),
-        isNew: false,
-      ),
-    ];
-    _filteredList = _applyFilter();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final fetch = widget.fetch ?? () => ApiService().getNotifications();
+    final items = await fetch();
+    if (!mounted) return;
+    setState(() {
+      allNotifications = items.map(notificationItemFromDto).toList();
+      _filteredList = _applyFilter();
+      _loading = false;
+    });
   }
 
   // --- 3. Logic: Mark All as Read ---
-  void _markAllAsRead() {
+  Future<void> _markAllAsRead() async {
+    final markAllRead =
+        widget.markAllRead ?? () => ApiService().markAllNotificationsRead();
+    if (!await markAllRead() || !mounted) return;
     setState(() {
       for (var item in allNotifications) {
         item.isNew = false;
@@ -236,14 +247,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
           const SizedBox(height: 24),
           // --- 6. Notification List ---
           Expanded(
-            child: _filteredList.isEmpty
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredList.isEmpty
                 ? _buildEmptyState()
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: _filteredList.length,
-                    itemBuilder: (context, index) =>
-                        _buildNotificationCard(_filteredList[index]),
+                : RefreshIndicator(
+                    onRefresh: _load,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: _filteredList.length,
+                      itemBuilder: (context, index) =>
+                          _buildNotificationCard(_filteredList[index]),
+                    ),
                   ),
           ),
         ],
@@ -255,6 +271,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget _buildNotificationCard(NotificationItem item) {
     return Bounceable(
       onTap: () {
+        if (item.isNew) {
+          final markRead =
+              widget.markRead ?? (id) => ApiService().markNotificationRead(id);
+          markRead(item.id);
+        }
         setState(() => item.isNew = false);
         Navigator.push(
           context,

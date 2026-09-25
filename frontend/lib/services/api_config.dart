@@ -37,4 +37,5 @@ class ApiConfig {
   static const String gradesEndpoint = '/api/school/Grades';
   static const String attendanceEndpoint = '/api/school/Attendance';
   static const String schedulesEndpoint = '/api/school/Schedules';
+  static const String notificationsEndpoint = '/api/school/notifications';
 }
