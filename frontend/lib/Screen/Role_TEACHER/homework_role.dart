@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:tamdansers/services/api_models.dart';
+import 'package:tamdansers/services/api_service.dart';
 
+// Homework = class materials of type assignment (school-service D16). The teacher sees
+// their classes' homework with how many students handed it in, and assigns new homework.
 class TeacherHomeworkScreen extends StatefulWidget {
-  const TeacherHomeworkScreen({super.key});
+  // The calls can be replaced in tests; by default they go to the API.
+  // assign returns null on success, otherwise the reason.
+  const TeacherHomeworkScreen({
+    super.key,
+    this.loadClasses,
+    this.loadMaterials,
+    this.assign,
+  });
+
+  final Future<List<ClassroomDto>> Function()? loadClasses;
+  final Future<List<MaterialDto>> Function(String classroomId)? loadMaterials;
+  final Future<String?> Function(String classroomId, String title, String? description, DateTime? dueAt)? assign;
 
   @override
   State<TeacherHomeworkScreen> createState() => _TeacherHomeworkScreenState();
@@ -15,77 +31,69 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
   final TextEditingController _searchController = TextEditingController();
   String _filterStatus = 'All';
 
-  final List<Map<String, dynamic>> _homeworks = [
-    {
-      'title': 'Math Problem Set #5',
-      'subject': 'Mathematics',
-      'class': 'Grade 10-A',
-      'dueDate': 'Feb 28, 2026',
-      'assignedDate': 'Feb 20, 2026',
-      'status': 'Active',
-      'submitted': 18,
-      'total': 25,
-      'description':
-          'Complete exercises 1-20 from Chapter 5: Quadratic Equations.',
-      'priority': 'High',
-    },
-    {
-      'title': 'Essay: Climate Change',
-      'subject': 'English',
-      'class': 'Grade 11-B',
-      'dueDate': 'Mar 3, 2026',
-      'assignedDate': 'Feb 22, 2026',
-      'status': 'Active',
-      'submitted': 8,
-      'total': 22,
-      'description':
-          'Write a 500-word argumentative essay on climate change impact.',
-      'priority': 'Medium',
-    },
-    {
-      'title': 'Lab Report: Photosynthesis',
-      'subject': 'Biology',
-      'class': 'Grade 12-A',
-      'dueDate': 'Feb 25, 2026',
-      'assignedDate': 'Feb 18, 2026',
-      'status': 'Overdue',
-      'submitted': 20,
-      'total': 22,
-      'description': 'Complete the photosynthesis lab report with diagrams.',
-      'priority': 'High',
-    },
-    {
-      'title': 'History Timeline Project',
-      'subject': 'History',
-      'class': 'Grade 10-B',
-      'dueDate': 'Feb 15, 2026',
-      'assignedDate': 'Feb 5, 2026',
-      'status': 'Completed',
-      'submitted': 24,
-      'total': 24,
-      'description':
-          'Create a visual timeline of major historical events from 1900-2000.',
-      'priority': 'Low',
-    },
-    {
-      'title': 'Physics Worksheet: Forces',
-      'subject': 'Physics',
-      'class': 'Grade 11-A',
-      'dueDate': 'Mar 1, 2026',
-      'assignedDate': 'Feb 23, 2026',
-      'status': 'Active',
-      'submitted': 3,
-      'total': 28,
-      'description':
-          'Solve problems on Newton\'s Laws of Motion from the worksheet.',
-      'priority': 'Medium',
-    },
-  ];
+  List<Map<String, dynamic>> _homeworks = [];
+  List<ClassroomDto> _classes = [];
+  bool _loading = true;
+  static final DateFormat _date = DateFormat('MMM d, yyyy');
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _load();
+  }
+
+  // The teacher's own classes; every class when none is assigned to them yet.
+  Future<List<ClassroomDto>> _teacherClasses() async {
+    final api = ApiService();
+    final all = await api.getClassrooms();
+    final me = await api.getEntityId();
+    final mine = all.where((c) => c.teacherId != null && c.teacherId == me).toList();
+    return mine.isNotEmpty ? mine : all;
+  }
+
+  Future<void> _load() async {
+    final classes = await (widget.loadClasses ?? _teacherClasses)();
+    final loadMaterials = widget.loadMaterials ?? ApiService().getMaterials;
+    final entries = <(DateTime, Map<String, dynamic>)>[];
+    for (final c in classes) {
+      for (final m in await loadMaterials(c.id)) {
+        if (m.isAssignment) entries.add((m.createdAt, _entry(c, m)));
+      }
+    }
+    entries.sort((a, b) => b.$1.compareTo(a.$1)); // newest first
+    if (!mounted) return;
+    setState(() {
+      _classes = classes;
+      _homeworks = entries.map((e) => e.$2).toList();
+      _loading = false;
+    });
+  }
+
+  // Status and priority come from the due date and the hand-ins; they are not stored.
+  Map<String, dynamic> _entry(ClassroomDto c, MaterialDto m) {
+    final now = DateTime.now();
+    final total = c.studentCount;
+    final submitted = m.submissionCount;
+    final due = m.dueAt;
+    final status = total > 0 && submitted >= total
+        ? 'Completed'
+        : (due != null && due.isBefore(now) ? 'Overdue' : 'Active');
+    final daysLeft = due?.difference(now).inDays;
+    return {
+      'id': m.id,
+      'title': m.title,
+      'subject': c.subjectName ?? c.name,
+      'class': c.name,
+      'dueDate': due == null ? 'No due date' : _date.format(due),
+      'dueAt': due,
+      'assignedDate': _date.format(m.createdAt),
+      'status': status,
+      'submitted': submitted,
+      'total': total,
+      'description': m.description ?? 'No description provided.',
+      'priority': daysLeft == null ? 'Low' : (daysLeft < 2 ? 'High' : (daysLeft < 7 ? 'Medium' : 'Low')),
+    };
   }
 
   @override
@@ -386,6 +394,7 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
   }
 
   Widget _buildHomeworkList() {
+    if (_loading) return const Center(child: CircularProgressIndicator());
     final items = _filteredHomeworks;
     if (items.isEmpty) {
       return Center(
@@ -431,7 +440,7 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
     final status = hw['status'] as String;
     final submitted = hw['submitted'] as int;
     final total = hw['total'] as int;
-    final progress = submitted / total;
+    final progress = total == 0 ? 0.0 : submitted / total; // a class may have no students yet
     final priority = hw['priority'] as String;
 
     Color statusColor;
@@ -677,7 +686,7 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
     final status = hw['status'] as String;
     final submitted = hw['submitted'] as int;
     final total = hw['total'] as int;
-    final progress = submitted / total;
+    final progress = total == 0 ? 0.0 : submitted / total; // a class may have no students yet
 
     Color statusColor;
     switch (status) {
@@ -993,9 +1002,10 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
   void _showCreateHomeworkSheet() {
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
-    String selectedSubject = 'Mathematics';
-    String selectedClass = 'Grade 10-A';
-    String selectedPriority = 'Medium';
+    // By id: the class list is reloaded (new objects) right after assigning.
+    String? selectedClassId = _classes.isEmpty ? null : _classes.first.id;
+    DateTime? dueDate;
+    bool saving = false;
 
     showModalBottomSheet(
       context: context,
@@ -1050,87 +1060,96 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
                       ),
                       const SizedBox(height: 20),
 
-                      _buildFormLabel('Subject'),
-                      const SizedBox(height: 8),
-                      _buildDropdown<String>(
-                        value: selectedSubject,
-                        items: [
-                          'Mathematics',
-                          'English',
-                          'Biology',
-                          'Physics',
-                          'History',
-                          'Chemistry',
-                        ],
-                        onChanged: (v) =>
-                            setSheetState(() => selectedSubject = v!),
-                      ),
-                      const SizedBox(height: 20),
-
                       _buildFormLabel('Class'),
                       const SizedBox(height: 8),
-                      _buildDropdown<String>(
-                        value: selectedClass,
-                        items: [
-                          'Grade 10-A',
-                          'Grade 10-B',
-                          'Grade 11-A',
-                          'Grade 11-B',
-                          'Grade 12-A',
-                        ],
-                        onChanged: (v) =>
-                            setSheetState(() => selectedClass = v!),
-                      ),
+                      if (selectedClassId == null)
+                        Text(
+                          'You have no classes yet.',
+                          style: GoogleFonts.inter(color: Colors.grey.shade600),
+                        )
+                      else
+                        _buildDropdown<String>(
+                          value: selectedClassId!,
+                          items: _classes.map((c) => c.id).toList(),
+                          label: (id) => _classes.firstWhere((c) => c.id == id).name,
+                          onChanged: (v) =>
+                              setSheetState(() => selectedClassId = v ?? selectedClassId),
+                        ),
                       const SizedBox(height: 20),
 
-                      _buildFormLabel('Priority'),
+                      _buildFormLabel('Due date'),
                       const SizedBox(height: 8),
-                      _buildDropdown<String>(
-                        value: selectedPriority,
-                        items: ['Low', 'Medium', 'High'],
-                        onChanged: (v) =>
-                            setSheetState(() => selectedPriority = v!),
+                      Bounceable(
+                        key: const ValueKey('pick-due-date'),
+                        onTap: () async {
+                          final now = DateTime.now();
+                          final picked = await showDatePicker(
+                            context: ctx,
+                            initialDate: dueDate ?? now.add(const Duration(days: 7)),
+                            firstDate: now,
+                            lastDate: now.add(const Duration(days: 365)),
+                          );
+                          // Due at the end of the chosen day
+                          if (picked != null) {
+                            setSheetState(() => dueDate = DateTime(picked.year, picked.month, picked.day, 23, 59));
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F6F8),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.event_rounded, size: 18, color: Color(0xFF0D3B66)),
+                              const SizedBox(width: 10),
+                              Text(
+                                dueDate == null ? 'No due date' : _date.format(dueDate!),
+                                style: GoogleFonts.inter(fontSize: 14, color: Colors.black87),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 30),
 
                       // Submit button
                       Bounceable(
-                        onTap: () {
-                          if (titleCtrl.text.isNotEmpty) {
-                            setState(() {
-                              _homeworks.insert(0, {
-                                'title': titleCtrl.text,
-                                'subject': selectedSubject,
-                                'class': selectedClass,
-                                'dueDate': 'Mar 10, 2026',
-                                'assignedDate': 'Feb 24, 2026',
-                                'status': 'Active',
-                                'submitted': 0,
-                                'total': 25,
-                                'description': descCtrl.text.isEmpty
-                                    ? 'No description provided.'
-                                    : descCtrl.text,
-                                'priority': selectedPriority,
-                              });
-                            });
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Homework assigned successfully!',
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                        key: const ValueKey('assign-homework'),
+                        onTap: () async {
+                          final title = titleCtrl.text.trim();
+                          final classroom = _classes.where((c) => c.id == selectedClassId).firstOrNull;
+                          if (title.isEmpty || classroom == null || saving) return;
+                          setSheetState(() => saving = true);
+                          final description = descCtrl.text.trim();
+                          final error = await (widget.assign ?? _assignViaApi)(
+                            classroom.id,
+                            title,
+                            description.isEmpty ? null : description,
+                            dueDate,
+                          );
+                          if (!mounted) return;
+                          setSheetState(() => saving = false);
+                          if (error == null) Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                error ?? 'Homework assigned to ${classroom.name}.',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                backgroundColor: const Color(0xFF27AE60),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                margin: const EdgeInsets.all(16),
                               ),
-                            );
-                          }
+                              backgroundColor: error == null ? const Color(0xFF27AE60) : Colors.red,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              margin: const EdgeInsets.all(16),
+                            ),
+                          );
+                          if (error == null) await _load();
                         },
                         child: Container(
                           width: double.infinity,
@@ -1172,6 +1191,14 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
       ),
     );
   }
+
+  Future<String?> _assignViaApi(String classroomId, String title, String? description, DateTime? dueAt) =>
+      ApiService().createAssignment(
+        classroomId: classroomId,
+        title: title,
+        description: description,
+        dueAt: dueAt,
+      );
 
   Widget _buildFormLabel(String label) {
     return Text(
@@ -1215,6 +1242,7 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
     required T value,
     required List<T> items,
     required ValueChanged<T?> onChanged,
+    String Function(T item)? label,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1230,7 +1258,7 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
           style: GoogleFonts.inter(fontSize: 14, color: Colors.black87),
           items: items
               .map(
-                (e) => DropdownMenuItem<T>(value: e, child: Text(e.toString())),
+                (e) => DropdownMenuItem<T>(value: e, child: Text(label?.call(e) ?? e.toString())),
               )
               .toList(),
           onChanged: onChanged,
@@ -1322,7 +1350,15 @@ class _TeacherHomeworkScreenState extends State<TeacherHomeworkScreen>
           const order = {'High': 0, 'Medium': 1, 'Low': 2};
           return (order[a[field]] ?? 3).compareTo(order[b[field]] ?? 3);
         }
-        return a[field].toString().compareTo(b[field].toString());
+        if (field == 'dueDate') {
+          // Real dates, soonest first; homework without a due date last
+          final da = a['dueAt'] as DateTime?, db = b['dueAt'] as DateTime?;
+          if (da == null || db == null) return da == null ? (db == null ? 0 : 1) : -1;
+          return da.compareTo(db);
+        }
+        final va = a[field], vb = b[field];
+        if (va is num && vb is num) return va.compareTo(vb);
+        return va.toString().compareTo(vb.toString());
       });
     });
   }

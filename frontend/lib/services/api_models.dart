@@ -343,6 +343,7 @@ class ClassroomDto {
   final String? academicYear;
   final String? teacherId;
   final String? teacherName;
+  final String? subjectName;
   final bool isActive;
   final String createdAt;
   final int studentCount;
@@ -354,6 +355,7 @@ class ClassroomDto {
     this.academicYear,
     this.teacherId,
     this.teacherName,
+    this.subjectName,
     required this.isActive,
     required this.createdAt,
     required this.studentCount,
@@ -367,6 +369,7 @@ class ClassroomDto {
       academicYear: json['academicYear'] as String?,
       teacherId: json['teacherId']?.toString(),
       teacherName: json['teacherName'] as String?,
+      subjectName: json['subjectName'] as String?,
       isActive: json['isActive'] as bool? ?? true,
       createdAt: json['createdAt']?.toString() ?? '',
       studentCount: json['studentCount'] as int? ?? 0,
@@ -737,6 +740,84 @@ class ExternalLoginsDto {
           .map((e) => (e as Map<String, dynamic>)['provider'] as String? ?? '')
           .where((p) => p.isNotEmpty)
           .toList(),
+    );
+  }
+}
+
+// class materials; homework is a material of type assignment (GET /api/materials/classroom/{id})
+
+class MaterialDto {
+  static const int assignmentType = 2;
+
+  final String id;
+  final String classroomId;
+  final String title;
+  final String? description;
+  final String? url;
+  final int type;
+  final DateTime? dueAt; // local time
+  final int submissionCount; // students who handed it in
+  final bool isActive;
+  final DateTime createdAt;
+
+  MaterialDto({
+    required this.id,
+    required this.classroomId,
+    required this.title,
+    this.description,
+    this.url,
+    required this.type,
+    this.dueAt,
+    this.submissionCount = 0,
+    this.isActive = true,
+    required this.createdAt,
+  });
+
+  bool get isAssignment => type == assignmentType;
+
+  factory MaterialDto.fromJson(Map<String, dynamic> json) {
+    return MaterialDto(
+      id: json['id']?.toString() ?? '',
+      classroomId: json['classroomId']?.toString() ?? '',
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String?,
+      url: json['url'] as String?,
+      type: json['type'] as int? ?? 0,
+      dueAt: DateTime.tryParse(json['dueAt'] as String? ?? '')?.toLocal(),
+      submissionCount: json['submissionCount'] as int? ?? 0,
+      isActive: json['isActive'] as bool? ?? true,
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '')?.toLocal() ?? DateTime.now(),
+    );
+  }
+}
+
+// a student's hand-in for a material (GET /api/submissions/student/{id})
+
+class SubmissionDto {
+  final String id;
+  final String materialId;
+  final String? submissionUrl;
+  final DateTime submittedAt;
+  final double? grade;
+  final String? feedback;
+
+  SubmissionDto({
+    required this.id,
+    required this.materialId,
+    this.submissionUrl,
+    required this.submittedAt,
+    this.grade,
+    this.feedback,
+  });
+
+  factory SubmissionDto.fromJson(Map<String, dynamic> json) {
+    return SubmissionDto(
+      id: json['id']?.toString() ?? '',
+      materialId: json['materialId']?.toString() ?? '',
+      submissionUrl: json['submissionUrl'] as String?,
+      submittedAt: DateTime.tryParse(json['submittedAt'] as String? ?? '')?.toLocal() ?? DateTime.now(),
+      grade: (json['grade'] as num?)?.toDouble(),
+      feedback: json['feedback'] as String?,
     );
   }
 }

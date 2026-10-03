@@ -1002,19 +1002,88 @@ class ApiService {
     }
   }
 
-  // GET /api/materials/classroom/{id} — titles of the class's lessons and assignments
-  Future<List<String>> getMaterialTitles(String classroomId) async {
+  // GET /api/materials/classroom/{id} — the class's lessons and assignments
+  Future<List<MaterialDto>> getMaterials(String classroomId) async {
     try {
       final response = await _dio.get('${ApiConfig.materialsEndpoint}/classroom/$classroomId');
       if (response.statusCode == 200 && response.data is List) {
         return (response.data as List)
-            .map((e) => (e as Map<String, dynamic>)['title'] as String? ?? '')
-            .where((t) => t.isNotEmpty)
+            .map((e) => MaterialDto.fromJson(e as Map<String, dynamic>))
             .toList();
       }
     } on DioException catch (e) {
       _logger.warning('Get materials error: ${e.message}');
     }
     return [];
+  }
+
+  // titles of the class's lessons and assignments
+  Future<List<String>> getMaterialTitles(String classroomId) async =>
+      (await getMaterials(classroomId)).map((m) => m.title).where((t) => t.isNotEmpty).toList();
+
+  // POST /api/materials — homework for a class; null on success, otherwise the reason
+  Future<String?> createAssignment({
+    required String classroomId,
+    required String title,
+    String? description,
+    DateTime? dueAt,
+  }) async {
+    try {
+      await _dio.post(
+        ApiConfig.materialsEndpoint,
+        data: {
+          'classroomId': classroomId,
+          'title': title,
+          if (description != null && description.isNotEmpty) 'description': description,
+          'type': MaterialDto.assignmentType,
+          if (dueAt != null) 'dueAt': dueAt.toUtc().toIso8601String(),
+        },
+      );
+      return null;
+    } on DioException catch (e) {
+      _logger.warning('Create assignment error: ${e.message}');
+      return _errorMessage(e, 'Could not assign the homework.');
+    }
+  }
+
+  // GET /api/school/Students/{id}/classrooms — the classes a student is in
+  Future<List<ClassroomDto>> getStudentClassrooms(String studentId) async {
+    try {
+      final response = await _dio.get('${ApiConfig.studentsEndpoint}/$studentId/classrooms');
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => ClassroomDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get student classrooms error: ${e.message}');
+    }
+    return [];
+  }
+
+  // GET /api/submissions/student/{id} — a student's hand-ins
+  Future<List<SubmissionDto>> getStudentSubmissions(String studentId) async {
+    try {
+      final response = await _dio.get('/api/submissions/student/$studentId');
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => SubmissionDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get submissions error: ${e.message}');
+    }
+    return [];
+  }
+
+  // POST /api/submissions — hand in work as a link or file name; null on success, otherwise the reason
+  Future<String?> submitAssignment(String materialId, String link) async {
+    try {
+      await _dio.post('/api/submissions', data: {'materialId': materialId, 'submissionUrl': link});
+      return null;
+    } on DioException catch (e) {
+      _logger.warning('Submit assignment error: ${e.message}');
+      return _errorMessage(e, 'Could not hand in the work.');
+    }
   }
 }
