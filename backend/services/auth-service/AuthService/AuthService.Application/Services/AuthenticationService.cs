@@ -627,6 +627,7 @@ private async Task<AuthResponseDto?> AuthenticateExternalAsync(ExternalAuthIdent
 
         var email = identity.Email.Trim();
         var username = (identity.DisplayName ?? email.Split('@')[0]).Trim();
+        if (username.Length > 101) username = username[..101]; // the column's size
 
         user = new User(email, username, UserRole.Student);
 

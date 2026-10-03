@@ -22,7 +22,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.Username)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(101); // "First Last": up to 50 + 1 + 50
 
         builder.Property(u => u.PasswordHash)
             .IsRequired(false)

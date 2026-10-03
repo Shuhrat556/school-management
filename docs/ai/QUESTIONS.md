@@ -22,7 +22,7 @@ tayyor bo'lganda aniq buyruqlar ro'yxati bilan qayta so'rayman.
 3. `grep -cE '^JWT_SECRET=.{32,}$' backend/.env` → `1` bo'lishi shart (aks holda servislar ishga tushmaydi).
 4. Backup: `scripts/backup-db.sh` → ikkala dump hajmini tekshirish.
 5. `cd backend && docker compose build && docker compose up -d`.
-   Startup'da avtomatik: auth — `AddLoginLockout`, `HashRefreshTokens` migratsiyalari; school — legacy baseline
+   Startup'da avtomatik: auth — `AddLoginLockout`, `HashRefreshTokens`, `WidenUsername` migratsiyalari; school — legacy baseline
    (history jadvali), so'ng `AddNaturalKeyIndexes`, `AddStudentParents`, `AddNotifications`, `AddGradeChanges`, `AddMaterialDueDate`, `AddLeaveRequests` (hammasi Down bilan; prod'da dublikat yo'q).
 6. Tekshiruv: `/health` (5001/5002/5003), `python3 scripts/smoke_test.py --base http://<host>:3100` (faqat o'qiydi), admin-web login,
    `docker compose logs --since 10m` da xato yo'q (4xx endi Information darajasida).

@@ -84,4 +84,24 @@ public class PasswordResetTests(AuthApiFactory factory) : IClassFixture<AuthApiF
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    // BUGS B46: names and emails longer than the columns reached the database and failed with 500.
+    [Theory]
+    [InlineData(101, 10)]  // email over 100 characters
+    [InlineData(20, 51)]   // last name over 50 characters
+    public async Task Oversized_names_and_emails_are_a_bad_request(int emailLength, int lastNameLength)
+    {
+        var adminEmail = AuthApiFactory.NewEmail();
+        await factory.CreateUserAsync(adminEmail, "Password123!", AuthService.Domain.Enums.UserRole.Admin);
+        var client = factory.CreateClient();
+        var login = await (await client.PostAsJsonAsync("/api/auth/authenticate", new { email = adminEmail, password = "Password123!" }))
+            .Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", login.GetProperty("token").GetString());
+        var email = new string('a', emailLength - "@school.test".Length) + "@school.test";
+
+        var response = await client.PostAsJsonAsync("/api/auth/admin/users",
+            new { email, firstName = "Ali", lastName = new string('b', lastNameLength), password = "Password123!", role = 2 });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

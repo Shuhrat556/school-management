@@ -258,3 +258,8 @@ lekin API hammasini yuborardi. · TUZATILDI: Staff'dan boshqalar faqat o'z (farz
 login va admin yaratishda yuqori chegara yo'q edi (ulkan kiritma PBKDF2'ni behuda yuklaydi). · TUZATILDI: yangi parollar 8–200 belgi (tiklash, ro'yxat,
 admin yaratish), login paroli ≤ 200; Flutter tiklash formasi 6 → 8, admin-web formasi `minLength` va server validatsiya xatosini ko'rsatadi
 (PasswordResetTests: avval 2 tasi yiqildi).
+
+### B46 [PAST] Uzun ism yoki email bilan akkaunt yaratish 500 qaytarardi
+auth `Users.Username` (ism + familiya) ≤ 50, `Email` ≤ 100, DTO'larda esa chegara yo'q — PostgreSQL "value too long" → 500 (SQLite testlari buni ko'rmasdi).
+50 belgi to'liq ism uchun kam. · TUZATILDI: `Username` 101 gacha kengaytirildi (migratsiya `WidenUsername`, Down bilan; PostgreSQL'da up/down sinaldi),
+DTO'larda email ≤ 100, ism/familiya ≤ 50 → 400; OAuth display name 101 gacha qisqartiriladi. Boshqa maydonlar skript bilan tekshirildi — mos.
