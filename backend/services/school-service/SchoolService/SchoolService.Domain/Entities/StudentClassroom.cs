@@ -41,6 +41,7 @@ public class StudentClassroom
     public void Reenroll()
     {
         Status       = StudentClassroomStatus.Active;
+        EnrolledAt   = DateTime.UtcNow;
         UnenrolledAt = null;
     }
 }

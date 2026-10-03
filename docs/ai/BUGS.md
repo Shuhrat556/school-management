@@ -123,3 +123,9 @@ ishlatilgan token bilan yiqilib, foydalanuvchi tizimdan chiqarib yuborilardi (da
 ### B22 [O'RTA] Qoralama e'lonlar o'quvchi va ota-onaga ko'rinadi
 `GET /api/announcements` publish qilinmaganlarni ham qaytarardi. · TUZATILDI: Staff'dan boshqalar faqat publish qilinganlarni ko'radi,
 qoralama `GET {id}` → 404 (AnnouncementTests)
+
+### B23 [O'RTA] Sinfdan chiqarilgan o'quvchi ro'yxatda qoladi va qayta yozib bo'lmaydi
+`ClassroomService` — unenroll qatorni `Dropped` qiladi (o'chirmaydi), lekin `GET /classrooms/{id}` ro'yxati statusni filtrlamasdi:
+admin-web/o'qituvchi/Flutter "Remove from class" dan keyin ham o'quvchini ko'rsatardi. Kompozit kalit (StudentId, ClassroomId) sabab
+qayta enroll har doim 409 "already enrolled" berardi (`Reenroll()` metodi bor edi, ishlatilmagan); ikkinchi unenroll 404 o'rniga 204.
+· TUZATILDI: ro'yxat faqat Active, ketgan o'quvchi o'sha qatorda qayta faollashadi, faol bo'lmaganini unenroll → 404 (EnrollmentTests: avval 3/4 yiqildi).

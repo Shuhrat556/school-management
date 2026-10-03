@@ -73,6 +73,8 @@ PUT `{id}`, DELETE `{id}`, DELETE `{id}/remove-teacher/{teacherId}` — Admin.
 ### Classrooms (course sections) — `/classrooms`
 GET list, GET `{id}` (with students) — user. POST, PUT `{id}`, POST `{id}/enroll` (`{studentId}`),
 DELETE `{id}/unenroll/{studentId}` — Staff. DELETE `{id}` — Admin.
+`students` in `GET {id}` is the current roster (active enrolments only). Unenrolling marks the enrolment `Dropped` (404 if the
+student is not in the class); enrolling a student who left reactivates it, enrolling an active student again → 409.
 
 ### Rooms — `/rooms`
 GET list, GET `{id}` — user. POST, PUT `{id}`, DELETE `{id}` — Admin.

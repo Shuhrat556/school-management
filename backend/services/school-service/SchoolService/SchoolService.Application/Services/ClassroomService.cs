@@ -113,8 +113,16 @@ public class ClassroomService : IClassroomService
             throw new NotFoundException("Student", studentId);
 
         var existing = await _classroomRepository.GetEnrollmentAsync(classroomId, studentId);
-        if (existing != null)
+        if (existing?.Status == StudentClassroomStatus.Active)
             throw new DuplicateException($"Student '{studentId}' is already enrolled in classroom '{classroomId}'.");
+
+        // One row per student and classroom (composite key): a student who left comes back on the same row.
+        if (existing != null)
+        {
+            existing.Reenroll();
+            await _classroomRepository.UpdateEnrollmentAsync(existing);
+            return;
+        }
 
         var enrollment = new StudentClassroom(studentId, classroomId);
         await _classroomRepository.AddEnrollmentAsync(enrollment);
@@ -123,7 +131,7 @@ public class ClassroomService : IClassroomService
     public async Task UnenrollStudentAsync(Guid classroomId, Guid studentId)
     {
         var enrollment = await _classroomRepository.GetEnrollmentAsync(classroomId, studentId);
-        if (enrollment == null)
+        if (enrollment?.Status != StudentClassroomStatus.Active)
             throw new NotFoundException($"No enrollment found for student '{studentId}' in classroom '{classroomId}'.");
 
         enrollment.Drop();
@@ -178,8 +186,9 @@ public class ClassroomService : IClassroomService
         SubjectName  = c.Subject?.SubjectName ?? "Unknown Subject",
         IsActive     = c.IsActive,
         CreatedAt    = c.CreatedAt,
+        // The roster: students currently in the class (dropped and completed enrolments are history).
         Students     = c.StudentClassrooms
-            .Where(sc => sc.Student != null && sc.Student.DeletedAt == null)
+            .Where(sc => sc.Status == StudentClassroomStatus.Active && sc.Student != null && sc.Student.DeletedAt == null)
             .Select(sc => new ClassroomStudentDto
             {
                 StudentId    = sc.StudentId,
