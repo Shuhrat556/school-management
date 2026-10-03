@@ -197,8 +197,9 @@ public class DataSeeder
         var teachers = await _context.Teachers.OrderBy(t => t.Email).ToListAsync();
         var students = await _context.Students.OrderBy(s => s.Email).ToListAsync();
         var subjects = await _context.Subjects.OrderBy(s => s.SubjectName).ToListAsync();
+        var rooms = await _context.Rooms.OrderBy(r => r.Name).ToListAsync();
 
-        if (teachers.Count < 5 || students.Count < 47 || subjects.Count < 10) return;
+        if (teachers.Count < 5 || students.Count < 47 || subjects.Count < 10 || rooms.Count == 0) return;
         
         // 12 course sections: 10 CS courses + 2 supporting
         // Format: {SubjectName} {YearNumber} Y{Year}
@@ -236,7 +237,7 @@ public class DataSeeder
             var cls = new Classroom(cd.Name, subjects[cd.SubjectIdx].Id);
             // Set grade to Year 1, Year 2, Year 3, Year 4 based on course year level
             var gradeLabel = $"Year {cd.Year}";
-            cls.UpdateInfo(cd.Name, gradeLabel, "Semester 1 2025-2026", null, null);
+            cls.UpdateInfo(cd.Name, gradeLabel, "Semester 1 2025-2026", null, rooms[(courseData.ToList().IndexOf(cd)) % rooms.Count].Id);
             cls.AssignTeacher(teachers[cd.TeacherIdx].Id);
             await _context.Classrooms.AddAsync(cls);
             await _context.SaveChangesAsync();
@@ -291,7 +292,10 @@ public class DataSeeder
 
         var subjects = courseData.Select(c => 
         {
-            var subject = new Subject(c.Name, departments[c.DeptIdx].Id, null, null, c.Code);
+            var category = c.DeptIdx == 0 || c.DeptIdx == 2
+                ? "Foundations"
+                : c.Year >= 3 ? "Advanced" : "Core CS";
+            var subject = new Subject(c.Name, departments[c.DeptIdx].Id, category, null, c.Code);
             return subject;
         }).ToList();
 
