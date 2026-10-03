@@ -48,7 +48,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] School-service: GradeService (GradeAuditTests, NaturalKeyTests), ClassroomService enroll/unenroll (EnrollmentTests, B23), ScheduleService (B24), AttendanceService (AttendanceTests, B25)
 - [x] Auth: login (LoginTests), refresh rotation + reuse (RefreshTokenStorageTests, RefreshTokenReuseTests, D14), reset code lockout (PasswordResetTests), lockout
 - [x] admin-web: api.js refresh oqimi testi (node:test, yangi dependency'siz)
-- [~] Flutter: api_service refresh unit testlari (B26) tayyor; login oqimi widget testi qoldi
+- [x] Flutter: api_service refresh unit testlari (B26), login oqimi widget testlari (B30), LinkedAccountsScreen
 - [x] CI: `.github/workflows/ci.yml` — dotnet test (3 servis), EF pending-changes, admin-web lint/build, flutter analyze/test (push qilinmagan)
 
 ## 7. Refaktoring

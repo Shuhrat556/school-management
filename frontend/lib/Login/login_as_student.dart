@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tamdansers/Login/sign_in_flow.dart';
 import 'package:tamdansers/constants/app_image.dart';
 import 'package:tamdansers/routes/app_routes.dart';
 import 'package:tamdansers/services/api_models.dart';
@@ -8,7 +9,10 @@ import 'package:tamdansers/services/api_service.dart';
 import 'package:tamdansers/services/oauth_service.dart';
 
 class StudentLoginScreen extends StatefulWidget {
-  const StudentLoginScreen({super.key});
+  // [api] can be replaced in tests; by default the app-wide ApiService.
+  const StudentLoginScreen({super.key, this.api});
+
+  final ApiService? api;
 
   @override
   State<StudentLoginScreen> createState() => _StudentLoginScreenState();
@@ -24,7 +28,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _apiService = ApiService();
+  late final ApiService _apiService = widget.api ?? ApiService();
   final _oauthService = OAuthService();
 
   late AnimationController _animController;
@@ -79,25 +83,12 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
       );
       if (!mounted) return;
       if (response != null) {
-        await _apiService.saveUserRole('student');
-        await _apiService.saveUserData(
-          username: response.fullName,
-          email: response.email,
-        );
-        // Clear any stale entity_id from a previous session BEFORE lookup.
-        await _apiService.saveEntityId('');
-        // Look up the signed-in student's school record
-        try {
-          final match = await _apiService.getMyStudent();
-          if (match == null) throw Exception('no school record for this user');
-          await _apiService.saveEntityId(match.id);
-          // Update display name with actual student name instead of auth username
-          await _apiService.saveUserData(
-            username: match.fullName,
-            email: response.email,
-          );
-        } catch (_) {}
+        final error = await finishSignIn(_apiService, response, screen: 'student');
         if (!mounted) return;
+        if (error != null) {
+          setState(() => _errorMessage = error);
+          return;
+        }
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.studentDashboard,
@@ -125,22 +116,12 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
       final response = await _oauthService.signInWithGoogle();
       if (!mounted) return;
       if (response != null) {
-        await _apiService.saveUserRole('student');
-        await _apiService.saveUserData(
-          username: response.fullName,
-          email: response.email,
-        );
-        await _apiService.saveEntityId('');
-        try {
-          final match = await _apiService.getMyStudent();
-          if (match == null) throw Exception('no school record for this user');
-          await _apiService.saveEntityId(match.id);
-          await _apiService.saveUserData(
-            username: match.fullName,
-            email: response.email,
-          );
-        } catch (_) {}
+        final error = await finishSignIn(_apiService, response, screen: 'student');
         if (!mounted) return;
+        if (error != null) {
+          setState(() => _errorMessage = error);
+          return;
+        }
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.studentDashboard,
@@ -166,22 +147,12 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
       final response = await _oauthService.signInWithFacebook();
       if (!mounted) return;
       if (response != null) {
-        await _apiService.saveUserRole('student');
-        await _apiService.saveUserData(
-          username: response.fullName,
-          email: response.email,
-        );
-        await _apiService.saveEntityId('');
-        try {
-          final match = await _apiService.getMyStudent();
-          if (match == null) throw Exception('no school record for this user');
-          await _apiService.saveEntityId(match.id);
-          await _apiService.saveUserData(
-            username: match.fullName,
-            email: response.email,
-          );
-        } catch (_) {}
+        final error = await finishSignIn(_apiService, response, screen: 'student');
         if (!mounted) return;
+        if (error != null) {
+          setState(() => _errorMessage = error);
+          return;
+        }
         Navigator.pushNamedAndRemoveUntil(
           context,
           AppRoutes.studentDashboard,
@@ -466,6 +437,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
             borderRadius: BorderRadius.circular(14),
           ),
         ),
+        key: const ValueKey('sign-in'),
         onPressed: _anyLoading ? null : _handleLogin,
         child: _isLoading
             ? const SizedBox(

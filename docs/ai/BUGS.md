@@ -164,3 +164,9 @@ HTTP 400 qaytaradi → 502. · TUZATILDI: `ExternalTokenException` → 401 `INVA
 ### B29 [PAST] Istalgan foydalanuvchi boshqa akkauntning email va rolini o'qiy olardi
 `GET /api/auth/user/{userId}` (gateway orqali ochiq) faqat `[Authorize]` edi; mijozlar uni ishlatmaydi (faqat ichki, ishlatilmaydigan
 school-service `ValidationController`). · TUZATILDI: faqat o'zi yoki Admin, noto'g'ri id → 400 (UserLookupTests: avval yiqildi).
+
+### B30 [PAST] Flutter: istalgan rol o'quvchi/o'qituvchi ekrani orqali kirardi
+`login_as_student.dart` / `login_as_teacher.dart` javobdagi rolni tekshirmay `saveUserRole('student'|'teacher')` qilardi: o'qituvchi yoki
+ota-ona o'quvchi dashboard'iga tushardi (ma'lumotni server himoya qiladi, lekin ekranlar bo'sh/xato). Bir xil kod har ekranda 3 marta takrorlangan.
+· TUZATILDI: umumiy `finishSignIn` (lib/Login/sign_in_flow.dart) — mos kelmagan rol → sessiya yopiladi va to'g'ri kirish sahifasi aytiladi
+(test/login_flow_test.dart: avval 2 ta rol testi yiqildi).
