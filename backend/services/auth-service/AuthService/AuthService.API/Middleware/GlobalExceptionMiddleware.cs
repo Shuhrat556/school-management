@@ -236,6 +236,14 @@ public class GlobalExceptionMiddleware
                 response.details = BuildDatabaseDetail(exception, "foreign key");
                 break;
 
+            // A value longer than its column: the request's fault, not a server error
+            case PostgresErrorCodes.StringDataRightTruncation:
+                response.statusCode = (int)HttpStatusCode.BadRequest;
+                response.message = "A value is too long.";
+                response.code = "VALUE_TOO_LONG";
+                response.details = BuildDatabaseDetail(exception, "value too long");
+                break;
+
             case PostgresErrorCodes.NotNullViolation:
                 response.statusCode = (int)HttpStatusCode.BadRequest;
                 response.message = "A required database field was missing.";
