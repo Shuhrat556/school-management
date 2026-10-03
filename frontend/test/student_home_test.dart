@@ -68,4 +68,24 @@ void main() {
     expect(find.text('No grades yet.', skipOffstage: false), findsOneWidget);
     expect(find.text('No announcements yet.', skipOffstage: false), findsOneWidget);
   });
+
+  testWidgets('an announcement opens without breaking the event screen', (tester) async {
+    ignoreNetworkImages();
+    final event = eventsFromAnnouncements([
+      AnnouncementDto(
+        id: 'a1',
+        title: 'Parent meeting on Friday',
+        body: 'Room 12 at 5 pm',
+        authorName: 'Ms. Karimova',
+        publishedAt: DateTime(2026, 10, 1, 9),
+      ),
+    ]).single;
+
+    await tester.pumpWidget(MaterialApp(home: EventDetailScreen(event: event)));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Posted by', skipOffstage: false), findsOneWidget);
+    expect(find.text('Ms. Karimova', skipOffstage: false), findsOneWidget);
+  });
 }

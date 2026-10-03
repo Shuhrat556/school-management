@@ -1393,14 +1393,14 @@ class EventDetailScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Attendees",
+                                  "Posted by",
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
                                     color: Colors.grey.shade600,
                                   ),
                                 ),
                                 Text(
-                                  "${event["attendees"]} people",
+                                  "${event["attendees"]}",
                                   style: GoogleFonts.outfit(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -1410,26 +1410,6 @@ class EventDetailScreen extends StatelessWidget {
                               ],
                             ),
                           ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF50E3C2,
-                            ).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "${((event["attendees"] / 500) * 100).toInt()}% capacity",
-                            style: GoogleFonts.inter(
-                              color: const Color(0xFF50E3C2),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                         ),
                       ],
                     ),
