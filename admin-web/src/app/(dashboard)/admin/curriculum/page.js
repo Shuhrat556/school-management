@@ -15,6 +15,24 @@ function sortNatural(values) {
   return [...values].sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true }));
 }
 
+function subjectDepartment(subject) {
+  return subject.departmentName ?? subject.department ?? '';
+}
+
+function subjectYearLevel(subject) {
+  if (subject.yearLevel) return subject.yearLevel;
+  const match = String(subject.code ?? subject.subjectName ?? '').match(/Y(\d+)\b/i);
+  return match ? Number(match[1]) : null;
+}
+
+function subjectCategory(subject) {
+  if (subject.category) return subject.category;
+  const name = String(subject.subjectName ?? '').toLowerCase();
+  if (name.includes('business') || name.includes('mathematics')) return 'Foundations';
+  if (subjectYearLevel(subject) >= 3) return 'Advanced';
+  return 'Core CS';
+}
+
 const categoryThemes = {
   Foundations: 'border-sky-200 bg-sky-50/70',
   'Core CS': 'border-emerald-200 bg-emerald-50/70',
@@ -41,23 +59,24 @@ export default function CurriculumRoadmapPage() {
     load();
   }, []);
 
-  const departments = ['All', ...sortNatural([...new Set(subjects.map((subject) => subject.department).filter(Boolean))])];
-  const years = ['All', ...sortNatural([...new Set(subjects.map((subject) => subject.yearLevel).filter(Boolean))]).map(String)];
+  const departments = ['All', ...sortNatural([...new Set(subjects.map(subjectDepartment).filter(Boolean))])];
+  const years = ['All', ...sortNatural([...new Set(subjects.map(subjectYearLevel).filter(Boolean))]).map(String)];
 
   const filteredSubjects = subjects.filter((subject) => {
     const matchesSearch =
       !search ||
-      [subject.subjectName, subject.code, subject.description, subject.category]
+      [subject.subjectName, subject.code, subject.description, subjectCategory(subject), subjectDepartment(subject)]
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(search.toLowerCase()));
-    const matchesDepartment = department === 'All' || subject.department === department;
-    const matchesYear = yearLevel === 'All' || String(subject.yearLevel) === yearLevel;
+    const matchesDepartment = department === 'All' || subjectDepartment(subject) === department;
+    const matchesYear = yearLevel === 'All' || String(subjectYearLevel(subject)) === yearLevel;
     return matchesSearch && matchesDepartment && matchesYear;
   });
 
   const grouped = filteredSubjects.reduce((acc, subject) => {
-    const yearKey = subject.yearLevel ? `Year ${subject.yearLevel}` : 'Unassigned';
-    const categoryKey = subject.category || 'Other';
+    const year = subjectYearLevel(subject);
+    const yearKey = year ? `Year ${year}` : 'Unassigned';
+    const categoryKey = subjectCategory(subject);
 
     if (!acc[yearKey]) acc[yearKey] = {};
     if (!acc[yearKey][categoryKey]) acc[yearKey][categoryKey] = [];
@@ -67,9 +86,9 @@ export default function CurriculumRoadmapPage() {
 
   const overview = {
     totalSubjects: filteredSubjects.length,
-    departments: new Set(filteredSubjects.map((subject) => subject.department).filter(Boolean)).size,
-    categories: new Set(filteredSubjects.map((subject) => subject.category).filter(Boolean)).size,
-    yearLevels: new Set(filteredSubjects.map((subject) => subject.yearLevel).filter(Boolean)).size,
+    departments: new Set(filteredSubjects.map(subjectDepartment).filter(Boolean)).size,
+    categories: new Set(filteredSubjects.map(subjectCategory).filter(Boolean)).size,
+    yearLevels: new Set(filteredSubjects.map(subjectYearLevel).filter(Boolean)).size,
   };
 
   return (
@@ -225,7 +244,7 @@ export default function CurriculumRoadmapPage() {
                                 </div>
 
                                 <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500">
-                                  <span className="rounded-full bg-slate-100 px-3 py-1.5">{subject.department || 'General department'}</span>
+                                  <span className="rounded-full bg-slate-100 px-3 py-1.5">{subjectDepartment(subject) || 'General department'}</span>
                                   <span className="rounded-full bg-slate-100 px-3 py-1.5">
                                     {subject.teacherNames?.length ? `${subject.teacherNames.length} teacher${subject.teacherNames.length > 1 ? 's' : ''}` : 'No teachers assigned'}
                                   </span>

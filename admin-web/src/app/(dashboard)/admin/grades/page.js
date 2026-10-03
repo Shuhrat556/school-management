@@ -20,28 +20,49 @@ export default function GradesPage() {
   const [gradeForm, setGradeForm] = useState({ studentId: '', subjectId: '', semester: '1', score: '' });
 
   useEffect(() => {
-    async function loadFilters() {
-      const [stu, s] = await Promise.all([getStudents(1, 200), getSubjects()]);
-      setStudents(stu?.items ?? stu ?? []);
-      setSubjects(Array.isArray(s) ? s : s?.items ?? []);
+    async function loadPage() {
+      setLoading(true);
+      try {
+        const [stu, s, data] = await Promise.all([
+          getStudents(1, 200),
+          getSubjects(),
+          getGrades(),
+        ]);
+        setStudents(stu?.items ?? stu ?? []);
+        setSubjects(Array.isArray(s) ? s : s?.items ?? []);
+        if (data) {
+          setGrades(Array.isArray(data) ? data : data.items ?? []);
+        } else {
+          setError('Failed to load grades.');
+        }
+      } catch {
+        setError('Failed to load grades.');
+      } finally {
+        setLoading(false);
+      }
     }
-    loadFilters();
+    loadPage();
   }, []);
 
   async function handleSearch(e) {
     e?.preventDefault();
     setLoading(true);
     setError('');
-    const data = await getGrades({
-      subjectId: subjectId || undefined,
-      semester: semester || undefined,
-    });
-    if (data) {
-      setGrades(Array.isArray(data) ? data : data.items ?? []);
-    } else {
+    try {
+      const data = await getGrades({
+        subjectId: subjectId || undefined,
+        semester: semester || undefined,
+      });
+      if (data) {
+        setGrades(Array.isArray(data) ? data : data.items ?? []);
+      } else {
+        setError('Failed to load grades.');
+      }
+    } catch {
       setError('Failed to load grades.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   async function handleCreateGrade(e) {

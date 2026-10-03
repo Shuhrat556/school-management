@@ -127,6 +127,12 @@ function formatNumber(value) {
   return new Intl.NumberFormat().format(value ?? 0);
 }
 
+function getSubjectYearLevel(subject) {
+  if (subject?.yearLevel) return subject.yearLevel;
+  const match = String(subject?.code ?? subject?.subjectName ?? '').match(/Y(\d+)\b/i);
+  return match ? Number(match[1]) : null;
+}
+
 function formatPercent(value, digits = 0) {
   if (!Number.isFinite(value)) return '--';
   return `${value.toFixed(digits)}%`;
@@ -227,7 +233,8 @@ function buildDashboardModel(rawData = {}) {
     }));
 
   const yearMap = subjects.reduce((accumulator, subject) => {
-    const key = subject?.yearLevel ? `Year ${subject.yearLevel}` : 'Unassigned';
+    const yearLevel = getSubjectYearLevel(subject);
+    const key = yearLevel ? `Year ${yearLevel}` : 'Unassigned';
     accumulator.set(key, (accumulator.get(key) ?? 0) + 1);
     return accumulator;
   }, new Map());
@@ -443,7 +450,7 @@ export default function AdminDashboardPage() {
 
   const statCards = [
     {
-      label: 'Students',
+      label: 'Student Records',
       value: formatNumber(dashboard.counts.students),
       helper: `${formatNumber(Math.round(dashboard.metrics.averageClassSize || 0))} avg per classroom`,
       href: '/admin/students',
@@ -451,7 +458,7 @@ export default function AdminDashboardPage() {
       iconClassName: 'bg-amber-100 text-amber-700',
     },
     {
-      label: 'Teachers',
+      label: 'Teacher Records',
       value: formatNumber(dashboard.counts.teachers),
       helper: `${dashboard.metrics.studentTeacherRatio} student-teacher ratio`,
       href: '/admin/teachers',
@@ -781,7 +788,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="mt-5 border-t border-slate-100 pt-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Role Distribution</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Login Accounts by Role</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {dashboard.roles.length === 0 ? (
                 <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs text-slate-500">No user role data</span>
