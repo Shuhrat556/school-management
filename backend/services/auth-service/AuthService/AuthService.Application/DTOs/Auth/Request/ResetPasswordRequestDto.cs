@@ -13,5 +13,6 @@ public class ResetPasswordRequestDto
     public string Code { get; set; } = string.Empty;
 
     [Required]
+    [StringLength(200, MinimumLength = 8)]
     public string NewPassword { get; set; } = string.Empty;
 }

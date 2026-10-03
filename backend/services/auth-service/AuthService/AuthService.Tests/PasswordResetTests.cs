@@ -49,4 +49,39 @@ public class PasswordResetTests(AuthApiFactory factory) : IClassFixture<AuthApiF
 
         Assert.Equal(HttpStatusCode.Unauthorized, login.StatusCode);
     }
+
+    // BUGS B45: the reset accepted any new password, even a single character.
+    [Theory]
+    [InlineData("abc")]
+    [InlineData("")]
+    public async Task A_too_short_new_password_is_refused(string newPassword)
+    {
+        var email = AuthApiFactory.NewEmail();
+        await factory.CreateUserAsync(email, "Password123!");
+        var client = factory.CreateClient();
+        await client.PostAsJsonAsync("/api/auth/request-password-reset", new { email });
+
+        var reset = await client.PostAsJsonAsync("/api/auth/reset-password",
+            new { email, code = LastCodeSentTo(email), newPassword });
+        var oldStillWorks = await client.PostAsJsonAsync("/api/auth/authenticate", new { email, password = "Password123!" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, reset.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, oldStillWorks.StatusCode);
+    }
+
+    [Fact]
+    public async Task An_admin_cannot_create_an_account_with_an_oversized_password()
+    {
+        var adminEmail = AuthApiFactory.NewEmail();
+        await factory.CreateUserAsync(adminEmail, "Password123!", AuthService.Domain.Enums.UserRole.Admin);
+        var client = factory.CreateClient();
+        var login = await (await client.PostAsJsonAsync("/api/auth/authenticate", new { email = adminEmail, password = "Password123!" }))
+            .Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", login.GetProperty("token").GetString());
+
+        var response = await client.PostAsJsonAsync("/api/auth/admin/users",
+            new { email = AuthApiFactory.NewEmail(), firstName = "Big", lastName = "Password", password = new string('x', 5000), role = 2 });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

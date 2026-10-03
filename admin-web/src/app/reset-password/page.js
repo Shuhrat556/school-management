@@ -29,8 +29,10 @@ function ResetPasswordForm() {
     try {
       const res = await resetPassword(email, code, password);
       if (!res.ok) {
-        const data = await res.json();
-        setError(data?.message ?? 'Failed to reset password');
+        const data = await res.json().catch(() => ({}));
+        // Model validation answers with { errors: { NewPassword: [...] } } instead of a message
+        const firstError = data?.errors ? Object.values(data.errors).flat()[0] : null;
+        setError(data?.message ?? firstError ?? 'Failed to reset password');
       } else {
         setSuccess(true);
         setTimeout(() => router.push('/login'), 3000);
@@ -76,7 +78,7 @@ function ResetPasswordForm() {
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="New Password" className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#526d82]" />
+              <input type="password" required minLength={8} maxLength={200} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="New Password" className="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#526d82]" />
             </div>
             <button type="submit" disabled={loading} className="w-full bg-[#526d82] hover:bg-[#27374d] text-white font-semibold py-3 rounded-xl text-sm shadow-lg flex justify-center">
               {loading ? 'Resetting...' : 'Setup Password'}

@@ -8,6 +8,8 @@ public class LoginRequestDto
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
+    // Long inputs only cost hashing time; no real password is longer
     [Required]
+    [StringLength(200)]
     public string Password { get; set; } = string.Empty;
 }

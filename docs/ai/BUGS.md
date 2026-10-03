@@ -252,3 +252,9 @@ lekin API hammasini yuborardi. · TUZATILDI: Staff'dan boshqalar faqat o'z (farz
 `ScheduleDto.fromJson` `day`/`time` ni o'qirdi, API esa `dayOfWeekName`, `startTime`, `endTime` yuboradi — kun va vaqt doim bo'sh, "bugungi darslar"
 (o'quvchi va o'qituvchi jadvallari) hech qachon mos kelmasdi; o'quvchi jadvali butun maktab ro'yxatidagi birinchi sinfnikini ko'rsatardi.
 · TUZATILDI: haqiqiy maydonlar o'qiladi ("09:00 - 10:30"), o'quvchi jadvali o'zining barcha sinflaridan yig'iladi (test/schedule_test.dart).
+
+### B45 [O'RTA] Parolni tiklashda yangi parolga talab yo'q edi
+`ResetPasswordRequestDto.NewPassword` faqat `[Required]` — tiklash kodi bilan 1 belgili parol qo'yish mumkin edi; ro'yxatdan o'tish DTO'sida ham cheklov yo'q;
+login va admin yaratishda yuqori chegara yo'q edi (ulkan kiritma PBKDF2'ni behuda yuklaydi). · TUZATILDI: yangi parollar 8–200 belgi (tiklash, ro'yxat,
+admin yaratish), login paroli ≤ 200; Flutter tiklash formasi 6 → 8, admin-web formasi `minLength` va server validatsiya xatosini ko'rsatadi
+(PasswordResetTests: avval 2 tasi yiqildi).

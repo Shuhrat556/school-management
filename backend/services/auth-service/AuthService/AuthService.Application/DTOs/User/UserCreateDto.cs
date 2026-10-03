@@ -16,6 +16,7 @@ public class UserCreateDto
     public string LastName { get; set; } = string.Empty;
 
     [Required]
+    [StringLength(200, MinimumLength = 8)]
     public string Password { get; set; } = string.Empty;
 }
 
@@ -32,7 +33,7 @@ public class AdminCreateUserDto
     public string LastName { get; set; } = string.Empty;
 
     [Required]
-    [MinLength(8, ErrorMessage = "Password must be at least 8 characters.")]
+    [StringLength(200, MinimumLength = 8, ErrorMessage = "Password must be 8 to 200 characters.")]
     public string Password { get; set; } = string.Empty;
 
     [Required]
