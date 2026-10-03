@@ -1107,4 +1107,44 @@ class ApiService {
       return _errorMessage(e, 'Could not hand in the work.');
     }
   }
+
+  // GET /api/school/leave-requests/mine — the student's (or parent's children's) requests
+  Future<List<LeaveRequestDto>> getMyLeaveRequests() async {
+    try {
+      final response = await _dio.get('${ApiConfig.leaveRequestsEndpoint}/mine');
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => LeaveRequestDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get leave requests error: ${e.message}');
+    }
+    return [];
+  }
+
+  // POST /api/school/leave-requests — type 1 sick, 2 personal, 3 other. Null on success, otherwise the reason.
+  Future<String?> createLeaveRequest({
+    required int type,
+    required DateTime startDate,
+    DateTime? endDate,
+    required String reason,
+  }) async {
+    String day(DateTime d) => '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    try {
+      await _dio.post(
+        ApiConfig.leaveRequestsEndpoint,
+        data: {
+          'type': type,
+          'startDate': day(startDate),
+          if (endDate != null) 'endDate': day(endDate),
+          'reason': reason,
+        },
+      );
+      return null;
+    } on DioException catch (e) {
+      _logger.warning('Create leave request error: ${e.message}');
+      return _errorMessage(e, 'Could not send the request.');
+    }
+  }
 }

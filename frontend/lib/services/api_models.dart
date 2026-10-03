@@ -847,3 +847,35 @@ class DepartmentDto {
         name: json['name'] as String? ?? '',
       );
 }
+
+// a request to be excused from classes (GET /api/school/leave-requests/mine)
+
+class LeaveRequestDto {
+  final String id;
+  final String type; // "Sick", "Personal" or "Other"
+  final String startDate; // yyyy-MM-dd
+  final String endDate;
+  final String reason;
+  final String status; // "Pending", "Approved" or "Rejected"
+  final String? reviewNote;
+
+  LeaveRequestDto({
+    required this.id,
+    required this.type,
+    required this.startDate,
+    required this.endDate,
+    required this.reason,
+    required this.status,
+    this.reviewNote,
+  });
+
+  factory LeaveRequestDto.fromJson(Map<String, dynamic> json) => LeaveRequestDto(
+        id: json['id']?.toString() ?? '',
+        type: json['type'] as String? ?? 'Other',
+        startDate: json['startDate'] as String? ?? '',
+        endDate: json['endDate'] as String? ?? '',
+        reason: json['reason'] as String? ?? '',
+        status: json['status'] as String? ?? 'Pending',
+        reviewNote: json['reviewNote'] as String?,
+      );
+}

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tamdansers/services/api_models.dart';
+import 'package:tamdansers/services/api_service.dart';
 // --- 1. DATA MODEL ---
 class LeaveRequest {
   final String type;
@@ -18,8 +20,14 @@ class LeaveRequest {
   });
 }
 // --- 2. MAIN SCREEN ---
+// Leave (permission) requests go to school staff, who approve or reject them (school-service D17).
 class StudentPermissionScreen extends StatefulWidget {
-  const StudentPermissionScreen({super.key});
+  // The calls can be replaced in tests; by default they go to the API.
+  // submit returns null on success, otherwise the reason.
+  const StudentPermissionScreen({super.key, this.load, this.submit});
+
+  final Future<List<LeaveRequestDto>> Function()? load;
+  final Future<String?> Function(int type, DateTime date, String reason)? submit;
 
   @override
   State<StudentPermissionScreen> createState() =>
@@ -33,22 +41,42 @@ class _StudentPermissionScreenState extends State<StudentPermissionScreen> {
   DateTime? selectedDate;
   final TextEditingController _reasonController = TextEditingController();
 
-  final List<LeaveRequest> historyData = [
-    LeaveRequest(
-      type: 'Sick Leave',
-      date: '12 Feb 2026',
-      status: 'Approved',
-      reason: 'High fever and flu. Doctor prescribed 3 days of rest.',
-      statusColor: const Color(0xFF50E3C2),
-    ),
-    LeaveRequest(
-      type: 'Personal',
-      date: '10 Feb 2026',
-      status: 'Pending',
-      reason: 'Family emergency requiring immediate travel.',
-      statusColor: const Color(0xFFFFB75E),
-    ),
-  ];
+  List<LeaveRequest> historyData = [];
+  bool _sending = false;
+
+  static const _typeIds = {'Sick Leave': 1, 'Personal Leave': 2, 'Other': 3};
+  static const _typeLabels = {'Sick': 'Sick Leave', 'Personal': 'Personal Leave', 'Other': 'Other'};
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final requests = await (widget.load ?? ApiService().getMyLeaveRequests)();
+    if (!mounted) return;
+    setState(() => historyData = requests.map(_fromDto).toList());
+  }
+
+  static LeaveRequest _fromDto(LeaveRequestDto r) {
+    String day(String iso) {
+      final d = DateTime.tryParse(iso);
+      return d == null ? iso : DateFormat('dd MMM yyyy').format(d);
+    }
+
+    return LeaveRequest(
+      type: _typeLabels[r.type] ?? r.type,
+      date: r.startDate == r.endDate ? day(r.startDate) : '${day(r.startDate)} – ${day(r.endDate)}',
+      status: r.status,
+      reason: r.reviewNote == null ? r.reason : '${r.reason}\n\nStaff note: ${r.reviewNote}',
+      statusColor: switch (r.status) {
+        'Approved' => const Color(0xFF50E3C2),
+        'Rejected' => const Color(0xFFFF6B6B),
+        _ => const Color(0xFFFFB75E),
+      },
+    );
+  }
 
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
@@ -72,8 +100,8 @@ class _StudentPermissionScreenState extends State<StudentPermissionScreen> {
     if (picked != null) setState(() => selectedDate = picked);
   }
 
-  void _submitForm() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submitForm() async {
+    if (_sending || !_formKey.currentState!.validate()) return;
     if (selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -91,20 +119,28 @@ class _StudentPermissionScreenState extends State<StudentPermissionScreen> {
       return;
     }
 
-    setState(() {
-      historyData.insert(
-        0,
-        LeaveRequest(
-          type: selectedLeaveType!,
-          date: DateFormat('dd MMM yyyy').format(selectedDate!),
-          status: 'Pending',
-          reason: _reasonController.text,
-          statusColor: const Color(0xFFFFB75E),
-        ),
+    setState(() => _sending = true);
+    final type = _typeIds[selectedLeaveType] ?? 3;
+    final error = await (widget.submit ??
+        (t, d, r) => ApiService().createLeaveRequest(type: t, startDate: d, reason: r))(
+      type,
+      selectedDate!,
+      _reasonController.text.trim(),
+    );
+    if (!mounted) return;
+    setState(() => _sending = false);
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: const Color(0xFFFF6B6B), behavior: SnackBarBehavior.floating),
       );
+      return;
+    }
+    setState(() {
       _reasonController.clear();
       selectedDate = null;
     });
+    await _load();
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -114,7 +150,7 @@ class _StudentPermissionScreenState extends State<StudentPermissionScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                "Permission request sent successfully!",
+                "Request sent to the school. You'll be notified of the decision.",
                 style: GoogleFonts.inter(fontWeight: FontWeight.bold),
               ),
             ),
@@ -274,7 +310,8 @@ class _StudentPermissionScreenState extends State<StudentPermissionScreen> {
   );
 
   Widget _buildSubmitButton() => Bounceable(
-    onTap: _submitForm,
+    key: const ValueKey('submit-leave'),
+    onTap: _sending ? null : _submitForm,
     child: Container(
       width: double.infinity,
       height: 55,
