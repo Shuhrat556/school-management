@@ -93,6 +93,15 @@ GET `?studentId=&subjectId=&semester=`, GET `{id}` — Staff; a student gets onl
 (`studentId` defaults to their own, any other id → 403). POST (one grade per student + subject + semester:
 201 when created, 200 when it replaced the existing score), PUT `{id}`, DELETE `{id}` — Staff. Score 0–100.
 
+Audit trail (every create, score change and delete is recorded with the caller's auth id, username and role):
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/grades/{id}/history` | Staff | Oldest first; still works after the grade is deleted. 404 only if the grade never existed and has no history |
+| GET | `/grades/changes?studentId=&take=` | Admin | School-wide feed, newest first, `take` 1–200 (default 50) |
+
+Each entry: `{id, gradeId, studentId, studentName, subjectId, subjectName, semester, action ("Created"|"Updated"|"Deleted"),
+oldScore, newScore, changedByAuthUserId, changedByName, changedByRole, changedAt}`. Re-saving the same score is not recorded.
+
 ### Parents
 | Method | Path | Auth | Notes |
 |---|---|---|---|

@@ -92,6 +92,7 @@ builder.Services.AddScoped<IGradeRepository, GradeRepository>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IGradeChangeRepository, GradeChangeRepository>();
 
 // Service Registrations
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
@@ -110,6 +111,8 @@ builder.Services.AddScoped<IParentService, ParentService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<ProfileAccess>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentActor, HttpCurrentActor>();
 
 const string DevelopmentJwtSecret = "your-secret-key-change-me-in-production-this-is-insecure";
 var jwtSection = builder.Configuration.GetSection("Jwt");

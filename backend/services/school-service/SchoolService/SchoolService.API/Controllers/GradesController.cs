@@ -53,6 +53,19 @@ public class GradesController : ControllerBase
         return Ok(grade);
     }
 
+    [HttpGet("{id:guid}/history")]
+    [Authorize(Roles = Roles.Staff)]
+    public async Task<ActionResult<IReadOnlyList<GradeChangeResponseDto>>> GetHistory(Guid id)
+        => Ok(await _gradeService.GetHistoryAsync(id));
+
+    // School-wide audit feed, newest first.
+    [HttpGet("changes")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<IReadOnlyList<GradeChangeResponseDto>>> GetRecentChanges(
+        [FromQuery] Guid? studentId,
+        [FromQuery] int take = 50)
+        => Ok(await _gradeService.GetRecentChangesAsync(studentId, take));
+
     [HttpPost]
     [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<GradeResponseDto>> Create([FromBody] GradeCreateDto dto)

@@ -23,7 +23,7 @@ tayyor bo'lganda aniq buyruqlar ro'yxati bilan qayta so'rayman.
 4. Backup: `scripts/backup-db.sh` → ikkala dump hajmini tekshirish.
 5. `cd backend && docker compose build && docker compose up -d`.
    Startup'da avtomatik: auth — `AddLoginLockout`, `HashRefreshTokens` migratsiyalari; school — legacy baseline
-   (history jadvali), so'ng `AddNaturalKeyIndexes`, `AddStudentParents`, `AddNotifications` (hammasi Down bilan; prod'da dublikat yo'q).
+   (history jadvali), so'ng `AddNaturalKeyIndexes`, `AddStudentParents`, `AddNotifications`, `AddGradeChanges` (hammasi Down bilan; prod'da dublikat yo'q).
 6. Tekshiruv: `/health` (5001/5002/5003), admin-web login, `docker compose logs --since 10m` da xato yo'q.
 7. Muammo bo'lsa: `git checkout b4db3c3 && docker compose build && docker compose up -d`; school/auth migratsiyalari additive —
    eski kod yangi jadval/ustunlarni e'tiborsiz qoldiradi; kerak bo'lsa DEPLOYMENT.md "Rollback plan".

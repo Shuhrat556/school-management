@@ -10,4 +10,7 @@ public interface IGradeService
     Task<(GradeResponseDto Grade, bool Created)> SaveAsync(GradeCreateDto dto);
     Task<GradeResponseDto> UpdateAsync(Guid id, GradeUpdateDto dto);
     Task DeleteAsync(Guid id);
+    // Audit trail (F5): who set, changed or removed a grade.
+    Task<IReadOnlyList<GradeChangeResponseDto>> GetHistoryAsync(Guid gradeId);
+    Task<IReadOnlyList<GradeChangeResponseDto>> GetRecentChangesAsync(Guid? studentId, int take);
 }

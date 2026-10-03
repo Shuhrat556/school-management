@@ -53,6 +53,7 @@ TeacherDepartments TeacherSubjects├─* Schedules
 | `Materials` | Learning material / assignment in a classroom | `Title`, `Url`, `Type` |
 | `Submissions` | Student hand-in for a material | `SubmissionUrl`, `SubmittedAt`, `Grade`, `Feedback` |
 | `Notifications` | In-app messages about a student | `StudentId`, `ParentAuthUserId` (null = for the student), `Type` (1 Grade, 2 Attendance, 3 Announcement), `Title`, `Body`, `ReadAt` |
+| `GradeChanges` | Append-only grade audit trail, no foreign keys (outlives the grade) | `GradeId`, `StudentId`, `SubjectId`, `Semester`, `Action` (1 Created, 2 Updated, 3 Deleted), `OldScore`, `NewScore`, `ChangedByAuthUserId`, `ChangedByName`, `ChangedByRole`, `ChangedAt`; indexes on `GradeId` and `(StudentId, ChangedAt)` |
 | `StudentParents` | Parent account ↔ student link (parent portal) | `StudentId`, `ParentAuthUserId` (auth user id), `FullName`, `Email`, `Relationship`; unique per student + parent |
 
 ### Migrations and the legacy baseline

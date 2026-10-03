@@ -108,3 +108,16 @@ Yaratiladi: baho qo'yilganda/ball o'zgarganda, "kelmadi"/"kechikdi" birinchi mar
 **Sabab:** eMaktab/ManageBac'dagi asosiy imkoniyat; o'quvchi manzili `AuthUserId` ga emas `StudentId` ga bog'langani uchun bog'lanmagan
 seed profillar ham ishlaydi. Email/push — tashqi xizmat (Gmail allaqachon sozlangan, lekin ommaviy yuborish limitlari) → Kelajakda.
 Eslatma: umumiy (sinfsiz) e'lonlar hozircha bildirishnoma yaratmaydi — butun maktabga fan-out keyinroq (queue bilan).
+
+## D12 — F5: baho o'zgarishlari audit log'i (2026-10-03)
+**Qaror:** alohida `GradeChanges` jadvali (append-only, FK'siz): baho yaratilganda, ball/semestr o'zgarganda va o'chirilganda
+`GradeService` bitta yozuv qo'shadi — kim (`sub`, username, rol `ICurrentActor` orqali tokendan), qachon, eski → yangi ball.
+Yozuv bahoning o'zi bilan bitta `SaveChanges` da saqlanadi (`IGradeChangeRepository.Stage`) — baho saqlanmasa audit ham yo'q,
+audit yozilmasa baho ham saqlanmaydi. Bir xil ballni qayta saqlash yozilmaydi. API: `GET /grades/{id}/history` (Staff),
+`GET /grades/changes` (faqat Admin — maktab bo'yicha nazorat). O'quvchi/ota-ona audit'ni ko'rmaydi (xodimlar ichki ma'lumoti).
+admin-web: `/admin/grade-changes`.
+**Sabab:** RESEARCH "Muhim" 4 (PowerSchool audit, baho yaxlitligi). Umumiy EF `SaveChanges` interceptor (barcha jadvallar uchun)
+o'rniga aniq domen yozuvi: o'qiladigan tarix (eski/yangi ball), kam shovqin, test qilish oson. FK yo'qligi — baho o'chirilgandan
+keyin ham tarix qoladi. Fan baholarga RESTRICT bilan bog'langan, o'quvchi soft delete — ya'ni API orqali baho faqat
+`DELETE /grades/{id}` bilan yo'qoladi va u yoziladi. Tarix oldingi baholar uchun yo'q (backfill qilinmaydi — muallif noma'lum).
+**Manba:** OWASP Logging Cheat Sheet (kim/nima/qachon, o'zgartirib bo'lmaydigan audit), [EF Core — Saving data / transactions](https://learn.microsoft.com/en-us/ef/core/saving/transactions) (bitta `SaveChanges` = bitta tranzaksiya).
