@@ -877,23 +877,6 @@ class ApiService {
     return [];
   }
 
-  // POST /api/school/Schedules
-  Future<ScheduleDto?> createSchedule(ScheduleDto schedule) async {
-    try {
-      final response = await _dio.post(
-        ApiConfig.schedulesEndpoint,
-        data: schedule.toJson(),
-      );
-      if (response.statusCode == 201) {
-        return ScheduleDto.fromJson(response.data as Map<String, dynamic>);
-      }
-    } on DioException catch (e) {
-      _logger.warning('Create schedule error: ${e.message}');
-      rethrow;
-    }
-    return null;
-  }
-
   // DELETE /api/school/Schedules/{id}
   Future<bool> deleteSchedule(String id) async {
     try {

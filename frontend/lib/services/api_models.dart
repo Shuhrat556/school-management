@@ -682,13 +682,6 @@ class ScheduleDto {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'classroomId': classroomId,
-    'subjectId': subjectId,
-    if (teacherId != null) 'teacherId': teacherId,
-    'day': day,
-    'time': time,
-  };
 }
 
 // in-app notifications — new grades, absences and class announcements
