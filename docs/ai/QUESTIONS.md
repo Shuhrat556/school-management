@@ -26,8 +26,12 @@ tayyor bo'lganda aniq buyruqlar ro'yxati bilan qayta so'rayman.
    (history jadvali), so'ng `AddNaturalKeyIndexes`, `AddStudentParents`, `AddNotifications`, `AddGradeChanges`, `AddMaterialDueDate`, `AddLeaveRequests`, `AddMessaging` (hammasi Down bilan; prod'da dublikat yo'q).
 6. Tekshiruv: `/health` (5001/5002/5003), `python3 scripts/smoke_test.py --base http://<host>:3100` (faqat o'qiydi), admin-web login,
    `docker compose logs --since 10m` da xato yo'q (4xx endi Information darajasida).
-7. Muammo bo'lsa: `git checkout b4db3c3 && docker compose build && docker compose up -d`; school/auth migratsiyalari additive —
-   eski kod yangi jadval/ustunlarni e'tiborsiz qoldiradi; kerak bo'lsa DEPLOYMENT.md "Rollback plan".
+7. Muammo bo'lsa: `git checkout b4db3c3 && docker compose build && docker compose up -d`; school/auth migratsiyalari asosan additive —
+   eski kod yangi jadval/ustunlarni e'tiborsiz qoldiradi. Istisno: `HashRefreshTokens` saqlangan refresh tokenlarni xeshlaydi, eski kod ularni
+   tanimaydi — rollback'dan keyin hamma qayta login qiladi (ma'lumot yo'qolmaydi). Kerak bo'lsa DEPLOYMENT.md "Rollback plan".
+
+Tekshirilgan shartlar (2026-10-03, faqat SELECT): prod PostgreSQL 16.15 (`AddMessaging` dagi NULLS NOT DISTINCT uchun ≥ 15 kerak), dublikatlar yo'q,
+jadvalda to'qnashuvlar yo'q, username ≤ 15 belgi. CORS sozlash shart emas: admin-web va Flutter web API'ni o'z proksisi orqali chaqiradi.
 
 ## Q3 — TLS va domen (OCHIQ)
 RUXSAT KERAK: school-management hozir HTTP portlarda (3100/3200/5001) ochiq (BUGS B14). Taklif: subdomen
