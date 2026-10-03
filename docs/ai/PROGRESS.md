@@ -176,5 +176,9 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   PostgreSQL 22001 → 400 ikkala servisda (da5c150). Flutter ekranlarining API'ga ulanishi skript bilan tekshirildi — qolganlari haqiqiy.
   auth 51/51, school 181/181.
 
-KEYINGI QADAM: F9 (xabarlar) dizayni va backend (xavfsizlik qoidalari bilan); admin-web sahifalarini ham soxta ma'lumot uchun tekshirish.
-Ruxsat kelsa — Q2 deploy.
+- Hujjatlar: README funksiyalar, ARCHITECTURE kirish qoidalari yangilandi (c8cdddf). admin-web'da soxta ma'lumot topilmadi.
+- F9 (D18): o'qituvchi ↔ o'quvchi/ota-ona xabarlari — backend (d87f2bf, migratsiya `AddMessaging`, MessagingTests 11), Flutter `MessagesScreen`
+  ikkala ilovada (0592cfc), admin-web `/messages` (6c117a7). Toza lokal stekda smoke 37/37. school 192/192, Flutter 51/51.
+
+KEYINGI QADAM: Q2 deploy rejasini yangilangan migratsiyalar bilan qayta ko'rib chiqish; push-bildirishnomalar (FCM — ruxsat kerak bo'ladi);
+qolgan kichik UX (o'qituvchi "% capacity filled" taxmini). Ruxsat kelsa — Q2 deploy.
