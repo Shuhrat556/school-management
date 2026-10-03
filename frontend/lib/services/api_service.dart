@@ -1194,4 +1194,19 @@ class ApiService {
     }
     return [];
   }
+
+  // GET /api/announcements — for a student or parent: published school-wide ones and their classes'
+  Future<List<AnnouncementDto>> getAnnouncements() async {
+    try {
+      final response = await _dio.get(ApiConfig.announcementsEndpoint);
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => AnnouncementDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get announcements error: ${e.message}');
+    }
+    return [];
+  }
 }

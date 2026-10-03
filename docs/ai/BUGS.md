@@ -226,3 +226,9 @@ so'rovlari API'dan, detal oynasida Approve/Decline (oila xabardor qilinadi); man
 `link_parent_role.dart` — yangi ota-ona yaratish / bog'lash formasi, "Submit" `onTap: () {}`; o'qituvchida bu huquq yo'q (D10 — faqat Admin).
 · TUZATILDI: ekran ota-onalar ma'lumotnomasiga aylantirildi — o'quvchini qidirish, bog'langan ota-onalar (ism, kimligi, email) `GET /students/{id}/parents`
 orqali; bog'lanmagan bo'lsa, admin bog'lashi aytiladi (test/parents_directory_test.dart).
+
+### B41 [PAST] Flutter: o'quvchi bosh sahifasi soxta "progress" va tadbirlarni ko'rsatardi
+`student_dashboard.dart` — doim "Advanced Mathematics II 75%", "View All" ro'yxati 3 ta soxta kurs, kurs tafsilotida soxta boblar; "School Events" va
+"See All" — qattiq yozilgan tadbirlar (Annual Sports Day, soxta qatnashchilar soni). · TUZATILDI: progress — o'quvchining haqiqiy baholari (oxirgisi
+bosh sahifada, barchasi "View All"da, tafsilotda ball va semestr); tadbirlar — e'lon qilingan e'lonlar (`GET /api/announcements`, umumiy + o'z sinflari),
+nishonda muallif (test/student_home_test.dart).

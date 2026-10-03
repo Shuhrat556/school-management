@@ -901,3 +901,33 @@ class StudentParentDto {
         relationship: json['relationship'] as String?,
       );
 }
+
+// a published announcement (GET /api/announcements) — school-wide or for one class
+
+class AnnouncementDto {
+  final String id;
+  final String title;
+  final String body;
+  final String? classroomName;
+  final String authorName;
+  final DateTime publishedAt; // local time
+
+  AnnouncementDto({
+    required this.id,
+    required this.title,
+    required this.body,
+    this.classroomName,
+    required this.authorName,
+    required this.publishedAt,
+  });
+
+  factory AnnouncementDto.fromJson(Map<String, dynamic> json) => AnnouncementDto(
+        id: json['id']?.toString() ?? '',
+        title: json['title'] as String? ?? '',
+        body: json['body'] as String? ?? '',
+        classroomName: json['classroomName'] as String?,
+        authorName: json['authorTeacherName'] as String? ?? '',
+        publishedAt: DateTime.tryParse(json['publishedAt'] as String? ?? json['createdAt'] as String? ?? '')?.toLocal() ??
+            DateTime.now(),
+      );
+}

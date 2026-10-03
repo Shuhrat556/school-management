@@ -3,6 +3,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:tamdansers/Controller/activity_list_widget.dart';
 import 'package:tamdansers/Controller/course_card_widget.dart';
 import 'package:tamdansers/Screen/Edit-Profile/student_edit_profile.dart';
@@ -15,6 +16,7 @@ import 'package:tamdansers/Screen/Role_STUDENT/schedule_student_role.dart';
 import 'package:tamdansers/Screen/Role_STUDENT/score_student_role.dart';
 import 'package:tamdansers/Screen/setting/setting_role_student.dart';
 import 'package:tamdansers/constants/app_image.dart';
+import 'package:tamdansers/services/api_models.dart';
 import 'package:tamdansers/services/api_service.dart';
 
 // MAIN DASHBOARD
@@ -71,7 +73,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
 // STUDENT HOME CONTENT
 
 class StudentHomeContent extends StatefulWidget {
-  const StudentHomeContent({super.key});
+  // The calls can be replaced in tests; by default they go to the API.
+  const StudentHomeContent({super.key, this.loadAnnouncements, this.loadGrades});
+
+  final Future<List<AnnouncementDto>> Function()? loadAnnouncements;
+  final Future<List<GradeDto>> Function()? loadGrades;
 
   @override
   State<StudentHomeContent> createState() => _StudentHomeContentState();
@@ -82,16 +88,53 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
   int _currentCarouselIndex = 0;
   final ApiService _api = ApiService();
 
+  // Real data for the home page; it used to show sample events and a fixed "75%" course.
+  List<Map<String, dynamic>> _events = [];
+  List<GradeDto> _grades = [];
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadDashboard();
   }
 
   Future<void> _loadUserData() async {
     final name = await _api.getUserName();
     if (mounted) setState(() => _userName = name ?? 'Student');
   }
+
+  Future<void> _loadDashboard() async {
+    final announcements = await (widget.loadAnnouncements ?? _api.getAnnouncements)();
+    final grades = await (widget.loadGrades ??
+        () async => _api.getGrades(studentId: await _api.getEntityId() ?? ''))();
+    if (!mounted) return;
+    setState(() {
+      _events = eventsFromAnnouncements(announcements);
+      // Latest first
+      _grades = grades..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    });
+  }
+
+  Widget _progressCard(GradeDto g) => Bounceable(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseDetailScreen(
+              title: g.subjectName,
+              progress: (g.score / 100).clamp(0, 1).toDouble(),
+              semester: g.semester,
+            ),
+          ),
+        ),
+        child: CourseProgressCard(
+          title: g.subjectName,
+          subtitle: '${g.semester} • score ${g.score.toStringAsFixed(1)}',
+          progress: (g.score / 100).clamp(0, 1).toDouble(),
+          percentage: '${g.score.round()}%',
+          imagePath: AppImages.subjectMath,
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -118,29 +161,18 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
               onActionTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AllProgressScreen(),
+                  builder: (context) => AllProgressScreen(grades: _grades),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            Bounceable(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CourseDetailScreen(
-                    title: "Advanced Mathematics II",
-                    progress: 0.75,
-                  ),
-                ),
-              ),
-              child: const CourseProgressCard(
-                title: "Advanced Mathematics II",
-                subtitle: "28 lessons • 112 exercises",
-                progress: 0.75,
-                percentage: "75%",
-                imagePath: AppImages.subjectMath,
-              ),
-            ),
+            if (_grades.isEmpty)
+              Text(
+                "No grades yet.",
+                style: GoogleFonts.inter(color: Colors.grey.shade500),
+              )
+            else
+              _progressCard(_grades.first),
 
             const SizedBox(height: 40),
             // EVENTS SECTION
@@ -150,7 +182,7 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
               onActionTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const SchoolEventsListScreen(),
+                  builder: (context) => SchoolEventsListScreen(events: _events),
                 ),
               ),
             ),
@@ -414,52 +446,16 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
 
   // ENHANCED CAROUSEL SLIDER
   Widget _buildEnhancedActivitySlider() {
-    final List<Map<String, dynamic>> events = [
-      {
-        "title": "Annual Sports Day",
-        "date": "14 Oct 2026",
-        "time": "10:00 AM - 4:00 PM",
-        "location": "School Grounds",
-        "img": AppImages.event1,
-        "category": "Sports",
-        "attendees": 245,
-        "description":
-            "Join us for a day of athletic excellence and teamwork! Featuring track & field events, team sports, and fun activities for everyone.",
-      },
-      {
-        "title": "Tech Exhibition",
-        "date": "20 Oct 2026",
-        "time": "9:00 AM - 3:00 PM",
-        "location": "Innovation Lab",
-        "img": AppImages.event2,
-        "category": "Technology",
-        "attendees": 189,
-        "description":
-            "Showcasing the latest student innovations in robotics, software development, and engineering projects.",
-      },
-      {
-        "title": "Science Fair 2026",
-        "date": "12 Nov 2026",
-        "time": "11:00 AM - 5:00 PM",
-        "location": "Science Hall",
-        "img": AppImages.event3,
-        "category": "Science",
-        "attendees": 312,
-        "description":
-            "Explore groundbreaking experiments and discoveries presented by our talented young scientists.",
-      },
-      {
-        "title": "Music Festival",
-        "date": "05 Dec 2026",
-        "time": "2:00 PM - 8:00 PM",
-        "location": "Auditorium",
-        "img": AppImages.grade1,
-        "category": "Arts",
-        "attendees": 450,
-        "description":
-            "A celebration of student musical talent featuring bands, choirs, and solo performances.",
-      },
-    ];
+    final events = _events;
+    if (events.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Text(
+          "No announcements yet.",
+          style: GoogleFonts.inter(color: Colors.grey.shade500),
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -890,14 +886,20 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
 }
 
 class AllProgressScreen extends StatelessWidget {
-  const AllProgressScreen({super.key});
+  final List<GradeDto> grades;
+
+  const AllProgressScreen({super.key, this.grades = const []});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> courses = [
-      {"title": "Advanced Mathematics II", "sub": "28 lessons", "prog": 0.75},
-      {"title": "Quantum Physics", "sub": "18 lessons", "prog": 0.45},
-      {"title": "World History", "sub": "22 lessons", "prog": 0.90},
+    final courses = [
+      for (final g in grades)
+        {
+          "title": g.subjectName,
+          "sub": "${g.semester} • score ${g.score.toStringAsFixed(1)}",
+          "prog": (g.score / 100).clamp(0, 1).toDouble(),
+          "semester": g.semester,
+        },
     ];
 
     return Scaffold(
@@ -934,6 +936,7 @@ class AllProgressScreen extends StatelessWidget {
                   builder: (context) => CourseDetailScreen(
                     title: course["title"] as String,
                     progress: course["prog"] as double,
+                    semester: course["semester"] as String?,
                   ),
                 ),
               ),
@@ -954,12 +957,14 @@ class AllProgressScreen extends StatelessWidget {
 
 class CourseDetailScreen extends StatelessWidget {
   final String title;
-  final double progress;
+  final double progress; // the score as 0..1
+  final String? semester;
 
   const CourseDetailScreen({
     super.key,
     required this.title,
     required this.progress,
+    this.semester,
   });
 
   @override
@@ -1022,7 +1027,7 @@ class CourseDetailScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Course Completion",
+                        "Score",
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           color: Colors.grey.shade500,
@@ -1051,60 +1056,19 @@ class CourseDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 30),
-            Text(
-              "Course Curriculum",
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF0D3B66),
+            if (semester != null) ...[
+              const SizedBox(height: 30),
+              Text(
+                "Semester: $semester",
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF0D3B66),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildModernLessonTile("Chapter 1: Foundations", true),
-            _buildModernLessonTile("Chapter 2: Intermediate Concepts", true),
-            _buildModernLessonTile("Chapter 3: Final Assessment", false),
+            ],
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildModernLessonTile(String title, bool isCompleted) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isCompleted
-              ? const Color(0xFF50E3C2).withValues(alpha: 0.5)
-              : Colors.grey.shade200,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isCompleted
-                ? Icons.check_circle_rounded
-                : Icons.radio_button_unchecked_rounded,
-            color: isCompleted ? const Color(0xFF50E3C2) : Colors.grey.shade400,
-            size: 24,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              title,
-              style: GoogleFonts.inter(
-                fontWeight: isCompleted ? FontWeight.bold : FontWeight.w500,
-                color: isCompleted
-                    ? const Color(0xFF0D3B66)
-                    : Colors.grey.shade600,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1114,67 +1078,12 @@ class CourseDetailScreen extends StatelessWidget {
 // EVENT SCREENS
 // =============================================================================
 class SchoolEventsListScreen extends StatelessWidget {
-  const SchoolEventsListScreen({super.key});
+  final List<Map<String, dynamic>> events;
+
+  const SchoolEventsListScreen({super.key, this.events = const []});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> events = [
-      {
-        "title": "Annual Sports Day",
-        "date": "14 Oct 2026",
-        "time": "10:00 AM - 4:00 PM",
-        "location": "School Grounds",
-        "img": AppImages.event1,
-        "category": "Sports",
-        "attendees": 245,
-        "description":
-            "Join us for a day of athletic excellence and teamwork! Featuring track & field events, team sports, and fun activities for everyone.",
-      },
-      {
-        "title": "Tech Exhibition",
-        "date": "20 Oct 2026",
-        "time": "9:00 AM - 3:00 PM",
-        "location": "Innovation Lab",
-        "img": AppImages.event2,
-        "category": "Technology",
-        "attendees": 189,
-        "description":
-            "Showcasing the latest student innovations in robotics, software development, and engineering projects.",
-      },
-      {
-        "title": "Science Fair 2026",
-        "date": "12 Nov 2026",
-        "time": "11:00 AM - 5:00 PM",
-        "location": "Science Hall",
-        "img": AppImages.event3,
-        "category": "Science",
-        "attendees": 312,
-        "description":
-            "Explore groundbreaking experiments and discoveries presented by our talented young scientists.",
-      },
-      {
-        "title": "Music Festival",
-        "date": "05 Dec 2026",
-        "time": "2:00 PM - 8:00 PM",
-        "location": "Auditorium",
-        "img": AppImages.grade1,
-        "category": "Arts",
-        "attendees": 450,
-        "description":
-            "A celebration of student musical talent featuring bands, choirs, and solo performances.",
-      },
-      {
-        "title": "Charity Auction",
-        "date": "15 Dec 2026",
-        "time": "6:00 PM - 9:00 PM",
-        "location": "Main Hall",
-        "img": AppImages.event1,
-        "category": "Fundraising",
-        "attendees": 150,
-        "description":
-            "Raising funds for local community projects. Come bid on amazing items donated by local businesses.",
-      },
-    ];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F6F8),
@@ -3468,3 +3377,21 @@ class _StudentChatDetailScreenState extends State<StudentChatDetailScreen> {
     );
   }
 }
+
+const _eventImages = [AppImages.event1, AppImages.event2, AppImages.event3, AppImages.grade1];
+
+// Published announcements in the shape the event cards use. The badge that used to show
+// a made-up attendee count shows the author.
+List<Map<String, dynamic>> eventsFromAnnouncements(List<AnnouncementDto> announcements) => [
+      for (var i = 0; i < announcements.length; i++)
+        {
+          "title": announcements[i].title,
+          "date": DateFormat('dd MMM yyyy').format(announcements[i].publishedAt),
+          "time": DateFormat('h:mm a').format(announcements[i].publishedAt),
+          "location": announcements[i].classroomName ?? "Whole school",
+          "img": _eventImages[i % _eventImages.length],
+          "category": "Announcement",
+          "attendees": announcements[i].authorName,
+          "description": announcements[i].body,
+        },
+    ];
