@@ -27,7 +27,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] docs/DATABASE.md
 - [x] docs/DEPLOYMENT.md
 - [x] README yangilash
-- [ ] Egasiga 5-10 bandli qisqa hisobot
+- [x] Egasiga 5-10 bandli qisqa hisobot (2026-10-03, chatda)
 
 ## 5. Kritik xatolar va xavfsizlik (har biri: test → tuzatish → build/test)
 - [x] T0a: `SchoolService.Tests` (xUnit + WebApplicationFactory + SQLite in-memory), sln ga qo'shildi
