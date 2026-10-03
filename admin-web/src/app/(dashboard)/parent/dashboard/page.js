@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { BarChart3, CalendarX2, ClipboardCheck, GraduationCap, UsersRound } from 'lucide-react';
+import Link from 'next/link';
+import { BarChart3, CalendarX2, ClipboardCheck, FileText, GraduationCap, UsersRound } from 'lucide-react';
 import { getGrades, getMyChildren, getStudentAttendanceHistory } from '@/lib/api';
 import { getUser } from '@/lib/auth';
 import StudentEmptyState from '@/components/StudentEmptyState';
@@ -45,6 +46,12 @@ function ChildOverview({ child, grades, attendance }) {
       icon={GraduationCap}
       title={`${child.firstName} ${child.lastName}`}
       subtitle={child.email ?? undefined}
+      action={(
+        <Link href={`/report-card/${child.id}`} className="admin-btn-secondary">
+          <FileText className="h-4 w-4" />
+          Report card
+        </Link>
+      )}
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StudentStatCard

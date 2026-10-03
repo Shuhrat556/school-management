@@ -226,7 +226,9 @@ export default function TeacherClassroomDetailPage() {
                        <div className="w-9 h-9 rounded-full bg-[#526d82] flex items-center justify-center text-white font-semibold text-sm shadow-sm">
                          {s.firstName?.[0]}{s.lastName?.[0]}
                        </div>
-                       <span className="font-medium text-slate-900">{s.firstName} {s.lastName}</span>
+                       <Link href={`/report-card/${s.studentId ?? s.id}`} className="font-medium text-slate-900 hover:text-[#526d82] hover:underline" title="Open report card">
+                         {s.firstName} {s.lastName}
+                       </Link>
                      </div>
                    </td>
                    <td className="px-6 py-4 text-slate-500">

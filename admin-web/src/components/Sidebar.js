@@ -14,6 +14,7 @@ import {
   CalendarDays,
   ChevronRight,
   ClipboardCheck,
+  FileText,
   GraduationCap,
   History,
   LayoutDashboard,
@@ -88,6 +89,7 @@ const studentSections = [
     items: [
       { href: '/student/academics', label: 'Academics', icon: BookOpen },
       { href: '/student/grades', label: 'Grades', icon: BarChart3 },
+      { href: '/report-card/me', label: 'Report card', icon: FileText },
       { href: '/student/attendance', label: 'Attendance', icon: ClipboardCheck },
       { href: '/student/schedules', label: 'Schedules', icon: CalendarDays },
     ],
@@ -152,7 +154,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--app-border)] bg-[rgba(248,249,250,0.92)] px-4 py-3 backdrop-blur lg:hidden">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--app-border)] bg-[rgba(248,249,250,0.92)] px-4 py-3 backdrop-blur lg:hidden print:hidden">
         <Link href={roleMeta.sections[0]?.items[0]?.href ?? '/'} className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#526d82] text-white shadow-lg shadow-slate-900/15">
             <School className="h-5 w-5" />
@@ -184,7 +186,7 @@ export default function Sidebar() {
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-40 flex w-[19rem] max-w-[86vw] flex-col border-r border-[var(--app-border)] bg-[#edf1f4] text-[var(--app-text)] shadow-2xl shadow-slate-900/8 transition-transform duration-300 lg:static lg:z-auto lg:w-72 lg:max-w-none lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-40 flex w-[19rem] max-w-[86vw] flex-col border-r border-[var(--app-border)] bg-[#edf1f4] text-[var(--app-text)] shadow-2xl shadow-slate-900/8 transition-transform duration-300 lg:static lg:z-auto lg:w-72 lg:max-w-none lg:translate-x-0 print:hidden',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
         ].join(' ')}
       >

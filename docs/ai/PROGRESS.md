@@ -109,4 +109,11 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - F5b: admin-web `/admin/grade-changes` (o'quvchi filtri, oxirgi 50/100/200) + Sidebar "Grade history". Lint 0 xato (21 eski ogohlantirish), build OK.
   `api.js` da faqat o'z hunk'im stage qilindi.
 
-KEYINGI QADAM: F4 — o'quvchi hisobot kartasi (server tomonda semestr bo'yicha o'rtacha + davomat %, CSV eksport); ruxsat kelsa — Q2 deploy.
+- F4 TAYYOR (D13): `GET /students/{id}/report-card` (+`/csv`) — fanlar, harf, GPA (admin-web bilan bir xil shkala `GradeScale`), o'rtacha,
+  davomat (`from`/`to`); CSV RFC 4180 + BOM + formula injection himoyasi. ReportCardTests 9 ta; school 134/134 (PostgreSQL bilan). Commit 76a8153.
+- F4b: admin-web `/report-card/[studentId]` (o'quvchi uchun `/report-card/me`): semestr tanlash, CSV yuklab olish, "Print / PDF"
+  (Sidebar chop etishda yashiriladi). Havolalar: o'quvchi menyusi, ota-ona dashboard'i, admin o'quvchi sahifasi, o'qituvchi sinf ro'yxati.
+  Lint 0 xato (21 eski), build OK. UI brauzerda sinalmadi — Docker ishlamayapti (Q6).
+
+KEYINGI QADAM: 6-bo'lim testlari — School-service unit testlar (GradeService, AttendanceService, ClassroomService enroll/unenroll) yoki
+admin-web Dockerfile `output: 'standalone'`; F6 (OAuth akkaunt bog'lash) keyin. Ruxsat kelsa — Q2 deploy.

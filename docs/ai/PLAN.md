@@ -67,7 +67,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] F3: In-app bildirishnomalar — backend (D11, NotificationTests)
 - [x] F3b: bildirishnomalar UI — admin-web `/notifications` + Sidebar badge (student/parent)
 - [x] F3c: Flutter o'quvchi bildirishnomalar ekrani API'ga ulandi (soxta ma'lumot olib tashlandi) + widget test
-- [ ] F4: O'quvchi hisobot kartasi (semestr bo'yicha o'rtacha + davomat %) API + CSV eksport
+- [x] F4: O'quvchi hisobot kartasi (semestr bo'yicha o'rtacha + davomat %) API + CSV eksport (D13, ReportCardTests) + admin-web `/report-card/[id]` (chop etish/PDF)
 - [x] F5: Baho o'zgarishlari audit log'i — backend (D12, GradeAuditTests, migratsiya `AddGradeChanges`) + admin-web `/admin/grade-changes`
 - [ ] F6: Profil sahifasidan Google/Facebook akkauntini bog'lash (`POST /api/auth/link/{provider}`, Bearer bilan)
 

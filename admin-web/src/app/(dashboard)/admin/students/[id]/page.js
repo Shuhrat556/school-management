@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { getStudent, updateStudent } from '@/lib/api';
 import StudentParentsPanel from '@/components/StudentParentsPanel';
-import { GraduationCap, ArrowLeft, AlertCircle, Save, User, Phone, Calendar, MapPin, Users, Mail, Power } from 'lucide-react';
+import { GraduationCap, ArrowLeft, AlertCircle, Save, User, Phone, Calendar, MapPin, Users, Mail, Power, FileText } from 'lucide-react';
 
 const inputCls = 'admin-input';
 
@@ -117,6 +117,10 @@ export default function EditStudentPage() {
           <h1 className="text-2xl font-bold text-slate-900">Edit Student</h1>
           <p className="text-sm text-slate-500">{form.firstName} {form.lastName}</p>
         </div>
+        <Link href={`/report-card/${id}`} className="admin-btn-secondary ml-auto">
+          <FileText className="w-4 h-4" />
+          Report card
+        </Link>
       </div>
 
       {error && (

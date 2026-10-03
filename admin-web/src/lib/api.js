@@ -448,6 +448,30 @@ export async function getGradeChanges({ studentId, take = 50 } = {}) {
   return res.ok ? res.json() : null;
 }
 
+// Report card (staff, the student, linked parents)
+function reportCardQuery({ semester, from, to } = {}) {
+  const params = new URLSearchParams();
+  if (semester) params.set('semester', semester);
+  if (from) params.set('from', from);
+  if (to) params.set('to', to);
+  const query = params.toString();
+  return query ? `?${query}` : '';
+}
+
+export async function getReportCard(studentId, filters) {
+  const res = await request(`/api/school/students/${studentId}/report-card${reportCardQuery(filters)}`);
+  return res.ok ? res.json() : null;
+}
+
+// Resolves to { blob, fileName } (the server's CSV, BOM included) or null.
+export async function downloadReportCardCsv(studentId, filters) {
+  const res = await request(`/api/school/students/${studentId}/report-card/csv${reportCardQuery(filters)}`);
+  if (!res.ok) return null;
+  const disposition = res.headers.get('Content-Disposition') ?? '';
+  const match = disposition.match(/filename\*=UTF-8''([^;]+)/i) ?? disposition.match(/filename="?([^";]+)"?/i);
+  return { blob: await res.blob(), fileName: match ? decodeURIComponent(match[1]) : 'report-card.csv' };
+}
+
 //Attendance
 
 export async function getAttendance({ classroomId, studentId, date } = {}) {
