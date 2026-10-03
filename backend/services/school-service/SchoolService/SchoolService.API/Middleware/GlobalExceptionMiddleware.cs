@@ -108,6 +108,20 @@ public class GlobalExceptionMiddleware
                 response.details = ex.Message;
                 break;
 
+            case ForbiddenException ex:
+                response.statusCode = (int)HttpStatusCode.Forbidden;
+                response.message = ex.Message;
+                response.code = "FORBIDDEN";
+                response.details = ex.Message;
+                break;
+
+            case TooManyRequestsException ex:
+                response.statusCode = (int)HttpStatusCode.TooManyRequests;
+                response.message = ex.Message;
+                response.code = "TOO_MANY_REQUESTS";
+                response.details = ex.Message;
+                break;
+
             case BusinessRuleException ex:
                 response.statusCode = (int)HttpStatusCode.UnprocessableEntity;
                 response.message = ex.Message;

@@ -62,6 +62,18 @@ public class NotificationService : INotificationService
     }
 
     // One copy for the student and one for each linked parent
+    public async Task NotifyRecipientAsync(Guid studentId, Guid? parentAuthUserId, NotificationType type, string title, string body)
+    {
+        try
+        {
+            await _notifications.AddRangeAsync([new Notification(studentId, parentAuthUserId, type, title, body)]);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not create {Type} notification for student {StudentId}", type, studentId);
+        }
+    }
+
     private async Task<List<Notification>> BuildAsync(Guid studentId, NotificationType type, string title, string body)
     {
         var notifications = new List<Notification> { new(studentId, null, type, title, body) };

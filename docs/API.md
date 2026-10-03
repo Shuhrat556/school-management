@@ -145,6 +145,20 @@ A linked parent can also read the child through `/students/{id}`, `/students/{id
 
 Each entry: `{id, studentId, studentName, type, startDate, endDate, reason, status, createdAt, reviewedByName, reviewedAt, reviewNote}`.
 
+### Messages — `/messages` (Teacher, Student, Parent)
+One-to-one conversations between a teacher and a student, or a teacher and one of the student's linked parents (D18).
+A teacher reaches the students of the classes they teach (class teacher or on the timetable) and their parents; a student
+or parent reaches the teachers of their (child's) current classes. Admins have no inbox (403).
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/messages/contacts` | `[{kind, name, context, teacherId, studentId, parentAuthUserId}]` the caller may write to |
+| GET | `/messages/conversations` | Newest first: `{id, title, subtitle, teacherId, studentId, parentAuthUserId, lastMessage, lastMessageAt, unreadCount}` |
+| POST | `/messages/conversations` | `{teacherId?, studentId?, parentAuthUserId?}` → finds or starts the conversation; outside the relationships → 403 |
+| GET | `/messages/conversations/{id}/messages` | Last 200, oldest first: `{id, senderRole, senderName, body, sentAt, readAt, isMine}`; not a participant → 404 |
+| POST | `/messages/conversations/{id}/messages` | `{body}` (1–2000 chars) → 201; more than 20 a minute → 429. A teacher's message notifies the student or that parent (type 5) |
+| POST | `/messages/conversations/{id}/read` | Marks the other side's messages read |
+
 ### Notifications — `/notifications` (Student, Parent)
 | Method | Path | Notes |
 |---|---|---|

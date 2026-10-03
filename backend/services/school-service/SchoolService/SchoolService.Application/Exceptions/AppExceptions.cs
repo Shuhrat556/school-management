@@ -32,3 +32,15 @@ public class ConflictException : Exception
 {
     public ConflictException(string message) : base(message) { }
 }
+
+// Thrown when the caller may not do this to this resource - maps to 403
+public class ForbiddenException : Exception
+{
+    public ForbiddenException(string message) : base(message) { }
+}
+
+// Thrown when the caller is doing something too often - maps to 429
+public class TooManyRequestsException : Exception
+{
+    public TooManyRequestsException(string message) : base(message) { }
+}

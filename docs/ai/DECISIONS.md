@@ -171,3 +171,14 @@ Fayl yuklash (S3/disk) — tashqi xizmat yoki server diski → Kelajakda.
 ota-onalarga bildirishnoma (type 4) bo'lib boradi. Tasdiqlash davomatni avtomatik o'zgartirmaydi — davomatda "sababli" holati yo'q; keyin qo'shilishi mumkin.
 O'qituvchi barcha so'rovlarni ko'radi (o'qituvchilar boshqa joylarda ham barcha o'quvchilarni ko'radi — D4).
 **Sabab:** Flutter'dagi ruxsat ekrani soxta edi (B38); eMaktab'dagi asosiy oqim. Alohida jadval — tarix va audit (kim, qachon) saqlanadi.
+
+## D18 — F9: o'qituvchi ↔ o'quvchi / ota-ona xabarlari (2026-10-03)
+**Qaror:** school_db `Conversations` + `Messages` (migratsiya `AddMessaging`). Ishtirokchilar school profillari orqali aniqlanadi (o'qituvchi profili,
+o'quvchi profili, ota-onaning auth id'si) — profillar `AuthUserId` siz bo'lishi mumkinligi sababli auth id'larga tayanilmaydi. Suhbat 1:1: o'qituvchi
+va o'quvchi (`ParentAuthUserId` null) yoki o'qituvchi va bog'langan bitta ota-ona. **Xavfsizlik qoidalari:** o'qituvchi faqat o'zi dars beradigan
+sinflardagi (sinf o'qituvchisi yoki jadvalda) o'quvchilarga va ularning ota-onalariga; o'quvchi/ota-ona faqat o'z (farzandi) joriy sinflari
+o'qituvchilariga yoza oladi; o'quvchi↔o'quvchi, ota-ona↔ota-ona yo'q; o'quvchi ota-onasining suhbatini ko'rmaydi; ota-ona farzanddan uzilsa, suhbatlar
+ko'rinmaydi. Xabar ≤ 2000 belgi, bitta suhbatda daqiqasiga ≤ 20 (429). O'qituvchi xabari oilaga bildirishnoma (type 5) bo'ladi. Admin'da inbox yo'q.
+Push-bildirishnoma (FCM — tashqi xizmat) va fayl biriktirish — keyin.
+**Sabab:** RESEARCH "Kelajakda" dagi asosiy oila↔maktab kanali; Flutter'dagi soxta chat (B42) o'rniga haqiqiy. Qoidalar voyaga yetmaganlar bilan
+muloqotni sinf munosabatlari bilan cheklaydi.
