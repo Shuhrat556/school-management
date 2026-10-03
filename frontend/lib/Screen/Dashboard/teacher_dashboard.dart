@@ -18,7 +18,7 @@ import 'package:tamdansers/Screen/Role_TEACHER/student_list_screen.dart';
 import 'package:tamdansers/Screen/Role_TEACHER/teacher_list_screen.dart';
 import 'package:tamdansers/Screen/setting/linked_accounts_screen.dart';
 import 'package:tamdansers/Controller/messaging_unavailable.dart';
-import 'package:tamdansers/constants/app_image.dart';
+import 'package:tamdansers/Controller/announcement_events.dart';
 import 'package:tamdansers/routes/app_routes.dart';
 import 'package:tamdansers/services/api_models.dart';
 import 'package:tamdansers/services/api_service.dart';
@@ -80,7 +80,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 // 2. HOME SCREEN CONTENT (INDEX 0)
 // ----------------------------------------------------------------------
 class TeacherHomeContent extends StatefulWidget {
-  const TeacherHomeContent({super.key});
+  // Replaceable in tests; by default announcements come from the API.
+  const TeacherHomeContent({super.key, this.loadAnnouncements});
+
+  final Future<List<AnnouncementDto>> Function()? loadAnnouncements;
 
   @override
   State<TeacherHomeContent> createState() => _TeacherHomeContentState();
@@ -161,13 +164,22 @@ class _TeacherHomeContentState extends State<TeacherHomeContent> {
     super.initState();
     _loadUserData();
     _loadSchoolData();
+    _loadEvents();
+  }
+
+  // Published announcements shown as the "events" carousel (it used to show sample events).
+  List<Map<String, dynamic>> _events = [];
+
+  Future<void> _loadEvents() async {
+    final announcements = await (widget.loadAnnouncements ?? ApiService().getAnnouncements)();
+    if (mounted) setState(() => _events = eventsFromAnnouncements(announcements));
   }
 
   Future<void> _loadUserData() async {
     final name = await ApiService().getUserName();
     if (mounted) {
       setState(() {
-        _userName = name ?? 'Alexander Smith';
+        _userName = name ?? 'Teacher';
       });
     }
   }
@@ -346,52 +358,13 @@ class _TeacherHomeContentState extends State<TeacherHomeContent> {
 
   // ── Event Carousel ───────────────────────────────────────────────────────
   Widget _buildEventCarousel() {
-    final List<Map<String, dynamic>> events = [
-      {
-        "title": "Annual Sports Day",
-        "date": "14 Oct 2026",
-        "time": "10:00 AM - 4:00 PM",
-        "location": "School Grounds",
-        "img": AppImages.event1,
-        "category": "Sports",
-        "attendees": 245,
-        "description":
-            "Join us for a day of athletic excellence and teamwork! Featuring track & field events, team sports, and fun activities for everyone.",
-      },
-      {
-        "title": "Tech Exhibition",
-        "date": "20 Oct 2026",
-        "time": "9:00 AM - 3:00 PM",
-        "location": "Innovation Lab",
-        "img": AppImages.event2,
-        "category": "Technology",
-        "attendees": 189,
-        "description":
-            "Showcasing the latest student innovations in robotics, software development, and engineering projects.",
-      },
-      {
-        "title": "Science Fair 2026",
-        "date": "12 Nov 2026",
-        "time": "11:00 AM - 5:00 PM",
-        "location": "Science Hall",
-        "img": AppImages.event3,
-        "category": "Science",
-        "attendees": 312,
-        "description":
-            "Explore groundbreaking experiments and discoveries presented by our talented young scientists.",
-      },
-      {
-        "title": "Music Festival",
-        "date": "05 Dec 2026",
-        "time": "2:00 PM - 8:00 PM",
-        "location": "Auditorium",
-        "img": AppImages.event2,
-        "category": "Arts",
-        "attendees": 450,
-        "description":
-            "A celebration of student musical talent featuring bands, choirs, and solo performances.",
-      },
-    ];
+    final events = _events;
+    if (events.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Text("No announcements yet.", style: GoogleFonts.inter(color: Colors.grey.shade500)),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,7 +399,7 @@ class _TeacherHomeContentState extends State<TeacherHomeContent> {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const TeacherEventsListScreen(),
+                    builder: (_) => TeacherEventsListScreen(events: _events),
                   ),
                 ),
                 child: Container(
@@ -3055,14 +3028,14 @@ class TeacherEventDetailScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Attendees",
+                                  "Posted by",
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
                                     color: Colors.grey.shade600,
                                   ),
                                 ),
                                 Text(
-                                  "${event["attendees"]} people",
+                                  "${event["attendees"]}",
                                   style: GoogleFonts.outfit(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -3072,26 +3045,6 @@ class TeacherEventDetailScreen extends StatelessWidget {
                               ],
                             ),
                           ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xFF50E3C2,
-                            ).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "${((event["attendees"] / 500) * 100).toInt()}% capacity",
-                            style: GoogleFonts.inter(
-                              color: const Color(0xFF50E3C2),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -3738,65 +3691,11 @@ class TeacherScheduleDetailScreen extends StatelessWidget {
 // TEACHER EVENTS LIST SCREEN
 // =============================================================================
 class TeacherEventsListScreen extends StatelessWidget {
-  const TeacherEventsListScreen({super.key});
+  final List<Map<String, dynamic>> events;
 
-  static final List<Map<String, dynamic>> _events = [
-    {
-      "title": "Annual Sports Day",
-      "date": "14 Oct 2026",
-      "time": "10:00 AM - 4:00 PM",
-      "location": "School Grounds",
-      "img": AppImages.event1,
-      "category": "Sports",
-      "attendees": 245,
-      "description":
-          "Join us for a day of athletic excellence and teamwork! Featuring track & field events, team sports, and fun activities for everyone.",
-    },
-    {
-      "title": "Tech Exhibition",
-      "date": "20 Oct 2026",
-      "time": "9:00 AM - 3:00 PM",
-      "location": "Innovation Lab",
-      "img": AppImages.event2,
-      "category": "Technology",
-      "attendees": 189,
-      "description":
-          "Showcasing the latest student innovations in robotics, software development, and engineering projects.",
-    },
-    {
-      "title": "Science Fair 2026",
-      "date": "12 Nov 2026",
-      "time": "11:00 AM - 5:00 PM",
-      "location": "Science Hall",
-      "img": AppImages.event3,
-      "category": "Science",
-      "attendees": 312,
-      "description":
-          "Explore groundbreaking experiments and discoveries presented by our talented young scientists.",
-    },
-    {
-      "title": "Music Festival",
-      "date": "05 Dec 2026",
-      "time": "2:00 PM - 8:00 PM",
-      "location": "Auditorium",
-      "img": AppImages.event2,
-      "category": "Arts",
-      "attendees": 450,
-      "description":
-          "A celebration of student musical talent featuring bands, choirs, and solo performances.",
-    },
-    {
-      "title": "Charity Auction",
-      "date": "15 Dec 2026",
-      "time": "6:00 PM - 9:00 PM",
-      "location": "Main Hall",
-      "img": AppImages.event2,
-      "category": "Fundraising",
-      "attendees": 150,
-      "description":
-          "Raising funds for local community projects. Come bid on amazing items donated by local businesses.",
-    },
-  ];
+  const TeacherEventsListScreen({super.key, this.events = const []});
+
+  List<Map<String, dynamic>> get _events => events;
 
   Color _categoryColor(String category) {
     switch (category) {
@@ -3977,7 +3876,7 @@ class TeacherEventsListScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  "${_events[index]["attendees"]} people",
+                                  "${_events[index]["attendees"]}",
                                   style: GoogleFonts.inter(
                                     color: Colors.grey.shade600,
                                     fontSize: 12,

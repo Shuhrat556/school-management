@@ -3,8 +3,8 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:tamdansers/Controller/activity_list_widget.dart';
+import 'package:tamdansers/Controller/announcement_events.dart';
 import 'package:tamdansers/Controller/course_card_widget.dart';
 import 'package:tamdansers/Controller/messaging_unavailable.dart';
 import 'package:tamdansers/Screen/Edit-Profile/student_edit_profile.dart';
@@ -2268,21 +2268,3 @@ class StudentMessagesTab extends StatelessWidget {
         ],
       );
 }
-
-const _eventImages = [AppImages.event1, AppImages.event2, AppImages.event3, AppImages.grade1];
-
-// Published announcements in the shape the event cards use. The badge that used to show
-// a made-up attendee count shows the author.
-List<Map<String, dynamic>> eventsFromAnnouncements(List<AnnouncementDto> announcements) => [
-      for (var i = 0; i < announcements.length; i++)
-        {
-          "title": announcements[i].title,
-          "date": DateFormat('dd MMM yyyy').format(announcements[i].publishedAt),
-          "time": DateFormat('h:mm a').format(announcements[i].publishedAt),
-          "location": announcements[i].classroomName ?? "Whole school",
-          "img": _eventImages[i % _eventImages.length],
-          "category": "Announcement",
-          "attendees": announcements[i].authorName,
-          "description": announcements[i].body,
-        },
-    ];

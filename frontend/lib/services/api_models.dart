@@ -911,6 +911,7 @@ class AnnouncementDto {
   final String? classroomName;
   final String authorName;
   final DateTime publishedAt; // local time
+  final bool isPublished; // staff also receive drafts
 
   AnnouncementDto({
     required this.id,
@@ -919,6 +920,7 @@ class AnnouncementDto {
     this.classroomName,
     required this.authorName,
     required this.publishedAt,
+    this.isPublished = true,
   });
 
   factory AnnouncementDto.fromJson(Map<String, dynamic> json) => AnnouncementDto(
@@ -929,5 +931,6 @@ class AnnouncementDto {
         authorName: json['authorTeacherName'] as String? ?? '',
         publishedAt: DateTime.tryParse(json['publishedAt'] as String? ?? json['createdAt'] as String? ?? '')?.toLocal() ??
             DateTime.now(),
+        isPublished: json['isPublished'] as bool? ?? true,
       );
 }
