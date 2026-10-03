@@ -12,13 +12,16 @@ namespace SchoolService.API.Controllers;
 public class ServiceHealthController : ControllerBase
 {
     private readonly IServiceDiscoveryClient _serviceDiscovery;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<ServiceHealthController> _logger;
 
     public ServiceHealthController(
         IServiceDiscoveryClient serviceDiscovery,
+        IHttpClientFactory httpClientFactory,
         ILogger<ServiceHealthController> logger)
     {
         _serviceDiscovery = serviceDiscovery;
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
@@ -169,7 +172,9 @@ public class ServiceHealthController : ControllerBase
         }
 
         // Try to call auth-service health endpoint
-        using var httpClient = new HttpClient();
+        // Pooled handlers from the factory; a new HttpClient per call can exhaust sockets.
+        var httpClient = _httpClientFactory.CreateClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(5);
         try
         {
             var response = await httpClient.GetAsync($"{url}/health");

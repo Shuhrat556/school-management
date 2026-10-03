@@ -155,7 +155,6 @@ POST `/admin/sync-profile` — Admin. Creates/updates the school profile linked 
 | `/api/materials` | GET `classroom/{classroomId}` — user; POST, PUT `{id}`, DELETE `{id}` — Staff | |
 | `/api/submissions` | GET `material/{materialId}`, PATCH `{id}/grade` (`{grade, feedback}`) — Staff; GET `student/{studentId}` — Staff, own; POST (`{materialId, submissionUrl}`, student taken from the token) — Student; POST `{studentId}/submit` — Student, own id only (legacy) | unknown/inactive material → 404 |
 | `/api/servicehealth` | GET `dashboard`, `service/{name}`, `discover/{name}`, `ping`, `test-auth-connection` | Admin |
-| `/api/validation` | demo endpoints for service-to-service calls | mixed; not routed by the gateway |
 
 ## Health
 

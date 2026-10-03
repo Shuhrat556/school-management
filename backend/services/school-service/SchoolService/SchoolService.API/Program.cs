@@ -76,7 +76,6 @@ builder.Services.AddDbContext<SchoolDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("SchoolDb")));
 
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<IAuthServiceClient, AuthServiceClient>();
 
 builder.Services.AddScoped<IClassroomRepository, ClassroomRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
