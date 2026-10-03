@@ -13,12 +13,14 @@ public class ProfileAccess
     private readonly IStudentService _students;
     private readonly ITeacherService _teachers;
     private readonly IParentService _parents;
+    private readonly IClassroomService _classrooms;
 
-    public ProfileAccess(IStudentService students, ITeacherService teachers, IParentService parents)
+    public ProfileAccess(IStudentService students, ITeacherService teachers, IParentService parents, IClassroomService classrooms)
     {
         _students = students;
         _teachers = teachers;
         _parents = parents;
+        _classrooms = classrooms;
     }
 
     public async Task<StudentResponseDto?> GetOwnStudentAsync(ClaimsPrincipal user)
@@ -49,5 +51,25 @@ public class ProfileAccess
         }
 
         return (await GetOwnStudentAsync(user))?.Id == studentId;
+    }
+
+    // Staff see every class; a student sees the classes they are in, a parent those of their children.
+    public async Task<bool> CanAccessClassroomAsync(ClaimsPrincipal user, Guid classroomId)
+    {
+        if (user.IsStaff())
+            return true;
+
+        if (user.IsInRole(Roles.Parent))
+        {
+            var parentId = user.GetAuthUserId();
+            if (parentId == null) return false;
+            foreach (var child in await _parents.GetChildrenAsync(parentId.Value))
+                if (await _classrooms.IsActiveMemberAsync(classroomId, child.Id))
+                    return true;
+            return false;
+        }
+
+        var own = await GetOwnStudentAsync(user);
+        return own != null && await _classrooms.IsActiveMemberAsync(classroomId, own.Id);
     }
 }

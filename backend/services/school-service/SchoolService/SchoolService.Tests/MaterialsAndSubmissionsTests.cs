@@ -33,6 +33,7 @@ public class MaterialsAndSubmissionsTests(SchoolApiFactory factory) : IClassFixt
             await db.SaveChangesAsync();
             var material = new Material(classroom.Id, "Homework 1", MaterialType.Assignment, description: "Solve 1-10");
             db.Materials.Add(material);
+            db.StudentClassrooms.Add(new StudentClassroom(me.Id, classroom.Id));
             await db.SaveChangesAsync();
             classroomId = classroom.Id;
             materialId = material.Id;

@@ -8,6 +8,7 @@ public class SubmissionCreateDto
     public Guid MaterialId { get; set; }
 
     [StringLength(1000)]
+    [SafeLink]
     public string? SubmissionUrl { get; set; }
 }
 

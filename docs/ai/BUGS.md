@@ -170,3 +170,9 @@ school-service `ValidationController`). · TUZATILDI: faqat o'zi yoki Admin, not
 ota-ona o'quvchi dashboard'iga tushardi (ma'lumotni server himoya qiladi, lekin ekranlar bo'sh/xato). Bir xil kod har ekranda 3 marta takrorlangan.
 · TUZATILDI: umumiy `finishSignIn` (lib/Login/sign_in_flow.dart) — mos kelmagan rol → sessiya yopiladi va to'g'ri kirish sahifasi aytiladi
 (test/login_flow_test.dart: avval 2 ta rol testi yiqildi).
+
+### B31 [O'RTA] Sinf materiallari va topshiriqlari sinfga a'zolikni tekshirmasdi
+`GET /api/materials/classroom/{id}` istalgan tizimga kirgan foydalanuvchiga ochiq edi; o'quvchi o'zi o'qimaydigan sinf topshirig'iga ish
+yuborishi mumkin edi; `Url`/`SubmissionUrl` istalgan sxemani (javascript:, data:) qabul qilardi — admin-web'da React bloklaydi, lekin boshqa
+mijozlar uchun xavfli. · TUZATILDI: materiallar — Staff, sinfdagi o'quvchi, uning ota-onasi (`ProfileAccess.CanAccessClassroomAsync`);
+a'zo bo'lmagan o'quvchiga material 404; `[SafeLink]` — faqat http(s) yoki oddiy fayl nomi (ClassroomContentAccessTests: avval 5 tasi yiqildi).

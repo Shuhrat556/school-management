@@ -16,6 +16,7 @@ public class MaterialCreateDto
     public string? Description { get; set; }
 
     [StringLength(1000)]
+    [SafeLink]
     public string? Url { get; set; }
 
     public MaterialType Type { get; set; }
@@ -31,6 +32,7 @@ public class MaterialUpdateDto
     public string? Description { get; set; }
 
     [StringLength(1000)]
+    [SafeLink]
     public string? Url { get; set; }
 
     public MaterialType Type { get; set; }

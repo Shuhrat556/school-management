@@ -138,6 +138,9 @@ public class ClassroomService : IClassroomService
         await _classroomRepository.UpdateEnrollmentAsync(enrollment);
     }
 
+    public async Task<bool> IsActiveMemberAsync(Guid classroomId, Guid studentId)
+        => (await _classroomRepository.GetEnrollmentAsync(classroomId, studentId))?.Status == StudentClassroomStatus.Active;
+
     private static ClassroomResponseDto MapToResponse(Classroom c) => new()
     {
         Id           = c.Id,

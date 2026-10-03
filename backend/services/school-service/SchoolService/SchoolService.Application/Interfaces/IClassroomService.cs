@@ -14,4 +14,6 @@ public interface IClassroomService
     Task DeleteAsync(Guid id);
     Task EnrollStudentAsync(Guid classroomId, Guid studentId);
     Task UnenrollStudentAsync(Guid classroomId, Guid studentId);
+    // Is the student currently in the class (an active enrolment)?
+    Task<bool> IsActiveMemberAsync(Guid classroomId, Guid studentId);
 }

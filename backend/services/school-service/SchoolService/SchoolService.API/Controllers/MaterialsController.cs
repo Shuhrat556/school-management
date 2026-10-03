@@ -13,14 +13,19 @@ public class MaterialsController : ControllerBase
 {
     private readonly IMaterialService _materialService;
 
-    public MaterialsController(IMaterialService materialService)
+    private readonly ProfileAccess _access;
+
+    public MaterialsController(IMaterialService materialService, ProfileAccess access)
     {
         _materialService = materialService;
+        _access = access;
     }
 
     [HttpGet("classroom/{classroomId}")]
     public async Task<ActionResult<List<MaterialResponseDto>>> GetByClassroom(Guid classroomId)
     {
+        if (!await _access.CanAccessClassroomAsync(User, classroomId))
+            return Forbid();
         return await _materialService.GetMaterialsByClassroomAsync(classroomId);
     }
 

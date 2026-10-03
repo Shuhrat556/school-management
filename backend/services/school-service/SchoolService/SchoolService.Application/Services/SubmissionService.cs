@@ -9,17 +9,25 @@ public class SubmissionService : ISubmissionService
 {
     private readonly ISubmissionRepository _submissionRepository;
     private readonly IMaterialRepository _materialRepository;
+    private readonly IClassroomRepository _classroomRepository;
 
-    public SubmissionService(ISubmissionRepository submissionRepository, IMaterialRepository materialRepository)
+    public SubmissionService(ISubmissionRepository submissionRepository, IMaterialRepository materialRepository,
+        IClassroomRepository classroomRepository)
     {
         _submissionRepository = submissionRepository;
         _materialRepository = materialRepository;
+        _classroomRepository = classroomRepository;
     }
 
     public async Task<SubmissionResponseDto> SubmitAsync(Guid studentId, SubmissionCreateDto dto)
     {
         var material = await _materialRepository.GetByIdAsync(dto.MaterialId);
         if (material == null || !material.IsActive)
+            throw new NotFoundException("Material", dto.MaterialId);
+
+        // Only students in the class hand in its work; to anyone else the material does not exist.
+        var enrollment = await _classroomRepository.GetEnrollmentAsync(material.ClassroomId, studentId);
+        if (enrollment?.Status != StudentClassroomStatus.Active)
             throw new NotFoundException("Material", dto.MaterialId);
 
         var submission = new Submission(dto.MaterialId, studentId, dto.SubmissionUrl);
