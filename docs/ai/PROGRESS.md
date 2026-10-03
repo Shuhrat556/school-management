@@ -155,5 +155,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B36: o'qituvchi sinf tafsiloti — haqiqiy ro'yxat/davomat/vazifa (19d78bf); Quick Actions haqiqiy ekranlarga (aa9f928).
 - B37: "Create Course" → haqiqiy fan yaratish (kafedra bilan) (f642f09). Flutter 31/31.
 
-KEYINGI QADAM: qolgan Flutter ekranlari (link_parent, permission, attendance analysis, dashboard'lardagi events/kurslar) — soxta yozish amallarini
-topish va tuzatish. Ruxsat kelsa — Q2 deploy.
+- F8 (D17) + B38: dars qoldirish so'rovlari — backend (b8e15e0, migratsiya `AddLeaveRequests`), Flutter o'quvchi ekrani (eb611de),
+  admin-web xodimlar `/leave-requests` va ota-ona `/parent/leave-requests` (bb191fb). school 176/176, Flutter 34/34, smoke 33/33 (toza stek).
+
+KEYINGI QADAM: o'qituvchi Flutter bildirishnomalari (soxta) → kutilayotgan dars qoldirish so'rovlarini ko'rsatish/tasdiqlash; link_parent ekrani
+(Submit hech narsa qilmaydi, bog'lash faqat Admin); dashboard'lardagi events/kurslar. Ruxsat kelsa — Q2 deploy.
