@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth';
-import { getAttendance, createAttendance, getClassrooms, getStudents } from '@/lib/api';
+import { getAttendance, createAttendance, getClassroom, getClassrooms } from '@/lib/api';
 import { ClipboardCheck, Search, AlertCircle, CheckCircle, XCircle, Clock, Calendar, Plus, X } from 'lucide-react';
 import { formatStudentId } from '@/lib/id-formatter';
 
@@ -10,7 +10,8 @@ export default function AttendancePage() {
 
   const [records, setRecords] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
-  const [students, setStudents] = useState([]);
+  // Students of the classroom picked in the form: attendance is only recorded for its roster.
+  const [roster, setRoster] = useState([]);
   const [classroomId, setClassroomId] = useState('');
   const [date, setDate] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,9 +24,8 @@ export default function AttendancePage() {
 
   useEffect(() => {
     async function loadData() {
-      const [c, s] = await Promise.all([getClassrooms(1, 100), getStudents(1, 200)]);
+      const c = await getClassrooms(1, 100);
       setClassrooms(c?.items ?? c ?? []);
-      setStudents(s?.items ?? s ?? []);
     }
     loadData();
   }, []);
@@ -41,6 +41,14 @@ export default function AttendancePage() {
       setError('Failed to load attendance records.');
     }
     setLoading(false);
+  }
+
+  async function selectFormClassroom(id) {
+    setAttendanceForm((f) => ({ ...f, classroomId: id, studentId: '' }));
+    setRoster([]);
+    if (!id) return;
+    const detail = await getClassroom(id);
+    setRoster(detail?.students ?? []);
   }
 
   async function handleCreateAttendance(e) {
@@ -117,22 +125,22 @@ export default function AttendancePage() {
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><ClipboardCheck className="text-cyan-500 w-5 h-5"/> Record New Attendance</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1.5">Student *</label>
-              <select required value={attendanceForm.studentId}
-                onChange={(e) => setAttendanceForm(f => ({ ...f, studentId: e.target.value }))} className={selectCls}>
-                <option value="">Select student...</option>
-                {students.map((s) => (
-                  <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">Classroom *</label>
+              <select required value={attendanceForm.classroomId}
+                onChange={(e) => selectFormClassroom(e.target.value)} className={selectCls}>
+                <option value="">Select classroom...</option>
+                {classrooms.map((c) => (
+                  <option key={c.id} value={c.id}>{c.className ?? c.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1.5">Classroom *</label>
-              <select required value={attendanceForm.classroomId}
-                onChange={(e) => setAttendanceForm(f => ({ ...f, classroomId: e.target.value }))} className={selectCls}>
-                <option value="">Select classroom...</option>
-                {classrooms.map((c) => (
-                  <option key={c.id} value={c.id}>{c.className ?? c.name}</option>
+              <label className="block text-xs font-semibold text-slate-600 mb-1.5">Student *</label>
+              <select required value={attendanceForm.studentId} disabled={!attendanceForm.classroomId}
+                onChange={(e) => setAttendanceForm(f => ({ ...f, studentId: e.target.value }))} className={selectCls}>
+                <option value="">{attendanceForm.classroomId ? 'Select student...' : 'Select a classroom first'}</option>
+                {roster.map((s) => (
+                  <option key={s.studentId} value={s.studentId}>{s.firstName} {s.lastName}</option>
                 ))}
               </select>
             </div>
