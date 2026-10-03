@@ -115,5 +115,12 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   (Sidebar chop etishda yashiriladi). Havolalar: o'quvchi menyusi, ota-ona dashboard'i, admin o'quvchi sahifasi, o'qituvchi sinf ro'yxati.
   Lint 0 xato (21 eski), build OK. UI brauzerda sinalmadi — Docker ishlamayapti (Q6).
 
-KEYINGI QADAM: 6-bo'lim testlari — School-service unit testlar (GradeService, AttendanceService, ClassroomService enroll/unenroll) yoki
-admin-web Dockerfile `output: 'standalone'`; F6 (OAuth akkaunt bog'lash) keyin. Ruxsat kelsa — Q2 deploy.
+- B18 TUZATILDI: o'lik `Enrollment` entity va DTO'lar o'chirildi (51bed80).
+- admin-web: `output: 'standalone'` Dockerfile (74855b6) va xavfsizlik headerlari (a472c49) — ikkalasi lokal `node server.js` bilan sinaldi
+  (sahifalar, statik fayllar, `/api` rewrite soxta backend orqali, headerlar).
+- B23 TUZATILDI: sinfdan chiqarilgan o'quvchi ro'yxatda qolardi va qayta yozilmasdi (EnrollmentTests, 01f7027).
+- B24 TUZATILDI: jadvalda sinf/xona to'qnashuvi (ScheduleConflictTests, 47c5416). Prod'da SELECT bilan tekshirildi: to'qnashuv yo'q.
+  school 146/146 (PostgreSQL bilan).
+
+KEYINGI QADAM: 6-bo'lim — Auth unit/integration testlar (refresh rotation, reset code lockout) va AttendanceService testlari
+(BulkMark, sinf varag'i); keyin F6 (OAuth akkaunt bog'lash). Ruxsat kelsa — Q2 deploy.

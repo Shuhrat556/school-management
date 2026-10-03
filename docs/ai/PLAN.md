@@ -45,7 +45,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] B6: CORS — konfiguratsiyadan originlar ro'yxati (dev: hammasi)
 
 ## 6. Testlar (qamrov)
-- [ ] School-service unit: GradeService, AttendanceService, ClassroomService (enroll/unenroll), StudentService
+- [~] School-service: GradeService (GradeAuditTests, NaturalKeyTests), ClassroomService enroll/unenroll (EnrollmentTests, B23), ScheduleService (B24) — tayyor; AttendanceService qoldi
 - [ ] Auth unit: AuthenticationService (login, refresh rotation, reset code lockout), PasswordHasher
 - [x] admin-web: api.js refresh oqimi testi (node:test, yangi dependency'siz)
 - [ ] Flutter: api_service unit (Dio mock), login oqimi widget testi
