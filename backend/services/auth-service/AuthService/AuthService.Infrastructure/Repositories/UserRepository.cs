@@ -23,12 +23,14 @@ public class UserRepository(AuthDbContext context) : IUserRepository
         => await context.Users
             .Include(u => u.RefreshTokens)
             .Include(u => u.ExternalLogins)
+            .AsSplitQuery() // two collections: separate queries instead of a tokens x logins join
             .FirstOrDefaultAsync(u => u.Id == id);
 
     public async Task<User?> GetByEmailAsync(string normalizedEmail)
         => await context.Users
             .Include(u => u.RefreshTokens)
             .Include(u => u.ExternalLogins)
+            .AsSplitQuery() // two collections: separate queries instead of a tokens x logins join
             .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
 
     public async Task<User?> GetByRefreshTokenAsync(string refreshToken)
@@ -45,6 +47,7 @@ public class UserRepository(AuthDbContext context) : IUserRepository
         => await context.Users
             .Include(u => u.RefreshTokens)
             .Include(u => u.ExternalLogins)
+            .AsSplitQuery() // two collections: separate queries instead of a tokens x logins join
             .FirstOrDefaultAsync(u => u.ExternalLogins.Any(el =>
                 el.Provider == provider &&
                 el.ProviderUserId == providerUserId));
