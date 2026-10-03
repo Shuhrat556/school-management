@@ -134,6 +134,16 @@ marks × 100 (late is not present); both null when there is nothing to count. CS
 A linked parent can also read the child through `/students/{id}`, `/students/{id}/classrooms`, `/grades?studentId=`
 (required for parents), `/attendance/{id}/history` and `/api/submissions/student/{id}`.
 
+### Leave requests — `/leave-requests`
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| POST | `/leave-requests` | Student, Parent | `{type (1 Sick, 2 Personal, 3 Other), startDate, endDate?, reason, studentId?}` → 201. A student asks for themselves; a parent must give a linked child's `studentId` (else 403). `endDate` < `startDate` or empty reason → 400 |
+| GET | `/leave-requests/mine` | Student, Parent | Own (or the children's) requests, newest first |
+| GET | `/leave-requests?status=&studentId=` | Staff | Queue; `status` = Pending, Approved or Rejected |
+| POST | `/leave-requests/{id}/approve`, `/{id}/reject` | Staff | `{note?}`; decided once (again → 409). The student and linked parents get a notification (type 4) |
+
+Each entry: `{id, studentId, studentName, type, startDate, endDate, reason, status, createdAt, reviewedByName, reviewedAt, reviewNote}`.
+
 ### Notifications — `/notifications` (Student, Parent)
 | Method | Path | Notes |
 |---|---|---|

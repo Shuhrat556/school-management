@@ -92,6 +92,7 @@ builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IStudentParentRepository, StudentParentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IGradeChangeRepository, GradeChangeRepository>();
+builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 
 // Service Registrations
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
@@ -109,6 +110,7 @@ builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IParentService, ParentService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IReportCardService, ReportCardService>();
+builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<ProfileAccess>();
 builder.Services.AddHttpContextAccessor();

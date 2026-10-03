@@ -164,3 +164,10 @@ topshirganlar sonidan — Active/Overdue/Completed; "priority" saqlanmaydi, mudd
 o'z topshiriqlaridan.
 **Sabab:** ikkala ekran soxta edi (B34); backend allaqachon material/submission oqimiga ega (B9). Eng kichik sxema o'zgarishi bilan haqiqiy oqim.
 Fayl yuklash (S3/disk) — tashqi xizmat yoki server diski → Kelajakda.
+
+## D17 — F8: dars qoldirish so'rovlari (2026-10-03)
+**Qaror:** school_db `LeaveRequests` (migratsiya `AddLeaveRequests`, Down bilan): o'quvchi o'zi uchun, ota-ona bog'langan farzandi uchun so'rov yuboradi
+(tur, sana oralig'i, sabab); Staff (Admin/O'qituvchi) bir marta tasdiqlaydi yoki rad etadi (izoh bilan, kim — `ICurrentActor`); qaror o'quvchi va
+ota-onalarga bildirishnoma (type 4) bo'lib boradi. Tasdiqlash davomatni avtomatik o'zgartirmaydi — davomatda "sababli" holati yo'q; keyin qo'shilishi mumkin.
+O'qituvchi barcha so'rovlarni ko'radi (o'qituvchilar boshqa joylarda ham barcha o'quvchilarni ko'radi — D4).
+**Sabab:** Flutter'dagi ruxsat ekrani soxta edi (B38); eMaktab'dagi asosiy oqim. Alohida jadval — tarix va audit (kim, qachon) saqlanadi.

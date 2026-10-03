@@ -25,6 +25,7 @@ public class SchoolDbContext : DbContext
     public DbSet<StudentParent>     StudentParents     => Set<StudentParent>();
     public DbSet<Notification>      Notifications      => Set<Notification>();
     public DbSet<GradeChange>       GradeChanges       => Set<GradeChange>();
+    public DbSet<LeaveRequest>      LeaveRequests      => Set<LeaveRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

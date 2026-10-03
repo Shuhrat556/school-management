@@ -52,7 +52,8 @@ TeacherDepartments TeacherSubjects├─* Schedules
 | `Announcements` | Teacher announcement, optional classroom | `Title`, `Body`, `PublishedAt` |
 | `Materials` | Learning material / assignment in a classroom | `Title`, `Url`, `Type` (1 Slide, 2 Assignment, 3 Link, 4 Reference), `DueAt` (assignments, nullable), `IsActive`, `DeletedAt` (soft delete keeps submissions) |
 | `Submissions` | Student hand-in for a material | `SubmissionUrl`, `SubmittedAt`, `Grade`, `Feedback` |
-| `Notifications` | In-app messages about a student | `StudentId`, `ParentAuthUserId` (null = for the student), `Type` (1 Grade, 2 Attendance, 3 Announcement), `Title`, `Body`, `ReadAt` |
+| `Notifications` | In-app messages about a student | `StudentId`, `ParentAuthUserId` (null = for the student), `Type` (1 Grade, 2 Attendance, 3 Announcement, 4 LeaveRequest), `Title`, `Body`, `ReadAt` |
+| `LeaveRequests` | Request to excuse a student (F8) | `StudentId`, `Type` (1 Sick, 2 Personal, 3 Other), `StartDate`, `EndDate`, `Reason`, `Status` (1 Pending, 2 Approved, 3 Rejected), `RequestedByAuthUserId`, `ReviewedByAuthUserId`, `ReviewedByName`, `ReviewedAt`, `ReviewNote`; indexes `(StudentId, CreatedAt)`, `(Status, CreatedAt)` |
 | `GradeChanges` | Append-only grade audit trail, no foreign keys (outlives the grade) | `GradeId`, `StudentId`, `SubjectId`, `Semester`, `Action` (1 Created, 2 Updated, 3 Deleted), `OldScore`, `NewScore`, `ChangedByAuthUserId`, `ChangedByName`, `ChangedByRole`, `ChangedAt`; indexes on `GradeId` and `(StudentId, ChangedAt)` |
 | `StudentParents` | Parent account ↔ student link (parent portal) | `StudentId`, `ParentAuthUserId` (auth user id), `FullName`, `Email`, `Relationship`; unique per student + parent |
 

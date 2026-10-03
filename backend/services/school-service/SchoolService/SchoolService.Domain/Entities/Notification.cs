@@ -4,7 +4,8 @@ public enum NotificationType
 {
     Grade        = 1,
     Attendance   = 2,
-    Announcement = 3
+    Announcement = 3,
+    LeaveRequest = 4
 }
 
 // An in-app message about a student. ParentAuthUserId == null means it is for

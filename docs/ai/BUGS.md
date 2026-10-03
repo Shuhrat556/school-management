@@ -211,3 +211,7 @@ Class Notes, Edit Class Info, Export Report) "hali mavjud emas" deydi (avval hec
 yuborardi, backend esa `departmentId` talab qiladi → 400, xato jimgina yutilardi; "kurs" faqat mahalliy ro'yxatda turib, qayta ishga tushirganda yo'qolardi.
 · TUZATILDI: "New Subject" formasi — nom, kafedra (API'dan), tavsif → haqiqiy `POST /subjects`, xato ko'rsatiladi; kurslar ro'yxati faqat haqiqiy fanlar;
 ishlatilmay qolgan `course_model.dart` o'chirildi (test/add_subject_test.dart).
+
+### B38 [YUQORI] Flutter: dars qoldirish (ruxsat) so'rovi hech kimga yetib bormasdi
+`permision_student_role.dart` — so'rov faqat ekrandagi ro'yxatga qo'shilardi ("Pending" abadiy), tarix qattiq yozilgan namunalar; backend'da bunday tushuncha
+yo'q edi. · JARAYONDA (F8, D17): backend `LeaveRequests` tayyor.
