@@ -661,6 +661,12 @@ class ScheduleDto {
     required this.time,
   });
 
+  static String _timeRange(String? start, String? end) {
+    String hhmm(String? t) => t == null || t.length < 5 ? '' : t.substring(0, 5);
+    if (start == null) return '';
+    return end == null ? hhmm(start) : '${hhmm(start)} - ${hhmm(end)}';
+  }
+
   factory ScheduleDto.fromJson(Map<String, dynamic> json) {
     return ScheduleDto(
       id: json['id'] as String? ?? '',
@@ -670,8 +676,9 @@ class ScheduleDto {
       subjectName: json['subjectName'] as String? ?? '',
       teacherId: json['teacherId'] as String?,
       teacherName: json['teacherName'] as String?,
-      day: json['day'] as String? ?? '',
-      time: json['time'] as String? ?? '',
+      // The API sends dayOfWeekName and startTime/endTime ("09:00:00"); day/time were never filled.
+      day: json['day'] as String? ?? json['dayOfWeekName'] as String? ?? '',
+      time: json['time'] as String? ?? _timeRange(json['startTime'] as String?, json['endTime'] as String?),
     );
   }
 

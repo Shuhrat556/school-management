@@ -5,7 +5,10 @@ import 'package:tamdansers/services/api_service.dart';
 import 'package:tamdansers/services/api_models.dart';
 
 class StudentScheduleScreen extends StatefulWidget {
-  const StudentScheduleScreen({super.key});
+  // Replaceable in tests; by default the timetable of every class the student is in.
+  const StudentScheduleScreen({super.key, this.loadSchedule});
+
+  final Future<List<ScheduleDto>> Function()? loadSchedule;
 
   @override
   State<StudentScheduleScreen> createState() => _StudentScheduleScreenState();
@@ -49,16 +52,7 @@ class _StudentScheduleScreenState extends State<StudentScheduleScreen> {
   Future<void> _loadSchedule() async {
     setState(() => _scheduleLoading = true);
     try {
-      final api = ApiService();
-      // Get the student's classroom via enrolled classrooms
-      final classrooms = await api.getClassrooms();
-      if (classrooms.isEmpty) {
-        setState(() => _scheduleLoading = false);
-        return;
-      }
-      // Use the first classroom (the student's class)
-      final classroomId = classrooms.first.id;
-      final schedules = await api.getClassroomSchedule(classroomId);
+      final schedules = await (widget.loadSchedule ?? _loadFromApi)();
       if (mounted) {
         setState(() {
           _schedules = schedules;
@@ -68,6 +62,18 @@ class _StudentScheduleScreenState extends State<StudentScheduleScreen> {
     } catch (_) {
       if (mounted) setState(() => _scheduleLoading = false);
     }
+  }
+
+  // Sessions of all the student's classes (BUGS B44: it used to take the first class in the
+  // school list, which was usually someone else's).
+  Future<List<ScheduleDto>> _loadFromApi() async {
+    final api = ApiService();
+    final classrooms = await api.getStudentClassrooms(await api.getEntityId() ?? '');
+    final sessions = <ScheduleDto>[];
+    for (final c in classrooms) {
+      sessions.addAll(await api.getClassroomSchedule(c.id));
+    }
+    return sessions;
   }
 
   List<Map<String, dynamic>> _schedulesToTileData() {

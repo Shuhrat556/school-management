@@ -247,3 +247,8 @@ O'qituvchi ota-onaga yozdim deb o'ylashi mumkin edi. · TUZATILDI: tab'lar "hali
 tug'ilgan sanasini olardi (voyaga yetmaganlar PII); `GET /classrooms` butun maktab sinflarini berardi. admin-web "maxfiylik uchun" faqat ismlarni ko'rsatardi,
 lekin API hammasini yuborardi. · TUZATILDI: Staff'dan boshqalar faqat o'z (farzandi) sinflarini ko'radi (boshqasi 403), ro'yxatda faqat ism va holat
 (ClassroomPrivacyTests: avval 4/5 yiqildi).
+
+### B44 [O'RTA] Flutter: dars jadvali bo'sh kun/vaqt bilan va boshqa sinfniki edi
+`ScheduleDto.fromJson` `day`/`time` ni o'qirdi, API esa `dayOfWeekName`, `startTime`, `endTime` yuboradi — kun va vaqt doim bo'sh, "bugungi darslar"
+(o'quvchi va o'qituvchi jadvallari) hech qachon mos kelmasdi; o'quvchi jadvali butun maktab ro'yxatidagi birinchi sinfnikini ko'rsatardi.
+· TUZATILDI: haqiqiy maydonlar o'qiladi ("09:00 - 10:30"), o'quvchi jadvali o'zining barcha sinflaridan yig'iladi (test/schedule_test.dart).
