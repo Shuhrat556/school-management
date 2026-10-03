@@ -128,5 +128,11 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   yangi paketsiz soxta Dio adapter bilan 3 ta test (dab9158). Flutter 6/6, analyze toza.
 - D14: refresh token reuse aniqlash (RFC 9700) + muddati o'tgan tokenlarni tozalash (RefreshTokenReuseTests; cf2fd61). auth 26/26.
 
-KEYINGI QADAM: F6 — profil sahifasidan Google akkauntini bog'lash (`POST /api/auth/link/google`, Bearer + ID token) yoki Flutter login
-widget testi. Ruxsat kelsa — Q2 deploy.
+- B28 TUZATILDI: parol almashtirilganda boshqa sessiyalar tugamasdi (`GetByIdAsync` tokenlarsiz yuklardi; ChangePasswordTests; d0d4b79).
+- B27 TUZATILDI: yaroqsiz Google/Facebook tokeni → 500/502 o'rniga 401 `INVALID_EXTERNAL_TOKEN` (OAuthTokenErrorTests; 3142947).
+- F6 backend TAYYOR (D15): `GET/POST/DELETE /api/auth/logins[/{provider}]` (AccountLinkTests 12 ta; 2d20067). Veb-UI domen/TLS (Q3) ni kutadi.
+- B29 TUZATILDI: `GET /api/auth/user/{id}` faqat o'zi/Admin (UserLookupTests; d2ed91d). auth 46/46.
+
+KEYINGI QADAM: Flutter — profil ekranida Google/Facebook bog'lash (D15, `google_sign_in` bor) yoki login oqimi widget testi;
+school-service'dagi ishlatilmaydigan `ValidationController`/`AuthServiceClient`/Consul discovery kodini tahlil qilib olib tashlash.
+Ruxsat kelsa — Q2 deploy.

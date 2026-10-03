@@ -69,7 +69,8 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] F3c: Flutter o'quvchi bildirishnomalar ekrani API'ga ulandi (soxta ma'lumot olib tashlandi) + widget test
 - [x] F4: O'quvchi hisobot kartasi (semestr bo'yicha o'rtacha + davomat %) API + CSV eksport (D13, ReportCardTests) + admin-web `/report-card/[id]` (chop etish/PDF)
 - [x] F5: Baho o'zgarishlari audit log'i — backend (D12, GradeAuditTests, migratsiya `AddGradeChanges`) + admin-web `/admin/grade-changes`
-- [ ] F6: Profil sahifasidan Google/Facebook akkauntini bog'lash (`POST /api/auth/link/{provider}`, Bearer bilan)
+- [x] F6: Google/Facebook akkauntini bog'lash — backend `GET/POST/DELETE /api/auth/logins` (D15, AccountLinkTests)
+- [ ] F6b: bog'lash UI — Flutter profil ekrani; admin-web domen/TLS (Q3) dan keyin
 
 ## 9. Deploy
 - [x] docs/DEPLOYMENT.md: runbook, backup (pg_dump), rollback rejasi
