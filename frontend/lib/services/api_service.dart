@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
 import 'api_config.dart';
 import 'api_models.dart';
+import 'app_storage.dart';
 
 final Logger _logger = Logger('ApiService');
 
@@ -21,7 +22,7 @@ class ApiService {
   }
 
   ApiService._internal() {
-    _secureStorage = const FlutterSecureStorage();
+    _secureStorage = createAppStorage();
     _initializeDio();
   }
 

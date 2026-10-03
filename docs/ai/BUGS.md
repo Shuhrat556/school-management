@@ -275,3 +275,11 @@ Baho (POST/PUT/DELETE), davomat (`attendance/mark`) va sinfga yozish/chiqarish f
 o'qituvchining o'quvchisiga baho qo'yishi, uni o'chirishi yoki boshqa sinf ro'yxatini o'zgartirishi mumkin edi (D4 dagi resurs darajasidagi qoida yo'q edi).
 · TUZATILDI: o'qituvchi faqat o'zi o'qitadigan sinflar (sinf rahbari yoki jadvalda dars bor) va ulardagi faol o'quvchilar uchun yoza oladi, aks holda 403;
 maktab profili yo'q o'qituvchi akkaunti — 403; admin cheklanmagan (TeacherScopeTests: avval 5/6 yiqildi).
+
+### B49 [KRITIK] Flutter veb ilovasida (3200) hech kim kira olmasdi — "Null check operator used on a null value"
+`ApiService` tokenlarni `flutter_secure_storage` ga yozadi; uning veb versiyasi `crypto.subtle` (Web Crypto) bilan shifrlaydi, brauzer esa uni faqat
+secure context'da (HTTPS yoki localhost) beradi. Server HTTP (`http://168.222.143.80:3200`) — `crypto.subtle` = undefined, birinchi yozishda yiqiladi.
+Lokal `localhost` da va mobil'da ishlagani uchun sezilmagan. Headless Chrome bilan `http://school.test` (insecure) da qayta hosil qilindi, 127.0.0.1 da ishladi.
+· TUZATILDI: vebda secure context bo'lmasa `LocalStorageFallback` (to'g'ridan-to'g'ri localStorage; plugin kalitni baribir localStorage da saqlaydi) —
+`lib/services/app_storage*.dart`, brauzer testi `test/app_storage_web_test.dart` (`--platform chrome`). Insecure origin'da o'qituvchi va o'quvchi
+dashboard'ga kiradi, reload'dan keyin sessiya saqlanadi. To'liq yechim — HTTPS (Q3).
