@@ -1,494 +1,157 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tamdansers/services/api_models.dart';
+import 'package:tamdansers/services/api_service.dart';
 
+// A directory of students' parents, so a teacher can reach the family. Linking parent
+// accounts is an administrator task in the web portal (school-service D10); this screen
+// used to show a "link parent" form whose button did nothing.
 class ParentManagementScreen extends StatefulWidget {
-  const ParentManagementScreen({super.key});
+  // The calls can be replaced in tests; by default they go to the API.
+  const ParentManagementScreen({super.key, this.loadStudents, this.loadParents});
+
+  final Future<List<StudentDto>> Function()? loadStudents;
+  final Future<List<StudentParentDto>> Function(String studentId)? loadParents;
 
   @override
   State<ParentManagementScreen> createState() => _ParentManagementScreenState();
 }
 
 class _ParentManagementScreenState extends State<ParentManagementScreen> {
-  bool isNewParent = true;
+  static const _ink = Color(0xFF0D3B66);
+
+  List<StudentDto> _students = [];
+  bool _loading = true;
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final students = await (widget.loadStudents ?? () => ApiService().getStudents(page: 1, pageSize: 500))();
+    if (!mounted) return;
+    setState(() {
+      _students = students..sort((a, b) => a.fullName.compareTo(b.fullName));
+      _loading = false;
+    });
+  }
+
+  Future<void> _showParents(StudentDto student) async {
+    final parentsFuture = (widget.loadParents ?? ApiService().getStudentParents)(student.id);
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          child: FutureBuilder<List<StudentParentDto>>(
+            future: parentsFuture,
+            builder: (context, snapshot) {
+              final parents = snapshot.data;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${student.fullName}'s parents",
+                    style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: _ink),
+                  ),
+                  const SizedBox(height: 16),
+                  if (parents == null)
+                    const Center(child: CircularProgressIndicator())
+                  else if (parents.isEmpty)
+                    Text(
+                      'No parent account is linked yet. The school administrator links parents in the web portal.',
+                      style: GoogleFonts.inter(color: Colors.grey.shade600, height: 1.4),
+                    )
+                  else
+                    for (final p in parents)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          backgroundColor: _ink.withValues(alpha: 0.1),
+                          child: Text(p.fullName.isEmpty ? '?' : p.fullName[0].toUpperCase(),
+                              style: const TextStyle(color: _ink, fontWeight: FontWeight.bold)),
+                        ),
+                        title: Text(p.fullName, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                        subtitle: Text(
+                          [if (p.relationship != null) p.relationship!, if (p.email != null) p.email!].join(' · '),
+                          style: GoogleFonts.inter(color: Colors.grey.shade600),
+                        ),
+                      ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final q = _query.toLowerCase();
+    final visible = _students.where((s) => s.fullName.toLowerCase().contains(q)).toList();
     return Scaffold(
       backgroundColor: const Color(0xFFF3F6F8),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF0D3B66),
-            size: 20,
-          ),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _ink, size: 20),
+          onPressed: () => Navigator.maybePop(context),
         ),
         title: Text(
-          "Parent Management",
-          style: GoogleFonts.outfit(
-            color: const Color(0xFF0D3B66),
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+          "Parents",
+          style: GoogleFonts.outfit(color: _ink, fontWeight: FontWeight.bold, fontSize: 22),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              "Cancel",
-              style: GoogleFonts.inter(
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w600,
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+            child: TextField(
+              onChanged: (v) => setState(() => _query = v),
+              decoration: InputDecoration(
+                hintText: 'Search a student',
+                prefixIcon: const Icon(Icons.search_rounded),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : visible.isEmpty
+                    ? Center(child: Text('No students found.', style: GoogleFonts.inter(color: Colors.grey.shade500)))
+                    : ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                        itemCount: visible.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
+                        itemBuilder: (context, i) {
+                          final s = visible[i];
+                          return Material(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              title: Text(s.fullName, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: _ink)),
+                              subtitle: s.email == null ? null : Text(s.email!, style: GoogleFonts.inter(color: Colors.grey.shade600)),
+                              trailing: const Icon(Icons.family_restroom_rounded, color: _ink),
+                              onTap: () => _showParents(s),
+                            ),
+                          );
+                        },
+                      ),
+          ),
         ],
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Column(
-          children: [
-            // Tab Switcher
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  _buildModernTab(
-                    "New Parent",
-                    isNewParent,
-                    () => setState(() => isNewParent = true),
-                  ),
-                  _buildModernTab(
-                    "Existing Parent",
-                    !isNewParent,
-                    () => setState(() => isNewParent = false),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-
-            // Profile Upload Section
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Bounceable(
-                    onTap: () {},
-                    child: Stack(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFF4A90E2).withValues(alpha: 0.2),
-                              width: 3,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 46,
-                            backgroundColor: Colors.grey.shade100,
-                            child: Icon(
-                              Icons.broken_image_rounded,
-                              size: 40,
-                              color: Colors.grey.shade400,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF4A90E2), Color(0xFF00C4FF)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt_rounded,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Upload Photo",
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: const Color(0xFF0D3B66),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Tap to add parent photo",
-                    style: GoogleFonts.inter(
-                      color: Colors.grey.shade500,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-                  _buildModernInputField(
-                    "Full Name (Khmer/English) *",
-                    "Example: Sok Dara",
-                    icon: Icons.person_rounded,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildModernInputField(
-                    "Phone number *",
-                    "012 345 678",
-                    prefixText: "🇰🇭 +855 ",
-                    icon: Icons.phone_rounded,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildModernDropdownField(
-                    "Relationship *",
-                    "Select relationship",
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Link Student Section
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF50E3C2).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.link_rounded,
-                              color: Color(0xFF2EA88D),
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            "Link with student",
-                            style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: const Color(0xFF0D3B66),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4A90E2).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          "Selected: 1",
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFF4A90E2),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF333333),
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Search by ID or name...",
-                      hintStyle: GoogleFonts.inter(
-                        color: Colors.grey.shade400,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search_rounded,
-                        color: Colors.grey.shade400,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF3F6F8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 40),
-
-            // Submit Button
-            Bounceable(
-              onTap: () {},
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF0D3B66), Color(0xFF1E5B94)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF0D3B66).withValues(alpha: 0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Confirm & Send Invitation",
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildModernTab(String label, bool isActive, VoidCallback onTap) {
-    return Expanded(
-      child: Bounceable(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF4A90E2) : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: isActive
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFF4A90E2).withValues(alpha: 0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : [],
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: GoogleFonts.inter(
-                color: isActive ? Colors.white : Colors.grey.shade500,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildModernInputField(
-    String label,
-    String hint, {
-    String? prefixText,
-    IconData? icon,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            text: label.split('*')[0],
-            style: GoogleFonts.inter(
-              color: Colors.grey.shade600,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-            children: [
-              TextSpan(
-                text: ' *',
-                style: GoogleFonts.inter(
-                  color: const Color(0xFFF95738),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w500,
-            color: const Color(0xFF333333),
-          ),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: GoogleFonts.inter(
-              color: Colors.grey.shade400,
-              fontWeight: FontWeight.w500,
-            ),
-            prefixIcon: prefixText != null
-                ? Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
-                    child: Text(
-                      prefixText,
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF0D3B66),
-                      ),
-                    ),
-                  )
-                : (icon != null
-                      ? Icon(icon, color: Colors.grey.shade400, size: 20)
-                      : null),
-            filled: true,
-            fillColor: const Color(0xFFF3F6F8),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 16,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildModernDropdownField(String label, String hint) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            text: label.split('*')[0],
-            style: GoogleFonts.inter(
-              color: Colors.grey.shade600,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-            children: [
-              TextSpan(
-                text: ' *',
-                style: GoogleFonts.inter(
-                  color: const Color(0xFFF95738),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3F6F8),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              isExpanded: true,
-              icon: const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Colors.grey,
-              ),
-              hint: Text(
-                hint,
-                style: GoogleFonts.inter(
-                  color: Colors.grey.shade400,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              items: [],
-              onChanged: (value) {},
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

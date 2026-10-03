@@ -1179,4 +1179,19 @@ class ApiService {
       return _errorMessage(e, 'Could not save the decision.');
     }
   }
+
+  // GET /api/school/Students/{id}/parents — parent accounts linked to a student (staff)
+  Future<List<StudentParentDto>> getStudentParents(String studentId) async {
+    try {
+      final response = await _dio.get('${ApiConfig.studentsEndpoint}/$studentId/parents');
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => StudentParentDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get student parents error: ${e.message}');
+    }
+    return [];
+  }
 }

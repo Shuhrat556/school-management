@@ -221,3 +221,8 @@ sahifalari; lokal stekda uchidan-uchiga sinaldi (smoke 33/33).
 `notifications_role.dart` — qattiq yozilgan namunalar ("Sok Pong has requested a 2-day leave", "Urgent Meeting"). · TUZATILDI: kutilayotgan dars qoldirish
 so'rovlari API'dan, detal oynasida Approve/Decline (oila xabardor qilinadi); manbasi yo'q "System/Urgent" toifalari olib tashlandi
 (test/teacher_notifications_test.dart).
+
+### B40 [PAST] Flutter: o'qituvchining "Parent Management" formasi hech narsa qilmasdi
+`link_parent_role.dart` — yangi ota-ona yaratish / bog'lash formasi, "Submit" `onTap: () {}`; o'qituvchida bu huquq yo'q (D10 — faqat Admin).
+· TUZATILDI: ekran ota-onalar ma'lumotnomasiga aylantirildi — o'quvchini qidirish, bog'langan ota-onalar (ism, kimligi, email) `GET /students/{id}/parents`
+orqali; bog'lanmagan bo'lsa, admin bog'lashi aytiladi (test/parents_directory_test.dart).

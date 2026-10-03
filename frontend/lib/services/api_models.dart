@@ -885,3 +885,19 @@ class LeaveRequestDto {
         createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '')?.toLocal(),
       );
 }
+
+// a parent account linked to a student (GET /api/school/Students/{id}/parents)
+
+class StudentParentDto {
+  final String fullName;
+  final String? email;
+  final String? relationship;
+
+  StudentParentDto({required this.fullName, this.email, this.relationship});
+
+  factory StudentParentDto.fromJson(Map<String, dynamic> json) => StudentParentDto(
+        fullName: json['fullName'] as String? ?? '',
+        email: json['email'] as String?,
+        relationship: json['relationship'] as String?,
+      );
+}
