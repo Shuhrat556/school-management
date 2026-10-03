@@ -5,6 +5,7 @@ using AuthService.Application.Exceptions;
 using AuthService.Domain.Entities;
 using AuthService.Domain.Enums;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +22,11 @@ public class AuthenticationService : IAuthenticationService
     private readonly string _passwordResetPepper;
     private readonly IExternalAuthValidator _externalAuthValidator;
     private readonly bool _registrationEnabled;
+    private readonly ILogger<AuthenticationService> _logger;
+
+    // Sending the same refresh token twice within this window (a double submit) is just refused;
+    // a rotated token that comes back later has leaked and ends every session of the user.
+    private static readonly TimeSpan RefreshReuseGrace = TimeSpan.FromSeconds(30);
 
     private const int MaxFailedLogins = 5;
     private static readonly TimeSpan LoginLockoutDuration = TimeSpan.FromMinutes(5);
@@ -31,8 +37,10 @@ public class AuthenticationService : IAuthenticationService
         ITokenService tokenService,
         IEmailSender emailSender,
         IConfiguration configuration,
-        IExternalAuthValidator externalAuthValidator)
+        IExternalAuthValidator externalAuthValidator,
+        ILogger<AuthenticationService> logger)
     {
+        _logger = logger;
         _userRepo = userRepo;
         _passwordHasher = passwordHasher;
         _tokenService = tokenService;
@@ -308,8 +316,20 @@ public class AuthenticationService : IAuthenticationService
             return null;
 
         var existingRefreshToken = user.RefreshTokens.FirstOrDefault(rt => rt.Token == tokenHash);
-        if (existingRefreshToken == null || !existingRefreshToken.IsActive)
+        if (existingRefreshToken == null)
             return null;
+
+        if (!existingRefreshToken.IsActive)
+        {
+            // RFC 9700 §4.14.2: refresh token reuse detection.
+            if (existingRefreshToken.RevokedAt is { } revokedAt && DateTime.UtcNow - revokedAt > RefreshReuseGrace)
+            {
+                user.RevokeAllRefreshTokens();
+                await _userRepo.UpdateAsync(user);
+                _logger.LogWarning("Revoked refresh token reused for user {UserId}; all sessions ended", user.Id);
+            }
+            return null;
+        }
 
         // Rotate refresh token
         existingRefreshToken.Revoke();
@@ -463,8 +483,7 @@ public class AuthenticationService : IAuthenticationService
         user.SetPasswordHash(newHash);
 
         // Invalidate existing refresh tokens so all sessions are logged out.
-        foreach (var refreshToken in user.RefreshTokens)
-            refreshToken.Revoke();
+        user.RevokeAllRefreshTokens();
 
         user.ClearPasswordResetCode();
         await _userRepo.UpdateAsync(user);
@@ -486,8 +505,7 @@ public class AuthenticationService : IAuthenticationService
         var newHash = _passwordHasher.HashPassword(user, newPassword);
         user.SetPasswordHash(newHash);
 
-        foreach (var refreshToken in user.RefreshTokens)
-            refreshToken.Revoke();
+        user.RevokeAllRefreshTokens();
 
         await _userRepo.UpdateAsync(user);
         return true;

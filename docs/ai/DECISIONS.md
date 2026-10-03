@@ -132,3 +132,14 @@ harflari), formula bilan boshlanadigan katakchalarga `'` (OWASP CSV injection). 
 **Sabab:** RESEARCH "Muhim" 3 (Fedena/ManageBac report card). Server tomonda hisoblash — bitta haqiqat manbai, ota-ona/admin uchun
 bir xil natija; ko'p sahifali UI hisoblarini takrorlamaslik.
 **Manba:** [RFC 4180](https://www.rfc-editor.org/rfc/rfc4180), [OWASP CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection).
+
+## D14 — Refresh token qayta ishlatilishini aniqlash va tozalash (2026-10-03)
+**Qaror:** rotatsiya qilingan (bekor) refresh token yana kelsa va bekor qilinganiga 30 soniyadan ko'p bo'lgan bo'lsa — foydalanuvchining
+barcha faol refresh tokenlari bekor qilinadi (barcha sessiyalar tugaydi) va ogohlantirish log'i yoziladi. 30 soniya ichida takroriy
+yuborish (double submit, eski ilova versiyasidagi poyga) — oddiy 401, sessiya saqlanadi. Yangi token berilganda muddati o'tgan tokenlar
+agregatdan o'chiriladi (bekor, lekin muddati o'tmaganlari reuse aniqlash uchun 7 kungacha qoladi). Parol almashtirish/tiklash
+`RevokeAllRefreshTokens()` ni ishlatadi (avval allaqachon bekor bo'lganlarning vaqtini ham qayta yozardi).
+**Sabab:** o'g'irlangan refresh token bilan hujumchi va haqiqiy foydalanuvchi navbatma-navbat rotatsiya qilsa, birinchi takror ishlatishda
+ikkalasi ham chiqariladi. Ikkala mijozda bitta in-flight refresh bor (B20, B26) — oddiy foydalanishda takror yuborish bo'lmaydi.
+Tozalashsiz har refresh foydalanuvchining barcha eski tokenlarini yuklardi (soatiga bitta qator o'sish). Migratsiya kerak emas.
+**Manba:** [RFC 9700 — OAuth 2.0 Security BCP §4.14.2](https://www.rfc-editor.org/rfc/rfc9700#section-4.14.2) (refresh token rotation, reuse detection).

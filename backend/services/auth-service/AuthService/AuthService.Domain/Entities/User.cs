@@ -138,8 +138,17 @@ public class User : BaseEntity
     
     public RefreshToken AddRefreshToken(string token, DateTime expiresAt)
     {
+        // Expired tokens can no longer be used or replayed, so they are not kept.
+        _refreshTokens.RemoveAll(t => t.IsExpired);
         var refreshToken = new RefreshToken(Id, token, expiresAt);
         _refreshTokens.Add(refreshToken);
         return refreshToken;
+    }
+
+    // Ends every session (password change or reset, refresh token reuse).
+    public void RevokeAllRefreshTokens()
+    {
+        foreach (var refreshToken in _refreshTokens.Where(t => t.IsActive))
+            refreshToken.Revoke();
     }
 }
