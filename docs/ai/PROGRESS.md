@@ -158,5 +158,12 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - F8 (D17) + B38: dars qoldirish so'rovlari — backend (b8e15e0, migratsiya `AddLeaveRequests`), Flutter o'quvchi ekrani (eb611de),
   admin-web xodimlar `/leave-requests` va ota-ona `/parent/leave-requests` (bb191fb). school 176/176, Flutter 34/34, smoke 33/33 (toza stek).
 
-KEYINGI QADAM: o'qituvchi Flutter bildirishnomalari (soxta) → kutilayotgan dars qoldirish so'rovlarini ko'rsatish/tasdiqlash; link_parent ekrani
-(Submit hech narsa qilmaydi, bog'lash faqat Admin); dashboard'lardagi events/kurslar. Ruxsat kelsa — Q2 deploy.
+- B39: o'qituvchi bildirishnomalari = kutilayotgan dars qoldirish so'rovlari, Approve/Decline (5620408).
+- B40: "Parent Management" o'lik formasi → ota-onalar ma'lumotnomasi (b90d3bc).
+- B41: o'quvchi bosh sahifasi — haqiqiy baholar va e'lonlar (0e12a01; 6eb3b2f da o'z regressiyamni tuzatdim: tafsilot muallifni 500 ga bo'lardi);
+  o'qituvchi bosh sahifasi tadbirlari — e'lonlar (9e2be38).
+- B42: ikkala ilovadagi soxta chat tab'lari → halol joy-egallovchi, ~1500 qator soxta kod olib tashlandi; haqiqiy chat PLAN F9 (b08e56f).
+  Flutter 46/46.
+
+KEYINGI QADAM: Flutter'ning qolgan soxta joylari (Courses tab'lari, attendance analysis, result/score ekranlari); F9 (xabarlar) dizayni.
+Ruxsat kelsa — Q2 deploy.
