@@ -106,6 +106,11 @@ docker compose exec -T school-db pg_restore -U school_user -d school_db --clean 
 | Release contained an EF migration | Roll the schema back first with the migration's `Down` (`dotnet ef migrations script <new> <previous>` reviewed and applied, or `efbundle <previous>`), then roll back the code as above |
 | Data damaged | Stop the affected service, restore the dump taken before the release, start the previous version |
 
+Notes for the first release from `ai/improvements` (from `b4db3c3`): the new tables and columns are ignored by the old
+code, so rolling back the code alone is safe, with one visible effect — `HashRefreshTokens` stores refresh tokens hashed,
+which the old code cannot match, so everyone signs in again after a rollback. `AddMessaging` needs PostgreSQL 15 or newer
+(production runs 16).
+
 ## Local development
 
 ```bash
