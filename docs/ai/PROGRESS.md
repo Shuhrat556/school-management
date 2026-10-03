@@ -152,5 +152,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - F7 (D16) + B34/B35: uy vazifalari — backend `DueAt`, `submissionCount`, material soft delete (4ff3573, migratsiya `AddMaterialDueDate`);
   Flutter o'qituvchi (26e92ef) va o'quvchi (63fac5f) ekranlari soxta ma'lumotdan API'ga. school 169/169 (PostgreSQL), Flutter 26/26.
 
-KEYINGI QADAM: Flutter'da qolgan soxta/qattiq yozilgan ekranlarni topish (teacher_dashboard faoliyat lentasi, permission, attendance analysis,
-course_learn) va API'ga ulash yoki halol "hali yo'q" holatiga o'tkazish. Ruxsat kelsa — Q2 deploy.
+- B36: o'qituvchi sinf tafsiloti — haqiqiy ro'yxat/davomat/vazifa (19d78bf); Quick Actions haqiqiy ekranlarga (aa9f928).
+- B37: "Create Course" → haqiqiy fan yaratish (kafedra bilan) (f642f09). Flutter 31/31.
+
+KEYINGI QADAM: qolgan Flutter ekranlari (link_parent, permission, attendance analysis, dashboard'lardagi events/kurslar) — soxta yozish amallarini
+topish va tuzatish. Ruxsat kelsa — Q2 deploy.
