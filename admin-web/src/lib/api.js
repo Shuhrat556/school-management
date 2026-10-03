@@ -440,6 +440,14 @@ export async function deleteGrade(id) {
   return request(`/api/school/grades/${id}`, { method: 'DELETE' });
 }
 
+// Grade audit trail, newest first (Admin only)
+export async function getGradeChanges({ studentId, take = 50 } = {}) {
+  const params = new URLSearchParams({ take: String(take) });
+  if (studentId) params.set('studentId', studentId);
+  const res = await request(`/api/school/grades/changes?${params}`);
+  return res.ok ? res.json() : null;
+}
+
 //Attendance
 
 export async function getAttendance({ classroomId, studentId, date } = {}) {

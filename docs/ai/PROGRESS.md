@@ -99,4 +99,14 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 
 - `scripts/backup-db.sh` (+ DEPLOYMENT.md cron taklifi); QUESTIONS Q2 ga aniq deploy/rollback rejasi yozildi (ruxsat kutilmoqda).
 
-KEYINGI QADAM: F4 — o'quvchi hisobot kartasi (server tomonda semestr bo'yicha xulosa + CSV) yoki F5 audit log; ruxsat kelsa — Q2 deploy.
+## 2026-10-03 — Sessiya 2
+
+- Oldingi sessiya F5 ni boshlab uzilgan edi (7 ta kuzatilmagan fayl: `GradeChange` entity, konfiguratsiya, repozitoriy, `ICurrentActor`).
+  Ko'rib chiqildi va tugatildi.
+- F5 TAYYOR (D12): `GradeChanges` audit jadvali (migratsiya `AddGradeChanges`, Down bilan; PostgreSQL 16 da up/down/up sinaldi),
+  `GradeService` yaratish/o'zgartirish/o'chirishni bahoning o'zi bilan bitta `SaveChanges` da yozadi; `GET /grades/{id}/history` (Staff),
+  `GET /grades/changes` (Admin). GradeAuditTests 7 ta; school 125/125 (PostgreSQL bilan). Commit 656d656.
+- F5b: admin-web `/admin/grade-changes` (o'quvchi filtri, oxirgi 50/100/200) + Sidebar "Grade history". Lint 0 xato (21 eski ogohlantirish), build OK.
+  `api.js` da faqat o'z hunk'im stage qilindi.
+
+KEYINGI QADAM: F4 — o'quvchi hisobot kartasi (server tomonda semestr bo'yicha o'rtacha + davomat %, CSV eksport); ruxsat kelsa — Q2 deploy.
