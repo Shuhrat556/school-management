@@ -184,5 +184,20 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B47: o'qituvchi "Today's Classes" — o'ylab topilgan vaqtlar o'rniga haqiqiy bugungi jadval; soxta vazifa/material/40 sig'im olib tashlandi (a921001).
 - O'lik `SettingsScreenTeacher` (soxta ism) o'chirildi, marshrut haqiqiy ekranga (10f2b7b). Flutter 52/52.
 
-KEYINGI QADAM: CI'ga uchidan-uchiga smoke (PostgreSQL service + local-stack + smoke_test --write); push-bildirishnomalar (FCM — ruxsat kerak).
-Ruxsat kelsa — Q2 deploy.
+- CI'ga uchidan-uchiga smoke (9ea5ae9). B48: o'qituvchi baho/davomat/yozilishni faqat o'z sinflari uchun yozadi (TeacherScopeTests; d69ca4a).
+
+## 2026-10-03 — Deploy (egasi: "main'ga o'tkaz, serverga deploy qil, test user qo'sh")
+
+- Q1: egasining 9 ta commit qilinmagan o'zgarishi ko'rib chiqildi va 3 commit qilindi (38752fb rooms `api/school/rooms` + student IsActive,
+  c7f3a82 admin-web curriculum/dashboard/grades, d0160cd seed). Testlar: gateway 4/4, auth 51/51, school 196/196 (PostgreSQL bilan),
+  admin-web lint 0 xato / test 2/2 / build OK. `main` = `ai/improvements` = d0160cd, ikkalasi `origin` ga push qilindi.
+- Q2 deploy (server): `git merge --ff-only` b4db3c3 → d0160cd; backup `scripts/backup-db.sh` → `~/backups/school-management/*-2026-10-03-174253.dump`
+  (pg_restore --list bilan tekshirildi); 5 image ketma-ket build, `docker compose up -d`. Migratsiyalar: auth +3 (AddLoginLockout,
+  HashRefreshTokens, WidenUsername), school baseline + 7. `/health` 5001/5002/5003 = 200, 3100/3200 = 200, Swagger 200,
+  fail/crit log 0, prod smoke 27/27 (faqat o'qish). `libgssapi_krb5.so.2` xabari — Npgsql Kerberos probi, zararsiz.
+  Rollback nuqtasi: b4db3c3 (QUESTIONS Q2, 7-band).
+- Test akkauntlar (admin API orqali): `test.{admin,teacher,student,parent}@school.com` (parol egasida, repo'da yo'q); "Test Class"
+  (test o'qituvchi, test o'quvchi yozilgan), test ota-ona test o'quvchiga bog'langan.
+
+KEYINGI QADAM: Q3 (domen/TLS) va Q4 (sirlarni almashtirish) egasini kutadi; backup cron (B15) — server crontab'iga yozish ruxsat bilan;
+push-bildirishnomalar (FCM — ruxsat kerak). Serverda eski Docker image'larni tozalash (`docker image prune`) — ruxsat bilan.

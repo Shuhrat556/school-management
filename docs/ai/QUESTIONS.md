@@ -2,15 +2,16 @@
 
 Format: `Qn` — savol · holat (OCHIQ / JAVOB BERILDI). Ruxsat so'rovlari `RUXSAT KERAK:` bilan boshlanadi.
 
-## Q1 — `main` dagi commit qilinmagan o'zgarishlar (OCHIQ)
+## Q1 — `main` dagi commit qilinmagan o'zgarishlar (JAVOB BERILDI 2026-10-03)
 `main` ishchi daraxtida 9 ta fayl o'zgartirilgan, lekin commit qilinmagan (admin-web: curriculum, dashboard,
 grades, students/new, lib/api.js; backend: RoomsController route `api/school/rooms`, StudentCreateDto.IsActive,
 StudentService, DataSeeder). Ular izchil tuzatishlarga o'xshaydi, lekin kimniki ekani noma'lum.
 Men ularni commit qilmayapman va ularga tegmayapman; ular `ai/improvements` ga o'tganda ham ishchi daraxtda qoladi.
 **Savol:** bularni o'zingiz commit qilasizmi, yoki men ularni ko'rib chiqib, alohida commit sifatida qo'shaymi?
+**Javob:** egasi "hamma qilingan ishlarni main'ga o'tkaz" dedi — ko'rib chiqildi, testlardan o'tdi, 3 commit (38752fb, c7f3a82, d0160cd).
 
-## Q2 — Production deploy va backup (OCHIQ)
-RUXSAT KERAK: `ai/improvements` dagi tuzatishlar tayyor bo'lgach serverda (a) `pg_dump` bilan school_db va auth_db
+## Q2 — Production deploy va backup (BAJARILDI 2026-10-03)
+RUXSAT BERILDI: `ai/improvements` dagi tuzatishlar tayyor bo'lgach serverda (a) `pg_dump` bilan school_db va auth_db
 zaxirasini olish, (b) kodni yangilab `docker compose up -d --build` qilish, (c) school_db ni EF migratsiyalarga
 o'tkazish (baseline — mavjud jadvallarga tegmaydi, faqat `__EFMigrationsHistory` yaratadi). Hozircha hech narsa qilinmagan;
 tayyor bo'lganda aniq buyruqlar ro'yxati bilan qayta so'rayman.

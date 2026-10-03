@@ -69,7 +69,7 @@ admin-web `api/school/admin/sync-profile` bilan sinxronlaydi.
 Manzil: `docs/server_key.md` (repo'da emas). Ubuntu 24.04, 4 vCPU, 3.8 GB RAM (+2 GB swap), disk 50 GB (61% band).
 Serverda egasining boshqa loyihasi ham bor (3000/3001/8000 portlar, o'z nginx + certbot saytlari) —
 unga tegilmaydi.
-- **Deploy usuli:** `/home/kasb/apps/school-management` — repo'ning git klon'i (`main` = b4db3c3, remote
+- **Deploy usuli:** `/home/kasb/apps/school-management` — repo'ning git klon'i (`main` = d0160cd, 2026-10-03 deploy; remote
   `origin-canonical` = Shuhrat556/school-management) + serverga xos `backend/docker-compose.override.yml`
   (git'da emas) + `backend/.env` (600). Qo'lda: `git pull && docker compose up -d --build` (CI/CD yo'q).
   Compose loyiha nomi: `school-management`, 9 konteyner.
@@ -77,10 +77,10 @@ unga tegilmaydi.
   web-app **3200**, gateway **5001** (Swagger bilan). Qolganlari 127.0.0.1 ga bog'langan.
 - **TLS/domen yo'q:** school-management nginx orqali emas, to'g'ridan-to'g'ri HTTP portlarda — parol va tokenlar
   shifrlanmagan holda uzatiladi (BUGS B14).
-- **Backup yo'q:** school_db/auth_db uchun cron yoki dump yo'q (boshqa loyiha uchun qo'lda dump bor) (B15).
+- **Backup:** cron yo'q (B15); qo'lda `scripts/backup-db.sh` → `~/backups/school-management/` (birinchi dump 2026-10-03, deploy oldidan).
 - **Loglar:** oxirgi 48 soatda gateway/auth/school/admin-web/web-app'da error/warn yo'q.
 - `~/apps/school-management-releases/` — debug APK (167 MB).
-- **school_db** (8.7 MB): `__EFMigrationsHistory` **yo'q** (EnsureCreated, B11). Asosan seed: 46 student, 2 teacher,
+- **school_db** (8.7 MB): 2026-10-03 dan EF migratsiyalarda (13 ta, baseline bilan); oldin EnsureCreated edi (B11). Asosan seed: 46 student, 2 teacher,
   12 classroom, 12 subject, 552 grade, 230 attendance. Indekslar: PK + FK indekslari; **unique cheklov yo'q**
   (Attendance student+sana, StudentGrade student+fan+semestr, Students/Teachers email) (B16).
-- **auth_db** (7.8 MB): 56 user, 15 refresh token; EF migratsiyalar 4 ta, tarix jadvali bor.
+- **auth_db** (7.8 MB): 56 user (+4 test akkaunt `test.{admin,teacher,student,parent}@school.com`, 2026-10-03), EF migratsiyalar 7 ta.
