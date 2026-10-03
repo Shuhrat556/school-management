@@ -202,5 +202,10 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - Dependabot #48 (critical, next/og RCE; biz `next/og` ishlatmaymiz): next 16.3.5 → 16.3.6 (c45023a), faqat admin-web qayta deploy,
   smoke 27/27, alert `fixed`.
 
+- B49 (KRITIK, egasi skrinshot bilan xabar berdi): Flutter veb (3200) da kirish "Null check operator used on a null value" — HTTP'da `crypto.subtle`
+  yo'q, `flutter_secure_storage` yiqiladi. Insecure origin'da (headless Chrome, `http://school.test`) qayta hosil qilindi; secure context bo'lmasa
+  localStorage fallback (8e929d3), brauzer testi CI'da (d75a586), nginx gzip: main.dart.js 3.9 → 1.35 MB (0bee0cb). Faqat web-app qayta deploy;
+  prod'da test.teacher va test.student dashboard'ga kirdi, reload'dan keyin sessiya saqlanadi. Flutter 52/52 + brauzer 3/3.
+
 KEYINGI QADAM: Q3 (domen/TLS) va Q4 (sirlarni almashtirish) egasini kutadi; backup cron (B15) — server crontab'iga yozish ruxsat bilan;
 push-bildirishnomalar (FCM — ruxsat kerak). Serverda eski Docker image'larni tozalash (`docker image prune`) — ruxsat bilan.
