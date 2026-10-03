@@ -199,5 +199,8 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - Test akkauntlar (admin API orqali): `test.{admin,teacher,student,parent}@school.com` (parol egasida, repo'da yo'q); "Test Class"
   (test o'qituvchi, test o'quvchi yozilgan), test ota-ona test o'quvchiga bog'langan.
 
+- Dependabot #48 (critical, next/og RCE; biz `next/og` ishlatmaymiz): next 16.3.5 → 16.3.6 (c45023a), faqat admin-web qayta deploy,
+  smoke 27/27, alert `fixed`.
+
 KEYINGI QADAM: Q3 (domen/TLS) va Q4 (sirlarni almashtirish) egasini kutadi; backup cron (B15) — server crontab'iga yozish ruxsat bilan;
 push-bildirishnomalar (FCM — ruxsat kerak). Serverda eski Docker image'larni tozalash (`docker image prune`) — ruxsat bilan.
