@@ -263,3 +263,9 @@ admin yaratish), login paroli ≤ 200; Flutter tiklash formasi 6 → 8, admin-we
 auth `Users.Username` (ism + familiya) ≤ 50, `Email` ≤ 100, DTO'larda esa chegara yo'q — PostgreSQL "value too long" → 500 (SQLite testlari buni ko'rmasdi).
 50 belgi to'liq ism uchun kam. · TUZATILDI: `Username` 101 gacha kengaytirildi (migratsiya `WidenUsername`, Down bilan; PostgreSQL'da up/down sinaldi),
 DTO'larda email ≤ 100, ism/familiya ≤ 50 → 400; OAuth display name 101 gacha qisqartiriladi. Boshqa maydonlar skript bilan tekshirildi — mos.
+
+### B47 [O'RTA] Flutter: o'qituvchining "Today's Classes" bloki o'ylab topilgan vaqtlarni ko'rsatardi
+`teacher_dashboard.dart` `_buildClassData` — har bir sinfga indeks bo'yicha soxta vaqt ("07:00 - 08:00"...) berib, "tugagan/hozir" belgilarini shundan
+hisoblardi; uy vazifasi ("Review chapter N exercises"), materiallar ("Textbook", "Worksheet N"), xona ("Room N") ham soxta; sinf tafsilotida qattiq "/ 40"
+sig'im. · TUZATILDI: o'qituvchining bugungi haqiqiy jadvali (`GET /schedules?teacherId=`), haqiqiy vaqtdan holat; soxta vazifa/material/sig'im olib
+tashlandi; bo'sh kun uchun "No classes on your timetable today" (teacher_home_test).

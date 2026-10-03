@@ -40,4 +40,35 @@ void main() {
     expect(find.text('Draft notice', skipOffstage: false), findsNothing);
     expect(find.text('Annual Sports Day', skipOffstage: false), findsNothing);
   });
+
+  testWidgets('today\'s classes come from the real timetable', (tester) async {
+    ignoreNetworkErrors();
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    final today = days[DateTime.now().weekday - 1];
+    final tomorrow = days[DateTime.now().weekday % 7];
+    ScheduleDto session(String subject, String day, String start, String end) => ScheduleDto.fromJson({
+          'id': '$subject$day',
+          'classroomId': 'c1',
+          'classroomName': 'Physics 8B',
+          'subjectId': 's1',
+          'subjectName': subject,
+          'dayOfWeekName': day,
+          'startTime': '$start:00',
+          'endTime': '$end:00',
+        });
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: TeacherHomeContent(
+          loadAnnouncements: () async => [],
+          loadSchedule: () async => [session('Physics', today, '09:00', '10:30'), session('Optics', tomorrow, '11:00', '12:00')],
+        ),
+      ),
+    ));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.text('Physics', skipOffstage: false), findsWidgets);
+    expect(find.textContaining('09:00 - 10:30', skipOffstage: false), findsWidgets);
+    expect(find.text('Optics', skipOffstage: false), findsNothing); // not today
+    expect(find.textContaining('07:00 - 08:00', skipOffstage: false), findsNothing); // the old made-up slot
+  });
 }

@@ -80,10 +80,11 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
 // 2. HOME SCREEN CONTENT (INDEX 0)
 // ----------------------------------------------------------------------
 class TeacherHomeContent extends StatefulWidget {
-  // Replaceable in tests; by default announcements come from the API.
-  const TeacherHomeContent({super.key, this.loadAnnouncements});
+  // Replaceable in tests; by default announcements and the timetable come from the API.
+  const TeacherHomeContent({super.key, this.loadAnnouncements, this.loadSchedule});
 
   final Future<List<AnnouncementDto>> Function()? loadAnnouncements;
+  final Future<List<ScheduleDto>> Function()? loadSchedule;
 
   @override
   State<TeacherHomeContent> createState() => _TeacherHomeContentState();
@@ -197,12 +198,34 @@ class _TeacherHomeContentState extends State<TeacherHomeContent> {
           _students = results[0] as List<StudentDto>;
           _teachers = results[1] as List<TeacherDto>;
           _classrooms = results[2] as List<ClassroomDto>;
+        });
+      }
+      final sessions = await (widget.loadSchedule ??
+          () async {
+            final me = await api.getEntityId();
+            return me == null || me.isEmpty ? <ScheduleDto>[] : await api.getTeacherSchedule(me);
+          })();
+      if (mounted) {
+        setState(() {
+          _todaySessions = sessions.where((s) => s.day.toLowerCase() == _todayName.toLowerCase()).toList()
+            ..sort((a, b) => a.time.compareTo(b.time));
           _isLoading = false;
         });
       }
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  // Today's sessions from the teacher's real timetable (they used to be made-up time slots).
+  List<ScheduleDto> _todaySessions = [];
+
+  static String get _todayName =>
+      const ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][DateTime.now().weekday - 1];
+
+  static int _minutes(String hhmm) {
+    final parts = hhmm.trim().split(':');
+    return parts.length < 2 ? 0 : (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
   }
 
   @override
@@ -1353,53 +1376,38 @@ class _TeacherHomeContentState extends State<TeacherHomeContent> {
       Icons.calculate_rounded,
       Icons.computer_rounded,
     ];
-    const List<String> timeSlots = [
-      '07:00 - 08:00',
-      '08:10 - 09:10',
-      '09:20 - 10:20',
-      '10:30 - 11:30',
-      '13:00 - 14:00',
-      '14:10 - 15:10',
-      '15:20 - 16:20',
-    ];
     final now = TimeOfDay.now();
-    return _classrooms.asMap().entries.map((entry) {
+    final nowMins = now.hour * 60 + now.minute;
+    return _todaySessions.asMap().entries.map((entry) {
       final i = entry.key;
-      final c = entry.value;
+      final s = entry.value;
+      final c = _classrooms.where((x) => x.id == s.classroomId).firstOrNull;
       final color = cardColors[i % cardColors.length];
-      final timeSlot = timeSlots[i % timeSlots.length];
-      final startParts = timeSlot.split(' - ')[0].split(':');
-      final endParts = timeSlot.split(' - ')[1].split(':');
-      final startMins =
-          (int.tryParse(startParts[0]) ?? 0) * 60 +
-          (int.tryParse(startParts[1]) ?? 0);
-      final endMins =
-          (int.tryParse(endParts[0]) ?? 0) * 60 +
-          (int.tryParse(endParts[1]) ?? 0);
-      final nowMins = now.hour * 60 + now.minute;
+      final range = s.time.split(' - ');
+      final startMins = _minutes(range.first);
+      final endMins = range.length > 1 ? _minutes(range[1]) : startMins;
+      final students = c?.studentCount ?? 0;
       return {
-        'title': c.name,
-        'subtitle': '${c.grade ?? "No grade"} • ${c.studentCount} students',
-        'subject': c.name,
+        'title': s.subjectName,
+        'subtitle': '${s.classroomName} • $students students',
+        'subject': s.subjectName,
         'subjectIcon': cardIcons[i % cardIcons.length],
         'subjectColor': color,
-        'time': timeSlot,
-        'timeRange': timeSlot,
+        'time': s.time,
+        'timeRange': s.time,
         'accent': color,
         'isDone': nowMins >= endMins,
         'isCurrent': nowMins >= startMins && nowMins < endMins,
-        'topic': c.teacherName != null
-            ? 'Teacher: ${c.teacherName}'
-            : 'No teacher assigned',
-        'students': c.studentCount,
-        'room': c.grade ?? 'Room ${i + 1}',
-        'description': 'Academic Year: ${c.academicYear ?? "N/A"}',
-        'homework': 'Review chapter ${i + 1} exercises',
-        'materials': <String>['Textbook', 'Worksheet ${i + 1}', 'Whiteboard'],
-        'academicYear': c.academicYear ?? 'N/A',
-        'teacherName': c.teacherName ?? 'N/A',
-        'classroomId': c.id,
-        'isActive': c.isActive,
+        'topic': 'Class: ${s.classroomName}',
+        'students': students,
+        'room': s.classroomName,
+        'description': 'Academic Year: ${c?.academicYear ?? "N/A"}',
+        'homework': '',
+        'materials': <String>[],
+        'academicYear': c?.academicYear ?? 'N/A',
+        'teacherName': s.teacherName ?? 'N/A',
+        'classroomId': s.classroomId,
+        'isActive': c?.isActive ?? true,
         'classColor': color,
       };
     }).toList();
@@ -1410,7 +1418,7 @@ class _TeacherHomeContentState extends State<TeacherHomeContent> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_classrooms.isEmpty) {
+    if (_todaySessions.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
@@ -1423,7 +1431,7 @@ class _TeacherHomeContentState extends State<TeacherHomeContent> {
               Icon(Icons.class_rounded, size: 48, color: Colors.grey.shade300),
               const SizedBox(height: 12),
               Text(
-                "No classrooms yet",
+                "No classes on your timetable today",
                 style: GoogleFonts.inter(
                   color: Colors.grey.shade500,
                   fontSize: 15,
@@ -3487,7 +3495,7 @@ class TeacherScheduleDetailScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _sectionHeader(
-                          "Class Capacity",
+                          "Class Size",
                           Icons.bar_chart_rounded,
                           accent,
                         ),
@@ -3503,7 +3511,7 @@ class TeacherScheduleDetailScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              "$students / 40",
+                              "$students",
                               style: GoogleFonts.outfit(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -3511,26 +3519,6 @@ class TeacherScheduleDetailScreen extends StatelessWidget {
                               ),
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 10),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: LinearProgressIndicator(
-                            value: students > 0
-                                ? (students / 40).clamp(0.0, 1.0)
-                                : 0,
-                            backgroundColor: Colors.grey.shade100,
-                            valueColor: AlwaysStoppedAnimation<Color>(accent),
-                            minHeight: 10,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "${((students / 40) * 100).clamp(0, 100).toInt()}% capacity filled",
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
                         ),
                       ],
                     ),
