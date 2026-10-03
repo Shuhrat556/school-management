@@ -129,3 +129,9 @@ qoralama `GET {id}` → 404 (AnnouncementTests)
 admin-web/o'qituvchi/Flutter "Remove from class" dan keyin ham o'quvchini ko'rsatardi. Kompozit kalit (StudentId, ClassroomId) sabab
 qayta enroll har doim 409 "already enrolled" berardi (`Reenroll()` metodi bor edi, ishlatilmagan); ikkinchi unenroll 404 o'rniga 204.
 · TUZATILDI: ro'yxat faqat Active, ketgan o'quvchi o'sha qatorda qayta faollashadi, faol bo'lmaganini unenroll → 404 (EnrollmentTests: avval 3/4 yiqildi).
+
+### B24 [O'RTA] Jadvalda sinf va xona ikki marta band qilinishi mumkin edi
+`ScheduleService` faqat o'qituvchi to'qnashuvini tekshirardi: bitta sinfga yoki bitta xonaga (sinfning `RoomId`) bir vaqtda ikki dars qo'yish
+mumkin edi; mavjud bo'lmagan o'qituvchi FK xatosiga olib kelardi.
+· TUZATILDI: sinf va xona (Classroom/Lab turlari; Gym/Auditorium umumiy) to'qnashuvi → 409, noma'lum o'qituvchi → 404, end ≤ start → 400
+(ScheduleConflictTests: avval 4/8 yiqildi). Production'da (SELECT, 2026-10-03) 12 ta dars, hech qanday to'qnashuv yo'q.

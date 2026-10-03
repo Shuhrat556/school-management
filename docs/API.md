@@ -82,6 +82,9 @@ GET list, GET `{id}` — user. POST, PUT `{id}`, DELETE `{id}` — Admin.
 
 ### Schedules — `/schedules`
 GET `?classroomId=` or `?teacherId=` (one is required), GET `{id}` — user. POST, PUT `{id}`, DELETE `{id}` — Staff.
+POST/PUT → 409 `SCHEDULE_CONFLICT` when the new time overlaps another session on the same day of the same teacher, the same
+classroom, or the classroom's room if it is a `Classroom` or `Lab` room (a gym or auditorium may host several classes).
+Back-to-back sessions (one ends when the next starts) are fine. `endTime` ≤ `startTime` → 400, unknown teacher → 404.
 
 ### Attendance — `/attendance`
 | Method | Path | Auth | Notes |

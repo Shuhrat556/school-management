@@ -37,13 +37,13 @@ public class ScheduleRepository : IScheduleRepository
             .Include(s => s.Classroom)
             .FirstOrDefaultAsync(s => s.Id == id);
 
-    public async Task<List<Schedule>> GetTeacherConflictsAsync(
-        Guid teacherId, SchoolDayOfWeek day, TimeOnly start, TimeOnly end,
+    public async Task<List<Schedule>> GetOverlappingAsync(
+        SchoolDayOfWeek day, TimeOnly start, TimeOnly end,
         Guid? excludeScheduleId = null)
         => await _context.Schedules
             .AsNoTracking()
+            .Include(s => s.Classroom)
             .Where(s =>
-                s.TeacherId == teacherId &&
                 s.DayOfWeek == day &&
                 s.DeletedAt == null &&
                 s.StartTime < end &&
