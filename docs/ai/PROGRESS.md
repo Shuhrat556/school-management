@@ -180,5 +180,9 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - F9 (D18): o'qituvchi ↔ o'quvchi/ota-ona xabarlari — backend (d87f2bf, migratsiya `AddMessaging`, MessagingTests 11), Flutter `MessagesScreen`
   ikkala ilovada (0592cfc), admin-web `/messages` (6c117a7). Toza lokal stekda smoke 37/37. school 192/192, Flutter 51/51.
 
-KEYINGI QADAM: Q2 deploy rejasini yangilangan migratsiyalar bilan qayta ko'rib chiqish; push-bildirishnomalar (FCM — ruxsat kerak bo'ladi);
-qolgan kichik UX (o'qituvchi "% capacity filled" taxmini). Ruxsat kelsa — Q2 deploy.
+- Q2 reja va DEPLOYMENT rollback izohlari yangilandi (prod PostgreSQL 16.15 tasdiqlandi; HashRefreshTokens rollback'da qayta login) (a2a559a, be8c3fe).
+- B47: o'qituvchi "Today's Classes" — o'ylab topilgan vaqtlar o'rniga haqiqiy bugungi jadval; soxta vazifa/material/40 sig'im olib tashlandi (a921001).
+- O'lik `SettingsScreenTeacher` (soxta ism) o'chirildi, marshrut haqiqiy ekranga (10f2b7b). Flutter 52/52.
+
+KEYINGI QADAM: CI'ga uchidan-uchiga smoke (PostgreSQL service + local-stack + smoke_test --write); push-bildirishnomalar (FCM — ruxsat kerak).
+Ruxsat kelsa — Q2 deploy.
