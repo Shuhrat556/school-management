@@ -101,6 +101,13 @@ public class GlobalExceptionMiddleware
                 response.details = ex.Message;
                 break;
 
+            case ExternalTokenException ex:
+                response.statusCode = (int)HttpStatusCode.Unauthorized;
+                response.message = ex.Message;
+                response.code = "INVALID_EXTERNAL_TOKEN";
+                response.details = ex.Message;
+                break;
+
             case UnauthorizedAccessException ex:
                 response.statusCode = (int)HttpStatusCode.Unauthorized;
                 response.message = ex.Message;

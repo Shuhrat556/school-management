@@ -1,5 +1,7 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
+using AuthService.Application.Exceptions;
 using AuthService.Application.Interfaces;
 using AuthService.Domain.Enums;
 using Google.Apis.Auth;
@@ -21,12 +23,20 @@ public class ExternalAuthValidator : IExternalAuthValidator
     public async Task<ExternalAuthIdentity> ValidateGoogleIdTokenAsync(string idToken)
     {
         var googleClientId = _config["Authentication:Google:ClientId"]
-            ?? throw new InvalidOperationException("Authentication:Google:ClientId not configured");
+            ?? throw new ConfigurationException("Authentication:Google:ClientId not configured");
 
-        var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, new GoogleJsonWebSignature.ValidationSettings
+        GoogleJsonWebSignature.Payload payload;
+        try
         {
-            Audience = new[] { googleClientId }
-        });
+            payload = await GoogleJsonWebSignature.ValidateAsync(idToken, new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = new[] { googleClientId }
+            });
+        }
+        catch (InvalidJwtException)
+        {
+            throw new ExternalTokenException("Google token is invalid or expired");
+        }
 
         return new ExternalAuthIdentity(
             Provider: ExternalAuthProvider.Google,
@@ -46,10 +56,10 @@ public class ExternalAuthValidator : IExternalAuthValidator
         var appSecret = _config["Authentication:Facebook:AppSecret"];
 
         if (string.IsNullOrWhiteSpace(appId))
-            throw new InvalidOperationException("Authentication:Facebook:AppId not configured");
+            throw new ConfigurationException("Authentication:Facebook:AppId not configured");
 
         if (string.IsNullOrWhiteSpace(appSecret))
-            throw new InvalidOperationException("Authentication:Facebook:AppSecret not configured");
+            throw new ConfigurationException("Authentication:Facebook:AppSecret not configured");
 
         // 1) Validate token and extract user_id reliably
         // debug_token requires an app access token: {app-id}|{app-secret}
@@ -57,35 +67,41 @@ public class ExternalAuthValidator : IExternalAuthValidator
         var debugUrl =
             $"https://graph.facebook.com/debug_token?input_token={Uri.EscapeDataString(accessToken)}&access_token={Uri.EscapeDataString(appAccessToken)}";
 
-        var debug = await _http.GetFromJsonAsync<FacebookDebugTokenResponse>(debugUrl)
-            ?? throw new InvalidOperationException("Facebook debug_token returned no response");
+        // Facebook answers 400 for a token it cannot parse at all.
+        using var debugResponse = await _http.GetAsync(debugUrl);
+        if (debugResponse.StatusCode == HttpStatusCode.BadRequest)
+            throw new ExternalTokenException("Facebook token is invalid");
+        debugResponse.EnsureSuccessStatusCode();
 
-        var data = debug.Data ?? throw new InvalidOperationException("Facebook debug_token missing data");
+        var debug = await debugResponse.Content.ReadFromJsonAsync<FacebookDebugTokenResponse>()
+            ?? throw new HttpRequestException("Facebook debug_token returned no response");
+
+        var data = debug.Data ?? throw new HttpRequestException("Facebook debug_token missing data");
 
         if (!data.IsValid)
-            throw new InvalidOperationException("Facebook token is invalid");
+            throw new ExternalTokenException("Facebook token is invalid");
 
         if (!string.Equals(data.AppId, appId, StringComparison.Ordinal))
-            throw new InvalidOperationException("Facebook token was not issued for this app");
+            throw new ExternalTokenException("Facebook token was not issued for this app");
 
         if (data.ExpiresAt.HasValue)
         {
             var expiresAt = DateTimeOffset.FromUnixTimeSeconds(data.ExpiresAt.Value).UtcDateTime;
             if (expiresAt <= DateTime.UtcNow)
-                throw new InvalidOperationException("Facebook token is expired");
+                throw new ExternalTokenException("Facebook token is expired");
         }
 
         var userId = data.UserId;
         if (string.IsNullOrWhiteSpace(userId))
-            throw new InvalidOperationException("Facebook token does not contain a user_id");
+            throw new ExternalTokenException("Facebook token does not contain a user_id");
 
         // 2) Fetch user profile (optional fields based on granted scopes)
         var meUrl = $"https://graph.facebook.com/me?fields=id,name,email&access_token={Uri.EscapeDataString(accessToken)}";
         var me = await _http.GetFromJsonAsync<FacebookMeResponse>(meUrl)
-            ?? throw new InvalidOperationException("Facebook /me returned no response");
+            ?? throw new HttpRequestException("Facebook /me returned no response");
 
         if (string.IsNullOrWhiteSpace(me.Id) || !string.Equals(me.Id, userId, StringComparison.Ordinal))
-            throw new InvalidOperationException("Facebook token user_id did not match /me id");
+            throw new ExternalTokenException("Facebook token user_id did not match /me id");
 
         return new ExternalAuthIdentity(
             Provider: ExternalAuthProvider.Facebook,

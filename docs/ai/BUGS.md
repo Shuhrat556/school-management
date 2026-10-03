@@ -154,3 +154,9 @@ retry xatosi chaqiruvchiga qaytadi (test/api_service_refresh_test.dart: avval 3/
 `AuthenticationService.ChangePasswordAsync` barcha refresh tokenlarni bekor qilishi kerak edi, lekin `UserRepository.GetByIdAsync`
 (`FindAsync`) tokenlarni yuklamasdi — bo'sh kolleksiya, hech narsa bekor qilinmasdi. O'g'irlangan sessiya parol almashgandan keyin ham ishlardi.
 · TUZATILDI: `GetByIdAsync` agregatni (refresh tokenlar, tashqi loginlar) yuklaydi (ChangePasswordTests: avval yiqildi).
+
+### B27 [O'RTA] Yaroqsiz Google/Facebook tokeni bilan kirish 500 qaytarardi
+`ExternalAuthValidator` — Google `InvalidJwtException`, Facebook esa `System.InvalidOperationException` tashlardi; middleware ularni bilmasdi → 500
+(muddati o'tgan token bilan oddiy kirish urinishi "server xatosi" bo'lib ko'rinardi va log'ni ifloslantirardi). Facebook buzilgan tokenga
+HTTP 400 qaytaradi → 502. · TUZATILDI: `ExternalTokenException` → 401 `INVALID_EXTERNAL_TOKEN`; sozlanmagan provayder → `ConfigurationException`
+(500 `CONFIGURATION_ERROR`); Facebook javobi yo'q → 502 (OAuthTokenErrorTests: avval 4/4 yiqildi).

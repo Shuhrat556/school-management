@@ -46,3 +46,9 @@ public class InvalidOperationException : Exception
 {
     public InvalidOperationException(string message) : base(message) { }
 }
+
+// Thrown when a Google/Facebook sign-in token is malformed, expired or issued for another app
+public class ExternalTokenException : Exception
+{
+    public ExternalTokenException(string message) : base(message) { }
+}
