@@ -16,3 +16,6 @@ docs/ai/run.log
 Thumbs.db
 # .NET tooling writes here when HOME points at the repo
 Library/
+
+# scripts/local-stack.sh data, logs and pids
+.local-stack/

@@ -60,6 +60,8 @@ admin-web `api/school/admin/sync-profile` bilan sinxronlaydi.
 | Flutter format | Repo `dart format` (3.11 tall style) bilan formatlanmagan — butun faylni formatlamang, diff shovqin bo'ladi | |
 | Flutter eslatma | `pub get` (va `--no-pub` siz analyze/test) ios/macos xcconfig ni o'zgartirib Podfile yaratadi — `flutter analyze --no-pub`, `flutter test --no-pub` ishlating; tushib qolsa `git checkout` bilan qaytaring | |
 | Stack lokal | `cd backend && cp .env.example .env && docker compose up --build` | Docker Desktop kerak |
+| Stack lokal (Docker'siz) | `PATH=/opt/homebrew/opt/postgresql@16/bin:$PATH scripts/local-stack.sh start` → :3000, `... stop` | 2026-10-03 sinaldi |
+| Smoke test | `python3 scripts/smoke_test.py [--base URL] [--write]` — standart faqat o'qish (prod uchun), `--write` faqat lokal | 29/29 lokal stekda |
 | EF migratsiya sinovi | Homebrew PostgreSQL 16: `initdb -D <scratch>/pgdata -U postgres --auth=trust`, `pg_ctl -D ... -o "-p 55432 -c unix_socket_directories='' -c listen_addresses=127.0.0.1" start`, so'ng `dotnet ef database update <M> --connection "Host=127.0.0.1;Port=55432;Database=x;Username=postgres"` | sinalgan |
 | EF o'zgarish tekshiruvi | `dotnet ef migrations has-pending-model-changes --project AuthService.Infrastructure --startup-project AuthService.API` | |
 

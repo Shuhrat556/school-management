@@ -70,6 +70,11 @@ curl -fsS http://127.0.0.1:5003/health                   # school
 curl -fsS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3100/login   # admin-web → 200
 docker compose logs --since 10m auth-service school-service api-gateway | grep -iE 'error|exception|fail'
 ```
+Then run the read-only end-to-end check from any machine (it signs in as admin, a teacher and a student and
+reads grades, report cards, rosters and notifications; it changes no school data):
+```bash
+SMOKE_PASSWORD='<admin/teacher/student password>' python3 scripts/smoke_test.py --base http://<host>:3100
+```
 Log in to admin-web as an admin and open Students, Grades and Attendance once.
 
 ## Backup
@@ -108,6 +113,10 @@ cd backend && cp .env.example .env    # set JWT_SECRET to a random 32+ char valu
 docker compose up --build             # gateway :5001, admin-web :3000, Flutter web :3200
 ```
 Needs ~6 GB of free disk for images and build layers.
+
+Without Docker, `scripts/local-stack.sh start` runs PostgreSQL 16, both services, the gateway and admin-web natively
+(fresh, migrated and seeded databases in `.local-stack/`), then `python3 scripts/smoke_test.py --write` checks the main
+flows end to end; `scripts/local-stack.sh stop` shuts it all down.
 
 ## Planned improvements
 - HTTPS behind the host's existing nginx + certbot, with ports bound to 127.0.0.1 (BUGS B14, QUESTIONS Q3).
