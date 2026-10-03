@@ -32,22 +32,35 @@ public class GlobalExceptionMiddleware
         catch (Exception exception)
         {
             var traceId = Activity.Current?.Id ?? context.TraceIdentifier;
-            _logger.LogError(
-                exception,
-                "Unhandled exception for {Method} {Path}. TraceId: {TraceId}",
-                context.Request.Method,
-                context.Request.Path,
-                traceId);
+            var response = MapException(exception, traceId, _environment.IsDevelopment());
 
-            await HandleExceptionAsync(context, exception, traceId, _environment.IsDevelopment());
+            // A 4xx is the client's mistake (validation, not found, conflict): an ordinary outcome, logged
+            // briefly. Only server faults are errors with a stack trace, so real failures stand out.
+            if (response.statusCode >= 500)
+                _logger.LogError(
+                    exception,
+                    "Unhandled exception for {Method} {Path}. TraceId: {TraceId}",
+                    context.Request.Method,
+                    context.Request.Path,
+                    traceId);
+            else
+                _logger.LogInformation(
+                    "{Method} {Path} answered {StatusCode} {Code}: {Message}. TraceId: {TraceId}",
+                    context.Request.Method,
+                    context.Request.Path,
+                    response.statusCode,
+                    response.code,
+                    exception.Message,
+                    traceId);
+
+            await WriteResponseAsync(context, response);
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception, string traceId, bool includeDebugDetails)
+    private static Task WriteResponseAsync(HttpContext context, ErrorResponse response)
     {
         context.Response.ContentType = "application/json";
 
-        var response = MapException(exception, traceId, includeDebugDetails);
         response.path = context.Request.Path.Value;
         context.Response.StatusCode = response.statusCode;
 
