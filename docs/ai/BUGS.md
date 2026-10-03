@@ -102,7 +102,8 @@ NaturalKeyTests, MigrationTests.Emails_are_unique_ignoring_case
 · TUZATILDI: repozitoriylarda soft delete + aktiv filtr (D8), o'quvchi sinflardan `Dropped`, rosterda ko'rinmaydi. SoftDeleteTests
 
 ### B18 [PAST] `Enrollment` entity o'lik kod
-`SchoolService.Domain/Entities/Enrollment.cs` — DbContext'da yo'q, hech qayerda ishlatilmaydi (o'rnini `StudentClassroom` egallagan). · OCHIQ
+`SchoolService.Domain/Entities/Enrollment.cs` — DbContext'da yo'q, hech qayerda ishlatilmaydi (o'rnini `StudentClassroom` egallagan).
+· TUZATILDI: entity va ishlatilmagan `DTOs/Enrollments` o'chirildi (EF modeli o'zgarmadi).
 
 ### B19 [PAST] Kod xeshlari uchun pepper repoda
 `AuthService.API/appsettings.json` — `EmailVerification:Pepper` ochiq turardi (email tasdiqlash va parol tiklash kodlari HMAC'i
