@@ -232,3 +232,10 @@ orqali; bog'lanmagan bo'lsa, admin bog'lashi aytiladi (test/parents_directory_te
 "See All" — qattiq yozilgan tadbirlar (Annual Sports Day, soxta qatnashchilar soni). · TUZATILDI: progress — o'quvchining haqiqiy baholari (oxirgisi
 bosh sahifada, barchasi "View All"da, tafsilotda ball va semestr); tadbirlar — e'lon qilingan e'lonlar (`GET /api/announcements`, umumiy + o'z sinflari),
 nishonda muallif (test/student_home_test.dart).
+
+### B42 [YUQORI] Flutter: "Messages" tab'lari soxta chat edi
+`teacher_dashboard.dart` (`TeacherMessagesTab`, `TeacherChatDetailScreen`) va `student_dashboard.dart` (`StudentMessagesTab`, `StudentChatDetailScreen`) —
+qattiq yozilgan suhbatlar (ota-onalar, o'quvchilar, hamkasblar) va "yuborilgan" xabar faqat ekranga qo'shilardi; backend'da xabar almashish yo'q.
+O'qituvchi ota-onaga yozdim deb o'ylashi mumkin edi. · TUZATILDI: tab'lar "hali mavjud emas" deydi va ishlaydigan kanallarga yo'naltiradi
+(o'qituvchi — e'lon yuborish, bildirishnomalar; o'quvchi — bildirishnomalar, dars qoldirish so'rovi); soxta chat kodi (~1500 qator) olib tashlandi
+(git tarixida qoladi). Haqiqiy chat — PLAN F9 (test/messages_tab_test.dart).
