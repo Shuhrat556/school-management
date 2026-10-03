@@ -25,9 +25,12 @@ Error body (both services):
 | POST | `/verify-email` | anon | `{email, code}`; 5 wrong codes → 15 min lockout |
 | POST | `/request-password-reset` | anon | Sends a reset code; always 200 (no account enumeration) |
 | POST | `/reset-password` | anon | `{email, code, newPassword}`; revokes all refresh tokens |
-| POST | `/change-password` | user | Own account only (`userId` must equal the token's `sub`) |
-| POST | `/oauth/google` | anon | `{idToken}` — existing accounts only while registration is off |
-| POST | `/oauth/facebook` | anon | `{accessToken}` |
+| POST | `/change-password` | user | Own account only (`userId` must equal the token's `sub`); ends every other session |
+| POST | `/oauth/google` | anon | `{idToken}` — existing accounts only while registration is off; bad token → 401 `INVALID_EXTERNAL_TOKEN` |
+| POST | `/oauth/facebook` | anon | `{accessToken}` — only accounts that linked Facebook (no email matching) |
+| GET | `/logins` | user | `{hasPassword, logins: [{provider, linkedAt}]}` |
+| POST | `/logins/{google\|facebook}` | user | `{token}` (Google ID token / Facebook access token): link it to the caller. 409 `EXTERNAL_LOGIN_IN_USE` (linked to someone else), `PROVIDER_ALREADY_LINKED` (another account of that provider); same identity again → 200 |
+| DELETE | `/logins/{google\|facebook}` | user | 204; 404 if not linked; 409 `LAST_SIGN_IN_METHOD` when it is the only way to sign in (no password) |
 | POST | `/validate` | anon | `{token}` → `{valid, userId, email}` (service-to-service) |
 | GET | `/user/{userId}` | user | Basic user info |
 | GET | `/admin/users` | Admin | All accounts |
@@ -37,7 +40,9 @@ Error body (both services):
 
 Roles (numeric in responses): `Teacher=1`, `Student=2`, `Parent=3`, `Admin=4`.
 
-Rate limits per client IP (429 `TOO_MANY_REQUESTS` with `Retry-After`): `authenticate` and `oauth/*` 60/min;
+Refresh tokens rotate on every `refresh`; presenting an already rotated token more than 30 s later revokes all of the user's sessions (D14).
+
+Rate limits per client IP (429 `TOO_MANY_REQUESTS` with `Retry-After`): `authenticate`, `oauth/*` and `POST logins/*` 60/min;
 `request-email-verification-code`, `verify-email`, `request-password-reset`, `reset-password` 20 per 10 min; `refresh` 120/min.
 
 ## School service

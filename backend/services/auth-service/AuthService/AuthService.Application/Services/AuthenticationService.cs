@@ -546,6 +546,63 @@ public async Task<AuthResponseDto?> AuthenticateFacebookAsync(string accessToken
     return await AuthenticateExternalAsync(identity);
 }
 
+public async Task<ExternalLoginsResponseDto> GetExternalLoginsAsync(Guid userId)
+    => MapExternalLogins(await GetActiveUserAsync(userId));
+
+public async Task<ExternalLoginsResponseDto> LinkExternalLoginAsync(Guid userId, ExternalAuthProvider provider, string token)
+{
+    var user = await GetActiveUserAsync(userId);
+    var identity = provider == ExternalAuthProvider.Google
+        ? await _externalAuthValidator.ValidateGoogleIdTokenAsync(token)
+        : await _externalAuthValidator.ValidateFacebookAccessTokenAsync(token);
+
+    var owner = await _userRepo.GetByExternalLoginAsync(identity.Provider, identity.ProviderUserId);
+    if (owner != null && owner.Id != user.Id)
+        throw new ConflictException("EXTERNAL_LOGIN_IN_USE", $"This {provider} account is already linked to another user.");
+
+    if (owner == null)
+    {
+        if (user.ExternalLogins.Any(el => el.Provider == provider))
+            throw new ConflictException("PROVIDER_ALREADY_LINKED", $"Another {provider} account is already linked. Unlink it first.");
+
+        user.AddExternalLogin(identity.Provider, identity.ProviderUserId);
+        await _userRepo.UpdateAsync(user);
+    }
+
+    return MapExternalLogins(user);
+}
+
+public async Task UnlinkExternalLoginAsync(Guid userId, ExternalAuthProvider provider)
+{
+    var user = await GetActiveUserAsync(userId);
+    var login = user.ExternalLogins.FirstOrDefault(el => el.Provider == provider)
+        ?? throw new NotFoundException($"No {provider} account is linked.");
+
+    // Without a password the last linked login is the only way back in.
+    if (string.IsNullOrEmpty(user.PasswordHash) && user.ExternalLogins.Count == 1)
+        throw new ConflictException("LAST_SIGN_IN_METHOD", "Set a password before unlinking your only sign-in method.");
+
+    user.RemoveExternalLogin(login);
+    await _userRepo.UpdateAsync(user);
+}
+
+private async Task<User> GetActiveUserAsync(Guid userId)
+{
+    var user = await _userRepo.GetByIdAsync(userId);
+    if (user == null || !user.IsActive)
+        throw new NotFoundException("User not found");
+    return user;
+}
+
+private static ExternalLoginsResponseDto MapExternalLogins(User user) => new()
+{
+    HasPassword = !string.IsNullOrEmpty(user.PasswordHash),
+    Logins = user.ExternalLogins
+        .OrderBy(el => el.Provider)
+        .Select(el => new ExternalLoginDto { Provider = el.Provider.ToString(), LinkedAt = el.CreatedAt })
+        .ToList()
+};
+
 private async Task<AuthResponseDto?> AuthenticateExternalAsync(ExternalAuthIdentity identity)
 {
     // 1) Find by external login link

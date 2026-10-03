@@ -1,12 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using AuthService.Application.Interfaces;
 using AuthService.Domain.Enums;
 using AuthService.Tests.Infrastructure;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AuthService.Tests;
 
@@ -14,32 +9,6 @@ namespace AuthService.Tests;
 // account was linked to that account and signed in as its owner.
 public class ExternalLoginTests
 {
-    // Tokens look like "<provider>|<providerUserId>|<email>|<verified>".
-    private sealed class FakeExternalAuthValidator : IExternalAuthValidator
-    {
-        public Task<ExternalAuthIdentity> ValidateGoogleIdTokenAsync(string idToken) => Parse(ExternalAuthProvider.Google, idToken);
-        public Task<ExternalAuthIdentity> ValidateFacebookAccessTokenAsync(string accessToken) => Parse(ExternalAuthProvider.Facebook, accessToken);
-
-        private static Task<ExternalAuthIdentity> Parse(ExternalAuthProvider provider, string token)
-        {
-            var parts = token.Split('|');
-            return Task.FromResult(new ExternalAuthIdentity(provider, parts[0], parts[1], bool.Parse(parts[2]), "Someone"));
-        }
-    }
-
-    private sealed class OAuthFactory : AuthApiFactory
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            base.ConfigureWebHost(builder);
-            builder.ConfigureTestServices(services =>
-            {
-                services.RemoveAll<IExternalAuthValidator>();
-                services.AddScoped<IExternalAuthValidator, FakeExternalAuthValidator>();
-            });
-        }
-    }
-
     [Fact]
     public async Task Facebook_email_does_not_take_over_an_existing_account()
     {

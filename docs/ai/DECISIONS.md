@@ -143,3 +143,15 @@ agregatdan o'chiriladi (bekor, lekin muddati o'tmaganlari reuse aniqlash uchun 7
 ikkalasi ham chiqariladi. Ikkala mijozda bitta in-flight refresh bor (B20, B26) — oddiy foydalanishda takror yuborish bo'lmaydi.
 Tozalashsiz har refresh foydalanuvchining barcha eski tokenlarini yuklardi (soatiga bitta qator o'sish). Migratsiya kerak emas.
 **Manba:** [RFC 9700 — OAuth 2.0 Security BCP §4.14.2](https://www.rfc-editor.org/rfc/rfc9700#section-4.14.2) (refresh token rotation, reuse detection).
+
+## D15 — F6: Google/Facebook akkauntini bog'lash (2026-10-03)
+**Qaror:** auth-service'da `GET /api/auth/logins`, `POST /api/auth/logins/{provider}` (`{token}`), `DELETE /api/auth/logins/{provider}` —
+faqat tizimga kirgan foydalanuvchi o'zi uchun. Token o'sha validator bilan tekshiriladi (Google imzo + audience, Facebook `debug_token`).
+Bitta provayderdan bitta akkaunt; boshqa foydalanuvchiga bog'langan identity → 409; parolsiz foydalanuvchining oxirgi logini o'chirilmaydi.
+Bog'lashda email solishtirilmaydi — egalik provayder tokeni va foydalanuvchining joriy sessiyasi bilan isbotlanadi.
+**Sabab:** B4 dan keyin Facebook email bo'yicha bog'lanmaydi, ya'ni admin yaratgan akkauntga Facebook bilan kirishning yagona yo'li — oldindan
+bog'lash. **UI:** admin-web login sahifasidagi Google/Facebook tugmalari hozircha placeholder; Google Identity Services veb-origin sifatida
+IP manzilni qabul qilmaydi, shuning uchun veb-UI domen/TLS (QUESTIONS Q3) dan keyin qilinadi. Flutter `google_sign_in`/`flutter_facebook_auth`
+paketlari bor — ilova profil ekraniga ulash keyingi qadam.
+**Manba:** [Google — Verify the Google ID token](https://developers.google.com/identity/sign-in/web/backend-auth),
+[Meta — debug_token](https://developers.facebook.com/docs/facebook-login/guides/%20access-tokens/debugging), OWASP ASVS V2 (account linking).

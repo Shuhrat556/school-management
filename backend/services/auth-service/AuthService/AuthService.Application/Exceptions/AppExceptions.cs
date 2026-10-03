@@ -52,3 +52,11 @@ public class ExternalTokenException : Exception
 {
     public ExternalTokenException(string message) : base(message) { }
 }
+
+// Thrown when the request clashes with the current state; Code is returned to the client (409)
+public class ConflictException : Exception
+{
+    public string Code { get; }
+
+    public ConflictException(string code, string message) : base(message) => Code = code;
+}

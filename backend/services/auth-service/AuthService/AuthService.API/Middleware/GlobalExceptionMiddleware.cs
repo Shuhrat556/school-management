@@ -101,6 +101,13 @@ public class GlobalExceptionMiddleware
                 response.details = ex.Message;
                 break;
 
+            case ConflictException ex:
+                response.statusCode = (int)HttpStatusCode.Conflict;
+                response.message = ex.Message;
+                response.code = ex.Code;
+                response.details = ex.Message;
+                break;
+
             case ExternalTokenException ex:
                 response.statusCode = (int)HttpStatusCode.Unauthorized;
                 response.message = ex.Message;

@@ -316,6 +316,44 @@ public async Task<IActionResult> GetUser(string userId)
         }
     }
 
+    // Account linking (F6): the signed-in user's Google/Facebook logins
+    [Authorize]
+    [HttpGet("logins")]
+    public async Task<IActionResult> GetLogins()
+    {
+        if (CallerId() is not { } callerId) return Unauthorized();
+        return Ok(await _authService.GetExternalLoginsAsync(callerId));
+    }
+
+    [Authorize]
+    [HttpPost("logins/{provider}")]
+    [EnableRateLimiting(AuthRateLimits.Login)]
+    public async Task<IActionResult> LinkLogin(string provider, [FromBody] LinkExternalLoginRequestDto dto)
+    {
+        if (CallerId() is not { } callerId) return Unauthorized();
+        if (!TryParseProvider(provider, out var externalProvider)) return NotFound(new { error = $"Unknown provider '{provider}'." });
+        return Ok(await _authService.LinkExternalLoginAsync(callerId, externalProvider, dto.Token));
+    }
+
+    [Authorize]
+    [HttpDelete("logins/{provider}")]
+    public async Task<IActionResult> UnlinkLogin(string provider)
+    {
+        if (CallerId() is not { } callerId) return Unauthorized();
+        if (!TryParseProvider(provider, out var externalProvider)) return NotFound(new { error = $"Unknown provider '{provider}'." });
+        await _authService.UnlinkExternalLoginAsync(callerId, externalProvider);
+        return NoContent();
+    }
+
+    private Guid? CallerId()
+    {
+        var value = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        return Guid.TryParse(value, out var id) ? id : null;
+    }
+
+    private static bool TryParseProvider(string value, out ExternalAuthProvider provider)
+        => Enum.TryParse(value, ignoreCase: true, out provider) && Enum.IsDefined(provider) && !int.TryParse(value, out _);
+
     // Update a user's role in auth_db
     [Authorize(Roles = "Admin")]
     [HttpPatch("admin/users/{userId:guid}/role")]

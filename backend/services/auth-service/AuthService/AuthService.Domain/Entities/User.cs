@@ -15,6 +15,8 @@ public class User : BaseEntity
         return externalLogin;
     }
 
+    public void RemoveExternalLogin(ExternalLogin externalLogin) => _externalLogins.Remove(externalLogin);
+
     public string Email { get; private set; } = string.Empty;
     public string NormalizedEmail { get; private set; } = string.Empty;
     public string Username { get; private set; } = string.Empty;
