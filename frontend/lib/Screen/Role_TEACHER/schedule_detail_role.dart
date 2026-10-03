@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:tamdansers/Screen/Role_TEACHER/add_student_role.dart';
+import 'package:tamdansers/Screen/Role_TEACHER/announce_to_parents_role.dart';
+import 'package:tamdansers/Screen/Role_TEACHER/check_attendance_student_role.dart';
+import 'package:tamdansers/Screen/Role_TEACHER/input_score_student_role.dart';
 import 'package:tamdansers/services/api_models.dart';
 import 'package:tamdansers/services/api_service.dart';
 
@@ -1336,16 +1340,30 @@ class _TeacherScheduleDetailScreenState
     );
   }
 
+  // Opens the action's screen; actions without a backend feature say so instead of doing nothing.
+  void _openAction(Map<String, dynamic> action, String name) {
+    final open = action['open'] as Widget Function()?;
+    if (open != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => open()));
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$name is not available yet.'), behavior: SnackBarBehavior.floating),
+    );
+  }
+
   Widget _buildActionsTab() {
     final actions = [
       {
         'label': 'Take Attendance',
+        'open': () => const AttendanceScreen(),
         'icon': Icons.fact_check_rounded,
         'color': const Color(0xFF50E3C2),
         'sub': 'Mark today\'s roll call',
       },
       {
         'label': 'Input Scores',
+        'open': () => const ScoreInputScreen(),
         'icon': Icons.assessment_rounded,
         'color': const Color(0xFFB86DFF),
         'sub': 'Enter exam & quiz grades',
@@ -1370,6 +1388,7 @@ class _TeacherScheduleDetailScreenState
       },
       {
         'label': 'Announce',
+        'open': () => const AnnounceToParentsScreen(),
         'icon': Icons.campaign_rounded,
         'color': const Color(0xFF6C5CE7),
         'sub': 'Notify parents & students',
@@ -1387,6 +1406,7 @@ class _TeacherScheduleDetailScreenState
       {
         'icon': Icons.person_add_rounded,
         'title': 'Add Students',
+        'open': () => const AddStudentScreen(),
         'sub': 'Enroll new students',
         'color': const Color(0xFF50E3C2),
         'divider': true,
@@ -1401,6 +1421,7 @@ class _TeacherScheduleDetailScreenState
       {
         'icon': Icons.notifications_rounded,
         'title': 'Send Notification',
+        'open': () => const AnnounceToParentsScreen(),
         'sub': 'Push alert to all',
         'color': const Color(0xFFB86DFF),
         'divider': false,
@@ -1441,7 +1462,7 @@ class _TeacherScheduleDetailScreenState
                 child: Opacity(opacity: v, child: child),
               ),
               child: Bounceable(
-                onTap: () {},
+                onTap: () => _openAction(a, a['label'] as String),
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -1520,7 +1541,7 @@ class _TeacherScheduleDetailScreenState
               return Column(
                 children: [
                   Bounceable(
-                    onTap: () {},
+                    onTap: () => _openAction(s, s['title'] as String),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,

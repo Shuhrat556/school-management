@@ -203,4 +203,5 @@ havola/fayl nomi bilan topshirish; 0 o'quvchili sinfda 0 ga bo'linish ham tuzati
 `schedule_detail_role.dart` — Students tab'ida qattiq yozilgan 8 ta o'quvchi ("Alexander Pong") soxta davomat va ballar bilan, "Submissions 5 / N",
 "Due Tomorrow", o'quvchilar soni doim 25. · TUZATILDI: sinf ro'yxati + bugungi davomat ("Not marked" holati) + shu fandagi oxirgi baho, oxirgi uy
 vazifasi va topshirganlar soni, materiallar — API'dan (`ClassSnapshot`); 0 o'quvchida bo'linish himoyalangan (test/teacher_class_detail_test.dart).
-Eslatma: Quick Actions tugmalarining ko'pi hali hech narsa qilmaydi (`onTap: () {}`) — keyingi qadam.
+Quick Actions: davomat, baholar, e'lon/bildirishnoma, o'quvchi qo'shish haqiqiy ekranlarni ochadi; backend'i yo'q amallar (Lesson Plan,
+Class Notes, Edit Class Info, Export Report) "hali mavjud emas" deydi (avval hech narsa qilmasdi).
