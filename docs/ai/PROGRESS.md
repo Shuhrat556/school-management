@@ -165,5 +165,10 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B42: ikkala ilovadagi soxta chat tab'lari → halol joy-egallovchi, ~1500 qator soxta kod olib tashlandi; haqiqiy chat PLAN F9 (b08e56f).
   Flutter 46/46.
 
-KEYINGI QADAM: Flutter'ning qolgan soxta joylari (Courses tab'lari, attendance analysis, result/score ekranlari); F9 (xabarlar) dizayni.
-Ruxsat kelsa — Q2 deploy.
+- O'quvchi "Recent Activity" — haqiqiy baholar, ishlaydigan filtrlar (0e78ef5).
+- B43 (YUQORI, xavfsizlik): o'quvchi istalgan sinf ro'yxatini sinfdoshlarning email/telefon/tug'ilgan sanasi bilan olardi → faqat o'z sinflari, PII'siz (0c28c1b).
+- B44: Flutter jadval DTO `dayOfWeekName/startTime/endTime` ni o'qimasdi (kun/vaqt bo'sh), o'quvchi jadvali boshqa sinfniki edi (1041b01).
+  Flutter va backend DTO kalitlari skript bilan solishtirildi — boshqa nomuvofiqlik yo'q; o'lik `createSchedule` olib tashlandi (44f6e44).
+  school 181/181, Flutter 49/49.
+
+KEYINGI QADAM: Flutter attendance analysis, result/score ekranlari; F9 (xabarlar) dizayni. Ruxsat kelsa — Q2 deploy.
