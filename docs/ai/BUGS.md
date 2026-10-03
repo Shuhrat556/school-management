@@ -191,7 +191,9 @@ muvaffaqiyat xabari buni ochiq aytadi (test/announce_to_parents_test.dart).
 
 ### B34 [YUQORI] Flutter: uy vazifasi ekranlari to'liq soxta
 `homework_role.dart` (o'qituvchi) — qattiq yozilgan ro'yxat, "assign" faqat mahalliy ro'yxatga qo'shadi; `homework_student_role.dart` (o'quvchi) —
-qattiq yozilgan topshiriqlar, "submit" faqat mahalliy belgi. Backend materiallar (Assignment) va topshiriqlarni qo'llaydi. · JARAYONDA (F7, D16)
+qattiq yozilgan topshiriqlar, "submit" faqat mahalliy belgi. Backend materiallar (Assignment) va topshiriqlarni qo'llaydi.
+· TUZATILDI (F7, D16): o'qituvchi — o'z sinflari topshiriqlari, topshirganlar soni, muddatli yaratish; o'quvchi — o'z sinflari topshiriqlari,
+havola/fayl nomi bilan topshirish; 0 o'quvchili sinfda 0 ga bo'linish ham tuzatildi (teacher_homework_test, student_homework_test).
 
 ### B35 [O'RTA] Materialni o'chirish o'quvchilarning topshiriqlari va baholarini kaskad o'chirardi
 `MaterialRepository.DeleteAsync` → `Remove()`, `Submissions.MaterialId` FK = CASCADE; ro'yxat o'chirilgan/nofaol materiallarni ham qaytarardi.

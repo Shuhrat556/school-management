@@ -3,41 +3,96 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:tamdansers/constants/app_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:tamdansers/services/api_models.dart';
+import 'package:tamdansers/services/api_service.dart';
 
+// The student's homework: assignments of the classes they are in (school-service D16),
+// handed in as a link or a file name.
 class StudentHomeworkScreen extends StatefulWidget {
-  const StudentHomeworkScreen({super.key});
+  // The calls can be replaced in tests; by default they go to the API.
+  // submit returns null on success, otherwise the reason.
+  const StudentHomeworkScreen({
+    super.key,
+    this.loadClasses,
+    this.loadMaterials,
+    this.loadSubmittedIds,
+    this.submit,
+  });
+
+  final Future<List<ClassroomDto>> Function()? loadClasses;
+  final Future<List<MaterialDto>> Function(String classroomId)? loadMaterials;
+  final Future<Set<String>> Function()? loadSubmittedIds;
+  final Future<String?> Function(String materialId, String link)? submit;
 
   @override
   State<StudentHomeworkScreen> createState() => _StudentHomeworkScreenState();
 }
 
 class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
-  final Set<String> _completedIds = {};
+  Set<String> _completedIds = {};
+  List<Map<String, dynamic>> _assignments = [];
+  bool _loading = true;
 
-  final List<Map<String, dynamic>> _assignments = [
-    {
-      'id': 'khmer_1',
-      'subject': 'Khmer Language',
-      'task': 'UNIT 04 • EXERCISE',
-      'teacher': 'Mr. Sok Chea',
-      'due': DateTime.now().add(const Duration(hours: 30)),
-      'cover': AppImages.event1,
-      'urgent': true,
-      'color': const Color(0xFFFFB75E),
-      'icon': Icons.menu_book_rounded,
-    },
-    {
-      'id': 'math_2',
-      'subject': 'Mathematics',
-      'task': 'ALGEBRA • HOMEWORK 2',
-      'teacher': 'Ms. Nary',
-      'due': DateTime.now().add(const Duration(days: 4)),
-      'cover': AppImages.event2,
-      'urgent': false,
-      'color': const Color(0xFF4A90E2),
-      'icon': Icons.calculate_rounded,
-    },
+  static const _covers = [AppImages.event1, AppImages.event2, AppImages.event3];
+  static const _styles = [
+    (Color(0xFFFFB75E), Icons.menu_book_rounded),
+    (Color(0xFF4A90E2), Icons.calculate_rounded),
+    (Color(0xFF50E3C2), Icons.science_rounded),
+    (Color(0xFFB86DFF), Icons.edit_note_rounded),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final api = ApiService();
+    Future<String> studentId() async => await api.getEntityId() ?? '';
+    final classes = await (widget.loadClasses ?? () async => api.getStudentClassrooms(await studentId()))();
+    final loadMaterials = widget.loadMaterials ?? api.getMaterials;
+    final submitted = await (widget.loadSubmittedIds ??
+        () async => (await api.getStudentSubmissions(await studentId())).map((s) => s.materialId).toSet())();
+
+    final found = <(ClassroomDto, MaterialDto)>[];
+    for (final c in classes) {
+      for (final m in await loadMaterials(c.id)) {
+        if (m.isAssignment) found.add((c, m));
+      }
+    }
+    // Soonest deadline first; homework without one at the end
+    found.sort((a, b) {
+      final da = a.$2.dueAt, db = b.$2.dueAt;
+      if (da == null || db == null) return da == null ? (db == null ? 0 : 1) : -1;
+      return da.compareTo(db);
+    });
+    if (!mounted) return;
+    setState(() {
+      _assignments = [for (var i = 0; i < found.length; i++) _entry(i, found[i].$1, found[i].$2)];
+      _completedIds = {...submitted};
+      _loading = false;
+    });
+  }
+
+  Map<String, dynamic> _entry(int index, ClassroomDto c, MaterialDto m) {
+    final now = DateTime.now();
+    final due = m.dueAt;
+    final style = _styles[index % _styles.length];
+    return {
+      'id': m.id,
+      'subject': c.subjectName ?? c.name,
+      'task': m.title,
+      'teacher': c.teacherName ?? c.name,
+      'due': due,
+      'description': m.description,
+      'url': m.url,
+      'cover': _covers[index % _covers.length],
+      'urgent': due != null && due.isAfter(now) && due.difference(now).inHours < 48,
+      'color': style.$1,
+      'icon': style.$2,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,6 +189,7 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
   }
 
   Widget _buildList(List<Map<String, dynamic>> items) {
+    if (_loading) return const Center(child: CircularProgressIndicator());
     if (items.isEmpty) {
       return Center(
         child: Column(
@@ -191,8 +247,15 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
   Widget _buildModernAssignmentCard(Map<String, dynamic> hw) {
     final bool isSubmitted = _completedIds.contains(hw['id']);
     final bool isUrgent = hw['urgent'] == true;
-    final dueDate = hw['due'] as DateTime;
-    final daysLeft = dueDate.difference(DateTime.now()).inDays;
+    final dueDate = hw['due'] as DateTime?;
+    final daysLeft = dueDate?.difference(DateTime.now()).inDays;
+    final badge = isSubmitted
+        ? "SUBMITTED"
+        : isUrgent
+            ? "URGENT"
+            : dueDate == null
+                ? "NO DEADLINE"
+                : (dueDate.isBefore(DateTime.now()) ? "OVERDUE" : "${daysLeft}d left");
     final Color themeColor = hw['color'];
 
     return Bounceable(
@@ -243,9 +306,7 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      isSubmitted
-                          ? "SUBMITTED"
-                          : (isUrgent ? "URGENT" : "${daysLeft}d left"),
+                      badge,
                       style: GoogleFonts.inter(
                         color: Colors.white,
                         fontSize: 10.5,
@@ -335,7 +396,7 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        DateFormat("MMM d • h:mm a").format(dueDate),
+                        dueDate == null ? "No due date" : DateFormat("MMM d • h:mm a").format(dueDate),
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
@@ -396,6 +457,40 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
         ),
       ),
     );
+  }
+
+  // Asks for a link (Google Drive, Docs...) or a file name and hands the work in.
+  Future<void> _handIn(String id) async {
+    final controller = TextEditingController();
+    final link = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Hand in your work', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        content: TextField(
+          key: const ValueKey('hand-in-link'),
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Link to your work or the file name'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+          TextButton(
+            key: const ValueKey('hand-in-send'),
+            onPressed: () => Navigator.pop(dialogContext, controller.text.trim()),
+            child: const Text('Hand in'),
+          ),
+        ],
+      ),
+    );
+    if (link == null || link.isEmpty || !mounted) return;
+
+    final error = await (widget.submit ?? ApiService().submitAssignment)(id, link);
+    if (!mounted) return;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error), backgroundColor: Colors.red));
+      return;
+    }
+    _markAsSubmitted(id);
   }
 
   void _markAsSubmitted(String id) {
@@ -532,7 +627,10 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        "Please complete all exercises on pages 45-48. Show your work for full credit. Submit your assignment as a single PDF document.",
+                        [
+                          (hw['description'] as String?) ?? "No instructions were given.",
+                          if (hw['url'] != null) "Link: ${hw['url']}",
+                        ].join("\n\n"),
                         style: GoogleFonts.inter(
                           color: Colors.grey.shade700,
                           height: 1.45,
@@ -551,9 +649,10 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
                         ),
                         const SizedBox(height: 10),
                         Bounceable(
+                          key: const ValueKey('upload-work'),
                           onTap: () {
                             Navigator.pop(context);
-                            _markAsSubmitted(hw['id']);
+                            _handIn(hw['id']);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -591,11 +690,12 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 14),
-                                Column(
+                                Flexible(
+                                  child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Tap to select file",
+                                      "Tap to hand in your work",
                                       style: GoogleFonts.inter(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14.5,
@@ -604,13 +704,14 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      "PDF, DOC, image files",
+                                      "A link (Drive, Docs...) or the file name",
                                       style: GoogleFonts.inter(
                                         color: Colors.grey.shade500,
                                         fontSize: 12.5,
                                       ),
                                     ),
                                   ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -644,7 +745,7 @@ class _StudentHomeworkScreenState extends State<StudentHomeworkScreen> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                "Your assignment was submitted on time and is pending review.",
+                                "Your work was handed in and is waiting for your teacher's review.",
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.inter(
                                   color: Colors.grey.shade700,
