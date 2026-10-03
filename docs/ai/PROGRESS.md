@@ -133,6 +133,13 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - F6 backend TAYYOR (D15): `GET/POST/DELETE /api/auth/logins[/{provider}]` (AccountLinkTests 12 ta; 2d20067). Veb-UI domen/TLS (Q3) ni kutadi.
 - B29 TUZATILDI: `GET /api/auth/user/{id}` faqat o'zi/Admin (UserLookupTests; d2ed91d). auth 46/46.
 
-KEYINGI QADAM: Flutter — profil ekranida Google/Facebook bog'lash (D15, `google_sign_in` bor) yoki login oqimi widget testi;
-school-service'dagi ishlatilmaydigan `ValidationController`/`AuthServiceClient`/Consul discovery kodini tahlil qilib olib tashlash.
-Ruxsat kelsa — Q2 deploy.
+
+## 2026-10-03 — Sessiya 2 (davomi, egasi: "o'zing davom etaver")
+
+- school-service: gateway yo'naltirmaydigan `ValidationController` + `AuthServiceClient` o'chirildi; `ServiceHealthController` `IHttpClientFactory`
+  ishlatadi (865e13b). Consul + `ServiceDiscoveryClient` qoldi — admin-web `/admin/health` ishlatadi.
+- F6b: Flutter Sozlamalar → "Security & Login" (avval hech narsa qilmasdi) → `LinkedAccountsScreen` (4 widget test; eba42fd).
+- B30 TUZATILDI: Flutter login ekranlari rolni tekshirmasdi; umumiy `finishSignIn`, 5 ta login widget testi (9e5eeb8). Flutter 15/15.
+
+KEYINGI QADAM: Docker ishlasa — lokal smoke test; bo'lmasa admin-web/Flutter qolgan sahifalarini tahlil (ishlatilmaydigan maydonlar,
+xato holatlari) va school-service qolgan kontrollerlari (Subjects/Departments/Rooms/Materials) validatsiyasi. Ruxsat kelsa — Q2 deploy.
