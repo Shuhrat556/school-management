@@ -121,3 +121,14 @@ o'rniga aniq domen yozuvi: o'qiladigan tarix (eski/yangi ball), kam shovqin, tes
 keyin ham tarix qoladi. Fan baholarga RESTRICT bilan bog'langan, o'quvchi soft delete — ya'ni API orqali baho faqat
 `DELETE /grades/{id}` bilan yo'qoladi va u yoziladi. Tarix oldingi baholar uchun yo'q (backfill qilinmaydi — muallif noma'lum).
 **Manba:** OWASP Logging Cheat Sheet (kim/nima/qachon, o'zgartirib bo'lmaydigan audit), [EF Core — Saving data / transactions](https://learn.microsoft.com/en-us/ef/core/saving/transactions) (bitta `SaveChanges` = bitta tranzaksiya).
+
+## D13 — F4: o'quvchi hisobot kartasi (2026-10-03)
+**Qaror:** `GET /api/school/students/{id}/report-card` (JSON) va `.../report-card/csv` — Staff, o'quvchining o'zi, bog'langan ota-ona
+(`ProfileAccess`). Baholar semestr bo'yicha (`semester` bo'lmasa — hammasi), davomat `from`/`to` sana oralig'i bo'yicha: semestr bu
+erkin matn ("1", "Semester 1 2025-2026"), sanalarga bog'lanmagan, shuning uchun davomatni semestr bilan filtrlab bo'lmaydi.
+Harf/GPA shkalasi `GradeScale` — admin-web `student-portal.js` dagi bilan aynan bir xil (ota-ona va o'quvchi ekranidagi raqamlar mos
+kelishi uchun); davomat foizi ham o'sha formula (kechikish "kelgan" hisoblanmaydi). CSV: RFC 4180, UTF-8 BOM (Excel kirill/o'zbek
+harflari), formula bilan boshlanadigan katakchalarga `'` (OWASP CSV injection). PDF — brauzerning "Print → PDF" orqali (yangi kutubxona yo'q).
+**Sabab:** RESEARCH "Muhim" 3 (Fedena/ManageBac report card). Server tomonda hisoblash — bitta haqiqat manbai, ota-ona/admin uchun
+bir xil natija; ko'p sahifali UI hisoblarini takrorlamaslik.
+**Manba:** [RFC 4180](https://www.rfc-editor.org/rfc/rfc4180), [OWASP CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection).

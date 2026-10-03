@@ -109,6 +109,7 @@ builder.Services.AddScoped<IGradeService, GradeService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IParentService, ParentService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IReportCardService, ReportCardService>();
 builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddScoped<ProfileAccess>();
 builder.Services.AddHttpContextAccessor();

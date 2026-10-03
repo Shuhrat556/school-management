@@ -102,6 +102,17 @@ Audit trail (every create, score change and delete is recorded with the caller's
 Each entry: `{id, gradeId, studentId, studentName, subjectId, subjectName, semester, action ("Created"|"Updated"|"Deleted"),
 oldScore, newScore, changedByAuthUserId, changedByName, changedByRole, changedAt}`. Re-saving the same score is not recorded.
 
+### Report card — `/students/{id}/report-card`
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/students/{id}/report-card?semester=&from=&to=` | Staff, own, linked parent | Grades of one semester (all when omitted) and attendance between `from` and `to` (`yyyy-MM-dd`, open when omitted; `from` > `to` → 400) |
+| GET | `/students/{id}/report-card/csv?semester=&from=&to=` | same | The same card as a UTF-8 CSV download (`report-card-<name>-<semester>.csv`) |
+
+JSON: `{studentId, studentName, semester, from, to, generatedAt, subjects: [{subjectId, subjectName, semester, classroomName, score,
+letter, gradePoints}], averageScore, gpa, attendance: {total, present, absent, late, rate}}`. Letters A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60, else F;
+grade points on a 4.0 scale (93 → 4.0 … 60 → 0.7), the same scale as the web portal. `gpa` is the mean of grade points, `rate` = present ÷ all
+marks × 100 (late is not present); both null when there is nothing to count. CSV cells starting with `= + - @` get a leading `'`.
+
 ### Parents
 | Method | Path | Auth | Notes |
 |---|---|---|---|
