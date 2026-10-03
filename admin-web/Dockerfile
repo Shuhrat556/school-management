@@ -11,21 +11,22 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build && npm prune --omit=dev
+RUN npm run build
 
+# output: 'standalone' — server.js plus only the node_modules it traces
+# (https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 FROM node:24-alpine
 
 WORKDIR /app
-ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 
 ARG API_URL=http://api-gateway:8080
 ENV API_URL=$API_URL
 
-COPY --from=build /app/package*.json /app/next.config.mjs ./
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/.next ./.next
+COPY --from=build --chown=node:node /app/.next/standalone ./
+COPY --from=build --chown=node:node /app/.next/static ./.next/static
 
 USER node
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

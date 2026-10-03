@@ -53,7 +53,7 @@ admin-web `api/school/admin/sync-profile` bilan sinxronlaydi.
 | .NET paketlar | `dotnet list <sln> package --outdated` / `--vulnerable --include-transitive` | yangilanish yo'q, zaiflik yo'q |
 | .NET testlar | `dotnet test backend/services/{api-gateway/ApiGateway.Tests,auth-service/AuthService/AuthService.Tests,school-service/SchoolService/SchoolService.Tests}` | xUnit + WebApplicationFactory + SQLite |
 | admin-web lint | `cd admin-web && npm run lint` | 0 error, 21 warning |
-| admin-web build | `npm run build` | OK |
+| admin-web build | `npm run build` | OK; `output: 'standalone'` — prod server `node .next/standalone/server.js` (+ `.next/static` nusxasi), `npm start` ham ishlaydi (ogohlantirish bilan) |
 | admin-web audit | `npm audit --omit=dev` | 0 zaiflik; next 16.3.5→16.3.6 patch bor |
 | admin-web testlar | — | **test yo'q** |
 | Flutter | `cd frontend && flutter pub get && flutter analyze && flutter test` | analyze toza, 1 widget test o'tadi |

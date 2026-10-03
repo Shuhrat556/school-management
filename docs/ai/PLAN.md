@@ -59,7 +59,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] B13: repo gigiyenasi — .tools/, .idea/, DotSettings.user, Flutter generated fayllarni untrack qilish
 - [x] admin-web: parallel 401 da bitta refresh (B20) + `npm test` (node:test)
 - [x] admin-web lint: qolgan 21 ogohlantirish ataylab qoldirildi (D9); test fayllari uchun override
-- [ ] admin-web Dockerfile: `output: 'standalone'`
+- [x] admin-web Dockerfile: `output: 'standalone'` (image'da node_modules 493 MB → standalone 56 MB; lokal `node server.js` bilan sinaldi)
 
 ## 8. Yangi funksiyalar (RESEARCH.md: Majburiy/Muhim)
 - [x] F1: Parent portali — ota-ona ↔ o'quvchi bog'lash (`StudentParents` migratsiya), Parent API (D10, ParentPortalTests)
