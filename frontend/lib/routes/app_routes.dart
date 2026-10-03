@@ -41,7 +41,6 @@ import 'package:tamdansers/Screen/Role_TEACHER/student_list_screen.dart';
 import 'package:tamdansers/Screen/Role_TEACHER/teacher_list_screen.dart';
 // Settings
 import 'package:tamdansers/Screen/setting/setting_role_student.dart';
-import 'package:tamdansers/Screen/setting/setting_role_teacher.dart';
 
 // ─── Route name constants ───────────────────────────────────────────────────
 
@@ -115,7 +114,7 @@ class AppRoutes {
 
     // Settings
     studentSettings: (_) => const StudentSettingsScreen(),
-    teacherSettings: (_) => const SettingsScreenTeacher(),
+    teacherSettings: (_) => const TeacherSettingsScreen(),
 
     // Student role
     studentAttendance: (_) => const AttendanceDashboard(),
