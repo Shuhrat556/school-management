@@ -141,5 +141,11 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - F6b: Flutter Sozlamalar → "Security & Login" (avval hech narsa qilmasdi) → `LinkedAccountsScreen` (4 widget test; eba42fd).
 - B30 TUZATILDI: Flutter login ekranlari rolni tekshirmasdi; umumiy `finishSignIn`, 5 ta login widget testi (9e5eeb8). Flutter 15/15.
 
-KEYINGI QADAM: Docker ishlasa — lokal smoke test; bo'lmasa admin-web/Flutter qolgan sahifalarini tahlil (ishlatilmaydigan maydonlar,
-xato holatlari) va school-service qolgan kontrollerlari (Subjects/Departments/Rooms/Materials) validatsiyasi. Ruxsat kelsa — Q2 deploy.
+- Docker yo'q (Q6) — butun stek lokal ishga tushirildi (PostgreSQL + dotnet run + admin-web standalone): toza bazada 10 school va auth
+  migratsiyalari, seed; admin-web orqali uchidan-uchiga 29 tekshiruv o'tdi. Shu jarayonda topildi va tuzatildi:
+  4xx xatolar "Unhandled exception" + stack trace bilan Error darajasida log qilinardi (fcc98c1, ErrorLoggingTests);
+  auth'da ko'p-kolleksiyali Include dekart JOIN (split query, ec80414).
+- `scripts/local-stack.sh` (Docker'siz stek) va `scripts/smoke_test.py` (standart faqat o'qish — deploy'dan keyin prod uchun) (0c9b1c8).
+
+KEYINGI QADAM: school-service qolgan kontrollerlari (Subjects/Departments/Rooms/Materials/Submissions) biznes-validatsiyasini tahlil;
+admin-web sahifalaridagi ishlatilmaydigan maydonlar (masalan davomat formasidagi "Notes" serverga yuborilmaydi). Ruxsat kelsa — Q2 deploy.
