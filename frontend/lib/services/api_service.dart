@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
 import 'api_config.dart';
@@ -24,6 +25,14 @@ class ApiService {
     _initializeDio();
   }
 
+  // A separate instance over a given client (e.g. a fake adapter in tests).
+  @visibleForTesting
+  ApiService.withClient(Dio dio, FlutterSecureStorage storage) {
+    _secureStorage = storage;
+    _dio = dio;
+    _addAuthInterceptor();
+  }
+
   void _initializeDio() {
     _dio = Dio(
       BaseOptions(
@@ -34,7 +43,10 @@ class ApiService {
         responseType: ResponseType.json,
       ),
     );
+    _addAuthInterceptor();
+  }
 
+  void _addAuthInterceptor() {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -44,29 +56,35 @@ class ApiService {
           return handler.next(options);
         },
         onError: (error, handler) async {
-          if (error.response?.statusCode == 401 && _refreshToken != null) {
-            try {
-              final refreshed = await _refreshAccessToken();
-              if (refreshed) {
-                final options = error.requestOptions;
-                options.headers['Authorization'] = 'Bearer $_accessToken';
-                return handler.resolve(await _dio.request(
-                  options.path,
-                  options: Options(
-                    method: options.method,
-                    headers: options.headers,
-                    responseType: options.responseType,
-                    contentType: options.contentType,
-                  ),
-                  data: options.data,
-                  queryParameters: options.queryParameters,
-                ));
-              }
-            } catch (e) {
-              await logout();
-            }
+          final options = error.requestOptions;
+          // Never refresh for the refresh/logout calls themselves or for a request already retried once.
+          final canRefresh = error.response?.statusCode == 401 &&
+              _refreshToken != null &&
+              options.extra['retried'] != true &&
+              options.path != ApiConfig.refreshTokenEndpoint &&
+              options.path != ApiConfig.logoutEndpoint;
+          if (!canRefresh) return handler.next(error);
+
+          // Sent before another request's refresh finished: just retry with the new token.
+          final alreadyRefreshed = options.headers['Authorization'] != 'Bearer $_accessToken';
+          if (!alreadyRefreshed && !await _refreshOnce()) return handler.next(error);
+
+          try {
+            return handler.resolve(await _dio.request(
+              options.path,
+              options: Options(
+                method: options.method,
+                headers: options.headers,
+                responseType: options.responseType,
+                contentType: options.contentType,
+                extra: {...options.extra, 'retried': true},
+              ),
+              data: options.data,
+              queryParameters: options.queryParameters,
+            ));
+          } on DioException catch (e) {
+            return handler.next(e);
           }
-          return handler.next(error);
         },
       ),
     );
@@ -187,6 +205,13 @@ class ApiService {
     return await _secureStorage.read(key: 'entity_id');
   }
 
+  // Parallel 401s wait for one refresh: the server rotates refresh tokens, so a
+  // second call with the same token would fail (BUGS B26).
+  Future<bool>? _refreshInFlight;
+
+  Future<bool> _refreshOnce() =>
+      _refreshInFlight ??= _refreshAccessToken().whenComplete(() => _refreshInFlight = null);
+
   // POST /api/auth/refresh
   Future<bool> _refreshAccessToken() async {
     if (_refreshToken == null) return false;
@@ -204,10 +229,27 @@ class ApiService {
         await _saveTokens(authResponse.token, authResponse.refreshToken);
         return true;
       }
+    } on DioException catch (e) {
+      _logger.warning('Token refresh error: ${e.message}');
+      // Expired or revoked refresh token: the session is over, stop retrying with it.
+      if (e.response?.statusCode == 401) await _clearTokens();
     } catch (e) {
       _logger.warning('Token refresh error: $e');
     }
     return false;
+  }
+
+  Future<void> _clearTokens() async {
+    _accessToken = null;
+    _refreshToken = null;
+    await Future.wait([
+      _secureStorage.delete(key: 'access_token'),
+      _secureStorage.delete(key: 'refresh_token'),
+      _secureStorage.delete(key: 'user_role'),
+      _secureStorage.delete(key: 'user_name'),
+      _secureStorage.delete(key: 'user_email'),
+      _secureStorage.delete(key: 'entity_id'),
+    ]);
   }
 
   // POST /api/auth/logout
@@ -222,16 +264,7 @@ class ApiService {
     } catch (e) {
       _logger.warning('Logout error: $e');
     } finally {
-      _accessToken = null;
-      _refreshToken = null;
-      await Future.wait([
-        _secureStorage.delete(key: 'access_token'),
-        _secureStorage.delete(key: 'refresh_token'),
-        _secureStorage.delete(key: 'user_role'),
-        _secureStorage.delete(key: 'user_name'),
-        _secureStorage.delete(key: 'user_email'),
-        _secureStorage.delete(key: 'entity_id'),
-      ]);
+      await _clearTokens();
     }
   }
 

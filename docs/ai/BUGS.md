@@ -141,3 +141,11 @@ mumkin edi; mavjud bo'lmagan o'qituvchi FK xatosiga olib kelardi.
 alohida tanlatardi. Mavjud bo'lmagan o'quvchi id → FK xatosi.
 · TUZATILDI: yangi belgi faqat sinfda faol o'quvchiga (aks holda 400 ismlar bilan, hech narsa saqlanmaydi), mavjud belgini tuzatish
 mumkin; admin-web formasida avval sinf, keyin uning ro'yxatidan o'quvchi (AttendanceTests: avval 2/4 yiqildi).
+
+### B26 [YUQORI] Flutter: muddati o'tgan refresh token cheksiz refresh zanjirini boshlaydi
+`frontend/lib/services/api_service.dart` — 401 interceptor `/api/auth/refresh` ning o'z 401 javobini ham ushlab, yana refresh chaqirardi:
+zanjir faqat auth per-IP limiti (120/daq) 429 berganda to'xtardi — butun maktab NAT IP'si uchun refresh bir daqiqaga bloklanardi.
+Qayta yuborilgan so'rov yana 401 olsa ham cheksiz takrorlanardi; parallel 401'lar bir xil (rotatsiya qilinadigan) tokenni bir necha marta
+sarflardi (B20 ning mobil nusxasi); qayta yuborishdagi har qanday xato (masalan 500) foydalanuvchini tizimdan chiqarardi.
+· TUZATILDI: refresh/logout va qayta yuborilgan so'rovlar refresh qilinmaydi, bitta umumiy in-flight refresh, refresh 401 → tokenlar tozalanadi,
+retry xatosi chaqiruvchiga qaytadi (test/api_service_refresh_test.dart: avval 3/3 yiqildi — 51 ta refresh, 3 ta refresh, cheksiz retry).
