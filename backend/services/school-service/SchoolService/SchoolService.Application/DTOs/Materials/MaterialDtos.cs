@@ -20,6 +20,9 @@ public class MaterialCreateDto
     public string? Url { get; set; }
 
     public MaterialType Type { get; set; }
+
+    /// <summary>Optional deadline for an assignment (UTC).</summary>
+    public DateTime? DueAt { get; set; }
 }
 
 public class MaterialUpdateDto
@@ -37,6 +40,8 @@ public class MaterialUpdateDto
 
     public MaterialType Type { get; set; }
 
+    public DateTime? DueAt { get; set; }
+
     public bool IsActive { get; set; }
 }
 
@@ -48,6 +53,9 @@ public class MaterialResponseDto
     public string? Description { get; set; }
     public string? Url { get; set; }
     public MaterialType Type { get; set; }
+    public DateTime? DueAt { get; set; }
+    /// <summary>Students who handed in work (each counted once).</summary>
+    public int SubmissionCount { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
 }

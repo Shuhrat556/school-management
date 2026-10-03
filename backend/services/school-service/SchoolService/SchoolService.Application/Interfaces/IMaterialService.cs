@@ -4,7 +4,8 @@ namespace SchoolService.Application.Interfaces;
 
 public interface IMaterialService
 {
-    Task<List<MaterialResponseDto>> GetMaterialsByClassroomAsync(Guid classroomId);
+    // Deleted materials never; inactive ones only when includeInactive (staff).
+    Task<List<MaterialResponseDto>> GetMaterialsByClassroomAsync(Guid classroomId, bool includeInactive);
     Task<MaterialResponseDto> CreateMaterialAsync(MaterialCreateDto dto);
     Task<bool> UpdateMaterialAsync(Guid id, MaterialUpdateDto dto);
     Task<bool> DeleteMaterialAsync(Guid id);

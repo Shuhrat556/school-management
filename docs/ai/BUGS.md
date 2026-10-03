@@ -188,3 +188,11 @@ qattiq yozilgan namunalar ("Grade 10 - Biology"). O'qituvchi ota-onalarga xabar 
 · TUZATILDI: o'qituvchining sinflari API'dan, darslar — tanlangan sinf materiallaridan (matnga "Lesson: ..." qo'shiladi), yuborish —
 `POST /api/announcements` (darhol publish → o'quvchi va ota-onalarga bildirishnoma), xato bo'lsa sabab ko'rsatiladi. Fayl biriktirish backend'da yo'q —
 muvaffaqiyat xabari buni ochiq aytadi (test/announce_to_parents_test.dart).
+
+### B34 [YUQORI] Flutter: uy vazifasi ekranlari to'liq soxta
+`homework_role.dart` (o'qituvchi) — qattiq yozilgan ro'yxat, "assign" faqat mahalliy ro'yxatga qo'shadi; `homework_student_role.dart` (o'quvchi) —
+qattiq yozilgan topshiriqlar, "submit" faqat mahalliy belgi. Backend materiallar (Assignment) va topshiriqlarni qo'llaydi. · JARAYONDA (F7, D16)
+
+### B35 [O'RTA] Materialni o'chirish o'quvchilarning topshiriqlari va baholarini kaskad o'chirardi
+`MaterialRepository.DeleteAsync` → `Remove()`, `Submissions.MaterialId` FK = CASCADE; ro'yxat o'chirilgan/nofaol materiallarni ham qaytarardi.
+· TUZATILDI: soft delete (`DeletedAt` + nofaol), ro'yxatda o'chirilganlar yo'q, nofaol — faqat Staff'ga; o'chirilgan materialga topshiriq 404 (HomeworkTests).

@@ -50,7 +50,7 @@ TeacherDepartments TeacherSubjects├─* Schedules
 | `Attendances` | One mark per student per date | `StudentId`, `ClassroomId`, `ScheduleId`, `Date`, `Status` (1 Present, 2 Absent, 3 Late) |
 | `StudentGrades` | Score per student, subject, semester | `Score` (0–100), `Semester`, `GradingMethod`, `ClassroomId` |
 | `Announcements` | Teacher announcement, optional classroom | `Title`, `Body`, `PublishedAt` |
-| `Materials` | Learning material / assignment in a classroom | `Title`, `Url`, `Type` |
+| `Materials` | Learning material / assignment in a classroom | `Title`, `Url`, `Type` (1 Slide, 2 Assignment, 3 Link, 4 Reference), `DueAt` (assignments, nullable), `IsActive`, `DeletedAt` (soft delete keeps submissions) |
 | `Submissions` | Student hand-in for a material | `SubmissionUrl`, `SubmittedAt`, `Grade`, `Feedback` |
 | `Notifications` | In-app messages about a student | `StudentId`, `ParentAuthUserId` (null = for the student), `Type` (1 Grade, 2 Attendance, 3 Announcement), `Title`, `Body`, `ReadAt` |
 | `GradeChanges` | Append-only grade audit trail, no foreign keys (outlives the grade) | `GradeId`, `StudentId`, `SubjectId`, `Semester`, `Action` (1 Created, 2 Updated, 3 Deleted), `OldScore`, `NewScore`, `ChangedByAuthUserId`, `ChangedByName`, `ChangedByRole`, `ChangedAt`; indexes on `GradeId` and `(StudentId, ChangedAt)` |

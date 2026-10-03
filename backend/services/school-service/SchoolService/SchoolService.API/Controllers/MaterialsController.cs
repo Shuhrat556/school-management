@@ -26,7 +26,7 @@ public class MaterialsController : ControllerBase
     {
         if (!await _access.CanAccessClassroomAsync(User, classroomId))
             return Forbid();
-        return await _materialService.GetMaterialsByClassroomAsync(classroomId);
+        return await _materialService.GetMaterialsByClassroomAsync(classroomId, includeInactive: User.IsStaff());
     }
 
     [HttpPost]

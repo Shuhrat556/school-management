@@ -22,7 +22,7 @@ public class SubmissionService : ISubmissionService
     public async Task<SubmissionResponseDto> SubmitAsync(Guid studentId, SubmissionCreateDto dto)
     {
         var material = await _materialRepository.GetByIdAsync(dto.MaterialId);
-        if (material == null || !material.IsActive)
+        if (material == null || !material.IsActive || material.IsDeleted)
             throw new NotFoundException("Material", dto.MaterialId);
 
         // Only students in the class hand in its work; to anyone else the material does not exist.

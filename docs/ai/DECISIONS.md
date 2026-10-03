@@ -155,3 +155,12 @@ IP manzilni qabul qilmaydi, shuning uchun veb-UI domen/TLS (QUESTIONS Q3) dan ke
 paketlari bor — ilova profil ekraniga ulash keyingi qadam.
 **Manba:** [Google — Verify the Google ID token](https://developers.google.com/identity/sign-in/web/backend-auth),
 [Meta — debug_token](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/debugging), OWASP ASVS V2 (account linking).
+
+## D16 — F7: uy vazifalari (2026-10-03)
+**Qaror:** alohida "Homework" jadvali yaratilmaydi — uy vazifasi = `Material` (`Type = Assignment`) + yangi ixtiyoriy `DueAt` (UTC, migratsiya
+`AddMaterialDueDate`, Down bilan). Javobda `submissionCount` (topshirgan o'quvchilar, har biri bir marta). Topshirish — mavjud `POST /api/submissions`
+(havola yoki fayl nomi; fayl yuklash xizmati yo'q). Flutter: o'qituvchi ekrani o'z sinflarining topshiriqlarini ko'rsatadi va yaratadi (holat: muddat va
+topshirganlar sonidan — Active/Overdue/Completed; "priority" saqlanmaydi, muddat yaqinligidan hisoblanadi); o'quvchi ekrani o'z sinflari topshiriqlari va
+o'z topshiriqlaridan.
+**Sabab:** ikkala ekran soxta edi (B34); backend allaqachon material/submission oqimiga ega (B9). Eng kichik sxema o'zgarishi bilan haqiqiy oqim.
+Fayl yuklash (S3/disk) — tashqi xizmat yoki server diski → Kelajakda.

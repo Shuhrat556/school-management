@@ -16,7 +16,9 @@ public class MaterialRepository : IMaterialRepository
 
     public async Task<List<Material>> GetByClassroomAsync(Guid classroomId)
         => await _context.Materials
-            .Where(m => m.ClassroomId == classroomId)
+            .AsNoTracking()
+            .Include(m => m.Submissions)
+            .Where(m => m.ClassroomId == classroomId && m.DeletedAt == null)
             .OrderByDescending(m => m.CreatedAt)
             .ToListAsync();
 
