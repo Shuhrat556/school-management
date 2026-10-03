@@ -16,6 +16,7 @@ import {
   ClipboardCheck,
   FileText,
   CalendarClock,
+  MessageSquare,
   GraduationCap,
   History,
   LayoutDashboard,
@@ -75,6 +76,7 @@ const teacherSections = [
       { href: '/teacher/attendance', label: 'Attendance', icon: ClipboardCheck },
       { href: '/teacher/grades', label: 'Grades', icon: BarChart3 },
       { href: '/leave-requests', label: 'Leave requests', icon: CalendarClock },
+      { href: '/messages', label: 'Messages', icon: MessageSquare },
     ],
   },
 ];
@@ -85,6 +87,7 @@ const studentSections = [
     items: [
       { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/notifications', label: 'Notifications', icon: Bell, showUnread: true },
+      { href: '/messages', label: 'Messages', icon: MessageSquare },
     ],
   },
   {
@@ -114,6 +117,7 @@ const parentSections = [
     items: [
       { href: '/parent/dashboard', label: 'My children', icon: Users },
       { href: '/parent/leave-requests', label: 'Leave requests', icon: CalendarClock },
+      { href: '/messages', label: 'Messages', icon: MessageSquare },
       { href: '/notifications', label: 'Notifications', icon: Bell, showUnread: true },
     ],
   },

@@ -72,7 +72,7 @@ Har vazifa ~15-20 daqiqalik bo'lak. Ustuvorlik: 1) kritik xato/xavfsizlik → 2)
 - [x] F6: Google/Facebook akkauntini bog'lash — backend `GET/POST/DELETE /api/auth/logins` (D15, AccountLinkTests)
 - [x] F6b: Flutter — Sozlamalar → Security & Login (`LinkedAccountsScreen`, widget testlar)
 - [ ] F6c: admin-web bog'lash/Google kirish tugmalari — domen/TLS (Q3) dan keyin
-- [~] F9: O'qituvchi ↔ ota-ona/o'quvchi xabarlari (D18) — backend tayyor (MessagingTests); Flutter ikkala ilova va web keyingi
+- [x] F9: O'qituvchi ↔ ota-ona/o'quvchi xabarlari (D18) — backend (MessagingTests), Flutter ikkala ilova, admin-web `/messages`; smoke 37/37
 - [x] F8: Dars qoldirish so'rovlari (B38, D17) — backend, Flutter o'quvchi ekrani, admin-web xodimlar sahifasi `/leave-requests` va ota-ona `/parent/leave-requests`
 - [x] F7: Uy vazifalari (B34) — backend `Material.DueAt` + `SubmissionCount` (D16), Flutter o'qituvchi va o'quvchi ekranlari API'ga
 

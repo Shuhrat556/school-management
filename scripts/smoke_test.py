@@ -121,6 +121,12 @@ def read_only_checks():
     status, _, _ = call("GET", "/api/school/leave-requests?status=Pending", ctx["teacher"])
     check("teacher leave request queue", status == 200, status)
 
+    status, _, _ = call("GET", "/api/school/messages/conversations", ctx["student"])
+    check("student inbox", status == 200, status)
+    status, contacts, _ = call("GET", "/api/school/messages/contacts", ctx["teacher"])
+    check("teacher message contacts", status == 200, status)
+    ctx["teacher_contacts"] = contacts if status == 200 else []
+
     status, logins, _ = call("GET", "/api/auth/logins", ctx["student"])
     check("linked sign-in accounts", status == 200 and "hasPassword" in logins, f"{status} {logins}")
     status, _, _ = call("GET", f"/api/auth/user/{ctx['teacher_user']}", ctx["student"])
@@ -153,6 +159,13 @@ def write_checks(ctx):
         if check("student files a leave request", status == 201, f"{status} {leave}"):
             status, decided, _ = call("POST", f"/api/school/leave-requests/{leave['id']}/approve", ctx["teacher"], {"note": "ok"})
             check("teacher approves it", status == 200 and decided["status"] == "Approved", f"{status} {decided}")
+
+    student_contact = next((c for c in ctx.get("teacher_contacts", []) if c["kind"] == "Student"), None)
+    if student_contact:
+        status, conv, _ = call("POST", "/api/school/messages/conversations", ctx["teacher"], {"studentId": student_contact["studentId"]})
+        if check("teacher starts a conversation", status == 200, f"{status} {conv}"):
+            status, _, _ = call("POST", f"/api/school/messages/conversations/{conv['id']}/messages", ctx["teacher"], {"body": "Smoke test hello"})
+            check("teacher sends a message", status == 201, status)
 
     classroom = ctx.get("classroom")
     if sid and classroom:

@@ -490,6 +490,44 @@ export async function getMyLeaveRequests() {
   return res.ok ? res.json() : null;
 }
 
+// Messages between teachers and students or parents (D18)
+export async function getMessageContacts() {
+  const res = await request('/api/school/messages/contacts');
+  return res.ok ? res.json() : null;
+}
+
+export async function getConversations() {
+  const res = await request('/api/school/messages/conversations');
+  return res.ok ? res.json() : null;
+}
+
+export async function startConversation(contact) {
+  return request('/api/school/messages/conversations', {
+    method: 'POST',
+    body: JSON.stringify({
+      teacherId: contact.teacherId ?? null,
+      studentId: contact.studentId ?? null,
+      parentAuthUserId: contact.parentAuthUserId ?? null,
+    }),
+  });
+}
+
+export async function getConversationMessages(id) {
+  const res = await request(`/api/school/messages/conversations/${id}/messages`);
+  return res.ok ? res.json() : null;
+}
+
+export async function sendConversationMessage(id, body) {
+  return request(`/api/school/messages/conversations/${id}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
+  });
+}
+
+export async function markConversationRead(id) {
+  return request(`/api/school/messages/conversations/${id}/read`, { method: 'POST' });
+}
+
 export async function createLeaveRequest(data) {
   return request('/api/school/leave-requests', {
     method: 'POST',
