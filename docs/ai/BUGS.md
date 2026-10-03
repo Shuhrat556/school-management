@@ -135,3 +135,9 @@ qayta enroll har doim 409 "already enrolled" berardi (`Reenroll()` metodi bor ed
 mumkin edi; mavjud bo'lmagan o'qituvchi FK xatosiga olib kelardi.
 · TUZATILDI: sinf va xona (Classroom/Lab turlari; Gym/Auditorium umumiy) to'qnashuvi → 409, noma'lum o'qituvchi → 404, end ≤ start → 400
 (ScheduleConflictTests: avval 4/8 yiqildi). Production'da (SELECT, 2026-10-03) 12 ta dars, hech qanday to'qnashuv yo'q.
+
+### B25 [O'RTA] Davomat sinfda bo'lmagan o'quvchiga yozilardi
+`AttendanceService.BulkMarkAsync` o'quvchi sinfga yozilganini tekshirmasdi; admin-web davomat formasi istalgan o'quvchi + istalgan sinfni
+alohida tanlatardi. Mavjud bo'lmagan o'quvchi id → FK xatosi.
+· TUZATILDI: yangi belgi faqat sinfda faol o'quvchiga (aks holda 400 ismlar bilan, hech narsa saqlanmaydi), mavjud belgini tuzatish
+mumkin; admin-web formasida avval sinf, keyin uning ro'yxatidan o'quvchi (AttendanceTests: avval 2/4 yiqildi).

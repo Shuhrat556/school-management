@@ -91,7 +91,7 @@ Back-to-back sessions (one ends when the next starts) are fine. `endTime` ≤ `s
 |---|---|---|---|
 | GET | `/attendance?classroomId=&date=` | Staff | Classroom sheet for a date |
 | GET | `/attendance/{studentId}/history` | Staff, own | One student's history |
-| POST | `/attendance/mark` | Staff | Bulk mark a classroom for a date; status `Present=1`, `Absent=2`, `Late=3` |
+| POST | `/attendance/mark` | Staff | Bulk mark a classroom for a date; status `Present=1`, `Absent=2`, `Late=3`. A new mark needs an active enrolment in the classroom (otherwise 400 naming the students, nothing saved); an existing mark can still be corrected after the student left |
 
 ### Grades — `/grades`
 GET `?studentId=&subjectId=&semester=`, GET `{id}` — Staff; a student gets only their own grades

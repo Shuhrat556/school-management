@@ -65,6 +65,11 @@ public class NaturalKeyTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     public async Task Duplicate_rows_in_one_attendance_request_keep_the_last_status()
     {
         var (student, _, classroom) = await SeedAsync();
+        await factory.WithDbAsync(async db =>
+        {
+            db.StudentClassrooms.Add(new StudentClassroom(student.Id, classroom.Id));
+            await db.SaveChangesAsync();
+        });
 
         var response = await factory.CreateClientAs("Teacher").PostAsJsonAsync("/api/school/attendance/mark", new
         {
