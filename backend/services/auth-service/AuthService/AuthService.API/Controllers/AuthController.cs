@@ -241,17 +241,20 @@ public IActionResult ValidateToken([FromBody] ValidateTokenRequest request)
     }
 }
 
-// Returns user info for a given ID - other microservices call this to look up users
+// Returns user info for a given ID: the caller's own account, or any account for an Admin
 [Authorize]
 [HttpGet("user/{userId}")]
 public async Task<IActionResult> GetUser(string userId)
 {
-    if (string.IsNullOrEmpty(userId))
-        return BadRequest(new { error = "UserId is required" });
+    if (!Guid.TryParse(userId, out var id))
+        return BadRequest(new { error = "UserId must be a GUID" });
+
+    if (CallerId() != id && !User.IsInRole(UserRole.Admin.ToString()))
+        return Forbid();
 
     try
     {
-        var user = await _userRepository.GetByIdAsync(Guid.Parse(userId));
+        var user = await _userRepository.GetByIdAsync(id);
         
         if (user == null)
             return NotFound(new { error = "User not found" });

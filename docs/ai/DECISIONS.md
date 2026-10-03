@@ -154,4 +154,4 @@ bog'lash. **UI:** admin-web login sahifasidagi Google/Facebook tugmalari hozirch
 IP manzilni qabul qilmaydi, shuning uchun veb-UI domen/TLS (QUESTIONS Q3) dan keyin qilinadi. Flutter `google_sign_in`/`flutter_facebook_auth`
 paketlari bor — ilova profil ekraniga ulash keyingi qadam.
 **Manba:** [Google — Verify the Google ID token](https://developers.google.com/identity/sign-in/web/backend-auth),
-[Meta — debug_token](https://developers.facebook.com/docs/facebook-login/guides/%20access-tokens/debugging), OWASP ASVS V2 (account linking).
+[Meta — debug_token](https://developers.facebook.com/docs/facebook-login/guides/access-tokens/debugging), OWASP ASVS V2 (account linking).

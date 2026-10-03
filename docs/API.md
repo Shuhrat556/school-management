@@ -32,7 +32,7 @@ Error body (both services):
 | POST | `/logins/{google\|facebook}` | user | `{token}` (Google ID token / Facebook access token): link it to the caller. 409 `EXTERNAL_LOGIN_IN_USE` (linked to someone else), `PROVIDER_ALREADY_LINKED` (another account of that provider); same identity again → 200 |
 | DELETE | `/logins/{google\|facebook}` | user | 204; 404 if not linked; 409 `LAST_SIGN_IN_METHOD` when it is the only way to sign in (no password) |
 | POST | `/validate` | anon | `{token}` → `{valid, userId, email}` (service-to-service) |
-| GET | `/user/{userId}` | user | Basic user info |
+| GET | `/user/{userId}` | own, Admin | Basic user info (other accounts → 403) |
 | GET | `/admin/users` | Admin | All accounts |
 | POST | `/admin/users` | Admin | Create account with role (email pre-verified) |
 | DELETE | `/admin/users/{id}` | Admin | Delete account |

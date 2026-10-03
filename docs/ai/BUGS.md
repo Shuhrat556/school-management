@@ -160,3 +160,7 @@ retry xatosi chaqiruvchiga qaytadi (test/api_service_refresh_test.dart: avval 3/
 (muddati o'tgan token bilan oddiy kirish urinishi "server xatosi" bo'lib ko'rinardi va log'ni ifloslantirardi). Facebook buzilgan tokenga
 HTTP 400 qaytaradi → 502. · TUZATILDI: `ExternalTokenException` → 401 `INVALID_EXTERNAL_TOKEN`; sozlanmagan provayder → `ConfigurationException`
 (500 `CONFIGURATION_ERROR`); Facebook javobi yo'q → 502 (OAuthTokenErrorTests: avval 4/4 yiqildi).
+
+### B29 [PAST] Istalgan foydalanuvchi boshqa akkauntning email va rolini o'qiy olardi
+`GET /api/auth/user/{userId}` (gateway orqali ochiq) faqat `[Authorize]` edi; mijozlar uni ishlatmaydi (faqat ichki, ishlatilmaydigan
+school-service `ValidationController`). · TUZATILDI: faqat o'zi yoki Admin, noto'g'ri id → 400 (UserLookupTests: avval yiqildi).
