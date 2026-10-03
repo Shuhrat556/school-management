@@ -176,3 +176,8 @@ ota-ona o'quvchi dashboard'iga tushardi (ma'lumotni server himoya qiladi, lekin 
 yuborishi mumkin edi; `Url`/`SubmissionUrl` istalgan sxemani (javascript:, data:) qabul qilardi — admin-web'da React bloklaydi, lekin boshqa
 mijozlar uchun xavfli. · TUZATILDI: materiallar — Staff, sinfdagi o'quvchi, uning ota-onasi (`ProfileAccess.CanAccessClassroomAsync`);
 a'zo bo'lmagan o'quvchiga material 404; `[SafeLink]` — faqat http(s) yoki oddiy fayl nomi (ClassroomContentAccessTests: avval 5 tasi yiqildi).
+
+### B32 [PAST] O'quvchi va ota-ona barcha sinflarning e'lonlarini ko'rardi
+`GET /api/announcements` classroomId'siz barcha sinf e'lonlarini, boshqa sinf id'si bilan o'sha sinfnikini qaytarardi.
+· TUZATILDI: Staff'dan boshqalar — umumiy e'lonlar + o'z (farzandi) sinflari; boshqa sinf so'rovi 403, uning e'loni 404
+(`ProfileAccess.GetVisibleClassroomIdsAsync`, materiallar bilan umumiy; AnnouncementVisibilityTests: avval 4/5 yiqildi).

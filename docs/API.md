@@ -151,7 +151,7 @@ POST `/admin/sync-profile` — Admin. Creates/updates the school profile linked 
 ### Outside `/api/school`
 | Base | Endpoints | Auth |
 |---|---|---|
-| `/api/announcements` | GET (`?classroomId=`), GET `{id}` — user (non-staff see published only); POST — Staff (a teacher is always the author), PUT `{id}`, POST `{id}/publish`, POST `{id}/unpublish`, DELETE `{id}` — Admin or the authoring teacher | |
+| `/api/announcements` | GET (`?classroomId=`), GET `{id}` — user; students and parents see published school-wide announcements and those of their (children's) classes only — another class's `classroomId` → 403, its announcement → 404; POST — Staff (a teacher is always the author), PUT `{id}`, POST `{id}/publish`, POST `{id}/unpublish`, DELETE `{id}` — Admin or the authoring teacher | |
 | `/api/materials` | GET `classroom/{classroomId}` — Staff, students in the class, their linked parents (else 403); POST, PUT `{id}`, DELETE `{id}` — Staff | `url`: http(s) link or plain reference, other schemes → 400 |
 | `/api/submissions` | GET `material/{materialId}`, PATCH `{id}/grade` (`{grade, feedback}`) — Staff; GET `student/{studentId}` — Staff, own; POST (`{materialId, submissionUrl}`, student taken from the token) — Student; POST `{studentId}/submit` — Student, own id only (legacy) | unknown/inactive material, or a class the student is not in → 404; `submissionUrl`: http(s) link or plain file reference (no other schemes) |
 | `/api/servicehealth` | GET `dashboard`, `service/{name}`, `discover/{name}`, `ping`, `test-auth-connection` | Admin |

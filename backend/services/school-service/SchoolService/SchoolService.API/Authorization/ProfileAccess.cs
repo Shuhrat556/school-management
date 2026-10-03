@@ -53,23 +53,30 @@ public class ProfileAccess
         return (await GetOwnStudentAsync(user))?.Id == studentId;
     }
 
-    // Staff see every class; a student sees the classes they are in, a parent those of their children.
-    public async Task<bool> CanAccessClassroomAsync(ClaimsPrincipal user, Guid classroomId)
+    // The classes whose content (materials, class announcements) the caller may see: null means
+    // every class (staff); a student gets the classes they are in, a parent those of their children.
+    public async Task<HashSet<Guid>?> GetVisibleClassroomIdsAsync(ClaimsPrincipal user)
     {
         if (user.IsStaff())
-            return true;
+            return null;
 
+        var studentIds = new List<Guid>();
         if (user.IsInRole(Roles.Parent))
         {
-            var parentId = user.GetAuthUserId();
-            if (parentId == null) return false;
-            foreach (var child in await _parents.GetChildrenAsync(parentId.Value))
-                if (await _classrooms.IsActiveMemberAsync(classroomId, child.Id))
-                    return true;
-            return false;
+            if (user.GetAuthUserId() is { } parentId)
+                studentIds.AddRange((await _parents.GetChildrenAsync(parentId)).Select(c => c.Id));
+        }
+        else if (await GetOwnStudentAsync(user) is { } own)
+        {
+            studentIds.Add(own.Id);
         }
 
-        var own = await GetOwnStudentAsync(user);
-        return own != null && await _classrooms.IsActiveMemberAsync(classroomId, own.Id);
+        var visible = new HashSet<Guid>();
+        foreach (var studentId in studentIds)
+            visible.UnionWith((await _classrooms.GetByStudentIdAsync(studentId)).Select(c => c.Id));
+        return visible;
     }
+
+    public async Task<bool> CanAccessClassroomAsync(ClaimsPrincipal user, Guid classroomId)
+        => await GetVisibleClassroomIdsAsync(user) is not { } visible || visible.Contains(classroomId);
 }

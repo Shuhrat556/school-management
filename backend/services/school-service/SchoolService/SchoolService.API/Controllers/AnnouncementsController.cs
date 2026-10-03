@@ -34,17 +34,29 @@ public class AnnouncementsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] Guid? classroomId)
     {
+        var visible = await _access.GetVisibleClassroomIdsAsync(User); // null: staff see everything
+        if (classroomId.HasValue && visible != null && !visible.Contains(classroomId.Value))
+            return Forbid();
+
         var result = await _service.GetAllAsync(classroomId);
-        // Drafts are for staff only
-        return Ok(User.IsStaff() ? result : result.Where(a => a.IsPublished).ToList());
+        if (visible == null)
+            return Ok(result);
+
+        // Others get published school-wide announcements and those of their own classes
+        return Ok(result.Where(a => a.IsPublished && (a.ClassroomId == null || visible.Contains(a.ClassroomId.Value))).ToList());
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _service.GetByIdAsync(id);
-        if (!result.IsPublished && !User.IsStaff())
-            return NotFound();
+        if (!User.IsStaff())
+        {
+            var hidden = !result.IsPublished
+                || (result.ClassroomId is { } classroomId && !await _access.CanAccessClassroomAsync(User, classroomId));
+            if (hidden)
+                return NotFound();
+        }
         return Ok(result);
     }
 
