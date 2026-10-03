@@ -76,7 +76,8 @@ GET list, GET `{id}` — user. POST, POST `{id}/assign-teacher` (`{teacherId}`) 
 PUT `{id}`, DELETE `{id}`, DELETE `{id}/remove-teacher/{teacherId}` — Admin.
 
 ### Classrooms (course sections) — `/classrooms`
-GET list, GET `{id}` (with students) — user. POST, PUT `{id}`, POST `{id}/enroll` (`{studentId}`),
+GET list, GET `{id}` (with students) — user: students and parents get only their own (children's) classes (other ids → 403) and the
+roster without classmates' email, phone, gender and date of birth; staff see everything. POST, PUT `{id}`, POST `{id}/enroll` (`{studentId}`),
 DELETE `{id}/unenroll/{studentId}` — Staff. DELETE `{id}` — Admin.
 `students` in `GET {id}` is the current roster (active enrolments only). Unenrolling marks the enrolment `Dropped` (404 if the
 student is not in the class); enrolling a student who left reactivates it, enrolling an active student again → 409.

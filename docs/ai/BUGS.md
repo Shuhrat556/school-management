@@ -241,3 +241,9 @@ qattiq yozilgan suhbatlar (ota-onalar, o'quvchilar, hamkasblar) va "yuborilgan" 
 O'qituvchi ota-onaga yozdim deb o'ylashi mumkin edi. · TUZATILDI: tab'lar "hali mavjud emas" deydi va ishlaydigan kanallarga yo'naltiradi
 (o'qituvchi — e'lon yuborish, bildirishnomalar; o'quvchi — bildirishnomalar, dars qoldirish so'rovi); soxta chat kodi (~1500 qator) olib tashlandi
 (git tarixida qoladi). Haqiqiy chat — PLAN F9 (test/messages_tab_test.dart).
+
+### B43 [YUQORI] O'quvchi istalgan sinf ro'yxatini sinfdoshlarning shaxsiy ma'lumotlari bilan olardi
+`GET /api/school/classrooms/{id}` faqat `[Authorize]` edi: har qanday o'quvchi (yoki ota-ona) istalgan sinfni ochib, o'quvchilarning email, telefon, jinsi va
+tug'ilgan sanasini olardi (voyaga yetmaganlar PII); `GET /classrooms` butun maktab sinflarini berardi. admin-web "maxfiylik uchun" faqat ismlarni ko'rsatardi,
+lekin API hammasini yuborardi. · TUZATILDI: Staff'dan boshqalar faqat o'z (farzandi) sinflarini ko'radi (boshqasi 403), ro'yxatda faqat ism va holat
+(ClassroomPrivacyTests: avval 4/5 yiqildi).

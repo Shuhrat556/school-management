@@ -13,10 +13,12 @@ namespace SchoolService.API.Controllers;
 public class ClassroomsController : ControllerBase
 {
     private readonly IClassroomService _classroomService;
+    private readonly ProfileAccess _access;
 
-    public ClassroomsController(IClassroomService classroomService)
+    public ClassroomsController(IClassroomService classroomService, ProfileAccess access)
     {
         _classroomService = classroomService;
+        _access = access;
     }
 
     [HttpGet]
@@ -24,6 +26,10 @@ public class ClassroomsController : ControllerBase
         [FromQuery] int? page,
         [FromQuery] int? pageSize)
     {
+        // Students and parents see their own (children's) classes only
+        if (await _access.GetVisibleClassroomIdsAsync(User) is { } visible)
+            return Ok((await _classroomService.GetAllAsync()).Where(c => visible.Contains(c.Id)).ToList());
+
         if (page.HasValue || pageSize.HasValue)
         {
             var paged = await _classroomService.GetAllAsync(page ?? 1, pageSize ?? 20);
@@ -36,7 +42,21 @@ public class ClassroomsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ClassroomDetailResponseDto>> GetById(Guid id)
     {
+        if (!await _access.CanAccessClassroomAsync(User, id))
+            return Forbid();
+
         var classroom = await _classroomService.GetByIdAsync(id);
+        if (!User.IsStaff())
+        {
+            // Classmates see each other's names only, never contact details or birthdays
+            foreach (var student in classroom.Students)
+            {
+                student.Email = null;
+                student.Phone = null;
+                student.Gender = null;
+                student.DateOfBirth = null;
+            }
+        }
         return Ok(classroom);
     }
 
