@@ -35,11 +35,11 @@ public class NaturalKeyTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     public async Task Posting_a_grade_again_updates_the_existing_one()
     {
         var (student, subject, _) = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
+        var staff = factory.CreateClientAs("Admin");
 
-        var first = await teacher.PostAsJsonAsync("/api/school/grades",
+        var first = await staff.PostAsJsonAsync("/api/school/grades",
             new { studentId = student.Id, subjectId = subject.Id, score = 70, semester = "1" });
-        var second = await teacher.PostAsJsonAsync("/api/school/grades",
+        var second = await staff.PostAsJsonAsync("/api/school/grades",
             new { studentId = student.Id, subjectId = subject.Id, score = 85, semester = "1" });
 
         Assert.Equal(HttpStatusCode.Created, first.StatusCode);
@@ -53,10 +53,10 @@ public class NaturalKeyTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     public async Task Another_semester_is_a_separate_grade()
     {
         var (student, subject, _) = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
+        var staff = factory.CreateClientAs("Admin");
 
-        await teacher.PostAsJsonAsync("/api/school/grades", new { studentId = student.Id, subjectId = subject.Id, score = 70, semester = "1" });
-        await teacher.PostAsJsonAsync("/api/school/grades", new { studentId = student.Id, subjectId = subject.Id, score = 90, semester = "2" });
+        await staff.PostAsJsonAsync("/api/school/grades", new { studentId = student.Id, subjectId = subject.Id, score = 70, semester = "1" });
+        await staff.PostAsJsonAsync("/api/school/grades", new { studentId = student.Id, subjectId = subject.Id, score = 90, semester = "2" });
 
         Assert.Equal(2, await factory.WithDbAsync(db => db.StudentGrades.CountAsync(g => g.StudentId == student.Id)));
     }
@@ -71,7 +71,7 @@ public class NaturalKeyTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
             await db.SaveChangesAsync();
         });
 
-        var response = await factory.CreateClientAs("Teacher").PostAsJsonAsync("/api/school/attendance/mark", new
+        var response = await factory.CreateClientAs("Admin").PostAsJsonAsync("/api/school/attendance/mark", new
         {
             classroomId = classroom.Id,
             date = "2026-09-25",

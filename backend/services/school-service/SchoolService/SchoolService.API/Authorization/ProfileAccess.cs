@@ -14,13 +14,31 @@ public class ProfileAccess
     private readonly ITeacherService _teachers;
     private readonly IParentService _parents;
     private readonly IClassroomService _classrooms;
+    private readonly ITeachingRepository _teaching;
 
-    public ProfileAccess(IStudentService students, ITeacherService teachers, IParentService parents, IClassroomService classrooms)
+    public ProfileAccess(IStudentService students, ITeacherService teachers, IParentService parents, IClassroomService classrooms,
+        ITeachingRepository teaching)
     {
         _students = students;
         _teachers = teachers;
         _parents = parents;
         _classrooms = classrooms;
+        _teaching = teaching;
+    }
+
+    // Writes to a class's records (attendance, enrolment): admins always, a teacher only for a
+    // class they teach. A teacher account without a school profile teaches nothing (BUGS B48).
+    public async Task<bool> CanTeachClassroomAsync(ClaimsPrincipal user, Guid classroomId)
+    {
+        if (user.IsInRole(Roles.Admin)) return true;
+        return await GetOwnTeacherAsync(user) is { } own && await _teaching.TeachesClassroomAsync(own.Id, classroomId);
+    }
+
+    // Writes to a student's grades: admins always, a teacher only for students in their classes.
+    public async Task<bool> CanTeachStudentAsync(ClaimsPrincipal user, Guid studentId)
+    {
+        if (user.IsInRole(Roles.Admin)) return true;
+        return await GetOwnTeacherAsync(user) is { } own && await _teaching.TeachesStudentAsync(own.Id, studentId);
     }
 
     public async Task<StudentResponseDto?> GetOwnStudentAsync(ClaimsPrincipal user)

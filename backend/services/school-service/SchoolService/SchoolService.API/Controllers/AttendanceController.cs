@@ -47,6 +47,9 @@ public class AttendanceController : ControllerBase
     [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> BulkMark([FromBody] BulkMarkAttendanceDto dto)
     {
+        if (!await _access.CanTeachClassroomAsync(User, dto.ClassroomId))
+            return Forbid();
+
         await _attendanceService.BulkMarkAsync(dto);
         return Ok(new { message = "Attendance recorded." });
     }

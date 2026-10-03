@@ -94,6 +94,7 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IGradeChangeRepository, GradeChangeRepository>();
 builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 builder.Services.AddScoped<IMessagingRepository, MessagingRepository>();
+builder.Services.AddScoped<ITeachingRepository, TeachingRepository>();
 
 // Service Registrations
 builder.Services.AddScoped<IClassroomService, ClassroomService>();

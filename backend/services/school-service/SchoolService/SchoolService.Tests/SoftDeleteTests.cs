@@ -45,7 +45,7 @@ public class SoftDeleteTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
         Assert.DoesNotContain(list.EnumerateArray(), s => s.GetProperty("id").GetGuid() == student.Id);
         Assert.Equal(HttpStatusCode.NotFound,
             (await factory.CreateClientAs("Student", authId).GetAsync("/api/school/students/me")).StatusCode);
-        var newGrade = await factory.CreateClientAs("Teacher").PostAsJsonAsync("/api/school/grades",
+        var newGrade = await factory.CreateClientAs("Admin").PostAsJsonAsync("/api/school/grades",
             new { studentId = student.Id, subjectId, score = 50, semester = "2" });
         Assert.Equal(HttpStatusCode.NotFound, newGrade.StatusCode);
 

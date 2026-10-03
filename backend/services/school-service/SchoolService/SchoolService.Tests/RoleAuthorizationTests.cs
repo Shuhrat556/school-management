@@ -18,8 +18,6 @@ public class RoleAuthorizationTests(SchoolApiFactory factory) : IClassFixture<Sc
         { "POST", $"/api/school/subjects/{Id}/assign-teacher" },
         { "POST", "/api/school/classrooms" },
         { "PUT", $"/api/school/classrooms/{Id}" },
-        { "POST", $"/api/school/classrooms/{Id}/enroll" },
-        { "DELETE", $"/api/school/classrooms/{Id}/unenroll/{Id2}" },
         { "POST", "/api/school/schedules" },
         { "PUT", $"/api/school/schedules/{Id}" },
         { "DELETE", $"/api/school/schedules/{Id}" },
@@ -39,6 +37,9 @@ public class RoleAuthorizationTests(SchoolApiFactory factory) : IClassFixture<Sc
     // profile and may only touch their own announcements) — see AnnouncementTests.
     public static TheoryData<string, string> StaffOwned => new()
     {
+        // Enrolment is limited to classes the teacher teaches (TeacherScopeTests)
+        { "POST", $"/api/school/classrooms/{Id}/enroll" },
+        { "DELETE", $"/api/school/classrooms/{Id}/unenroll/{Id2}" },
         { "POST", "/api/announcements" },
         { "PUT", $"/api/announcements/{Id}" },
         { "POST", $"/api/announcements/{Id}/publish" },

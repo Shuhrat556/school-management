@@ -269,3 +269,9 @@ DTO'larda email ≤ 100, ism/familiya ≤ 50 → 400; OAuth display name 101 gac
 hisoblardi; uy vazifasi ("Review chapter N exercises"), materiallar ("Textbook", "Worksheet N"), xona ("Room N") ham soxta; sinf tafsilotida qattiq "/ 40"
 sig'im. · TUZATILDI: o'qituvchining bugungi haqiqiy jadvali (`GET /schedules?teacherId=`), haqiqiy vaqtdan holat; soxta vazifa/material/sig'im olib
 tashlandi; bo'sh kun uchun "No classes on your timetable today" (teacher_home_test).
+
+### B48 [YUQORI] Istalgan o'qituvchi istalgan o'quvchiga baho qo'yar, istalgan sinf davomatini belgilardi
+Baho (POST/PUT/DELETE), davomat (`attendance/mark`) va sinfga yozish/chiqarish faqat rol bo'yicha (`Staff`) tekshirilardi — o'qituvchi boshqa
+o'qituvchining o'quvchisiga baho qo'yishi, uni o'chirishi yoki boshqa sinf ro'yxatini o'zgartirishi mumkin edi (D4 dagi resurs darajasidagi qoida yo'q edi).
+· TUZATILDI: o'qituvchi faqat o'zi o'qitadigan sinflar (sinf rahbari yoki jadvalda dars bor) va ulardagi faol o'quvchilar uchun yoza oladi, aks holda 403;
+maktab profili yo'q o'qituvchi akkaunti — 403; admin cheklanmagan (TeacherScopeTests: avval 5/6 yiqildi).

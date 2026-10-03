@@ -34,7 +34,7 @@ public class AttendanceTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     }
 
     private Task<HttpResponseMessage> MarkAsync(Classroom classroom, params (Guid StudentId, int Status)[] records)
-        => factory.CreateClientAs("Teacher").PostAsJsonAsync("/api/school/attendance/mark", new
+        => factory.CreateClientAs("Admin").PostAsJsonAsync("/api/school/attendance/mark", new
         {
             classroomId = classroom.Id,
             date = "2026-09-28",
@@ -52,7 +52,7 @@ public class AttendanceTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
         var response = await MarkAsync(classroom, (enrolled.Id, 3));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var sheet = (await factory.CreateClientAs("Teacher")
+        var sheet = (await factory.CreateClientAs("Admin")
             .GetFromJsonAsync<JsonElement>($"/api/school/attendance?classroomId={classroom.Id}&date=2026-09-28")).EnumerateArray().ToArray();
         Assert.Equal("Late", Assert.Single(sheet).GetProperty("status").GetString());
         Assert.Equal("In Class", sheet[0].GetProperty("studentName").GetString());
@@ -85,7 +85,7 @@ public class AttendanceTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     {
         var (enrolled, _, classroom) = await SeedAsync();
         await MarkAsync(classroom, (enrolled.Id, 1));
-        await factory.CreateClientAs("Teacher").DeleteAsync($"/api/school/classrooms/{classroom.Id}/unenroll/{enrolled.Id}");
+        await factory.CreateClientAs("Admin").DeleteAsync($"/api/school/classrooms/{classroom.Id}/unenroll/{enrolled.Id}");
 
         var response = await MarkAsync(classroom, (enrolled.Id, 2));
 

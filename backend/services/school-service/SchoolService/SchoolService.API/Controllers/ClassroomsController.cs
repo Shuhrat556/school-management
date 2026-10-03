@@ -88,6 +88,9 @@ public class ClassroomsController : ControllerBase
     [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> EnrollStudent(Guid id, [FromBody] EnrollStudentDto dto)
     {
+        if (!await _access.CanTeachClassroomAsync(User, id))
+            return Forbid();
+
         await _classroomService.EnrollStudentAsync(id, dto.StudentId);
         return Ok(new { message = "Student enrolled successfully." });
     }
@@ -96,6 +99,9 @@ public class ClassroomsController : ControllerBase
     [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> UnenrollStudent(Guid id, Guid studentId)
     {
+        if (!await _access.CanTeachClassroomAsync(User, id))
+            return Forbid();
+
         await _classroomService.UnenrollStudentAsync(id, studentId);
         return NoContent();
     }

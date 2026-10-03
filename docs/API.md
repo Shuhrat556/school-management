@@ -78,7 +78,7 @@ PUT `{id}`, DELETE `{id}`, DELETE `{id}/remove-teacher/{teacherId}` — Admin.
 ### Classrooms (course sections) — `/classrooms`
 GET list, GET `{id}` (with students) — user: students and parents get only their own (children's) classes (other ids → 403) and the
 roster without classmates' email, phone, gender and date of birth; staff see everything. POST, PUT `{id}`, POST `{id}/enroll` (`{studentId}`),
-DELETE `{id}/unenroll/{studentId}` — Staff. DELETE `{id}` — Admin.
+DELETE `{id}/unenroll/{studentId}` — Staff (a teacher only for classes they teach, else 403). DELETE `{id}` — Admin.
 `students` in `GET {id}` is the current roster (active enrolments only). Unenrolling marks the enrolment `Dropped` (404 if the
 student is not in the class); enrolling a student who left reactivates it, enrolling an active student again → 409.
 
@@ -97,12 +97,13 @@ Back-to-back sessions (one ends when the next starts) are fine. `endTime` ≤ `s
 |---|---|---|---|
 | GET | `/attendance?classroomId=&date=` | Staff | Classroom sheet for a date |
 | GET | `/attendance/{studentId}/history` | Staff, own | One student's history |
-| POST | `/attendance/mark` | Staff | Bulk mark a classroom for a date; status `Present=1`, `Absent=2`, `Late=3`. A new mark needs an active enrolment in the classroom (otherwise 400 naming the students, nothing saved); an existing mark can still be corrected after the student left |
+| POST | `/attendance/mark` | Staff (a teacher only for classes they teach, else 403) | Bulk mark a classroom for a date; status `Present=1`, `Absent=2`, `Late=3`. A new mark needs an active enrolment in the classroom (otherwise 400 naming the students, nothing saved); an existing mark can still be corrected after the student left |
 
 ### Grades — `/grades`
 GET `?studentId=&subjectId=&semester=`, GET `{id}` — Staff; a student gets only their own grades
 (`studentId` defaults to their own, any other id → 403). POST (one grade per student + subject + semester:
-201 when created, 200 when it replaced the existing score), PUT `{id}`, DELETE `{id}` — Staff. Score 0–100.
+201 when created, 200 when it replaced the existing score), PUT `{id}`, DELETE `{id}` — Staff; a teacher only for students
+in a class they teach (class teacher or on its timetable), else 403. Score 0–100.
 
 Audit trail (every create, score change and delete is recorded with the caller's auth id, username and role):
 | Method | Path | Auth | Notes |

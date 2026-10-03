@@ -70,6 +70,9 @@ public class GradesController : ControllerBase
     [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<GradeResponseDto>> Create([FromBody] GradeCreateDto dto)
     {
+        if (!await _access.CanTeachStudentAsync(User, dto.StudentId))
+            return Forbid();
+
         // Saving a grade that already exists for the student, subject and semester updates it.
         var (grade, created) = await _gradeService.SaveAsync(dto);
         return created ? CreatedAtAction(nameof(GetById), new { id = grade.Id }, grade) : Ok(grade);
@@ -79,6 +82,9 @@ public class GradesController : ControllerBase
     [Authorize(Roles = Roles.Staff)]
     public async Task<ActionResult<GradeResponseDto>> Update(Guid id, [FromBody] GradeUpdateDto dto)
     {
+        if (!await _access.CanTeachStudentAsync(User, (await _gradeService.GetByIdAsync(id)).StudentId))
+            return Forbid();
+
         var updated = await _gradeService.UpdateAsync(id, dto);
         return Ok(updated);
     }
@@ -87,6 +93,9 @@ public class GradesController : ControllerBase
     [Authorize(Roles = Roles.Staff)]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (!await _access.CanTeachStudentAsync(User, (await _gradeService.GetByIdAsync(id)).StudentId))
+            return Forbid();
+
         await _gradeService.DeleteAsync(id);
         return NoContent();
     }

@@ -43,27 +43,27 @@ public class EnrollmentTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     public async Task Unenrolled_student_leaves_the_roster()
     {
         var (student, classroom) = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
-        await EnrollAsync(teacher, classroom, student);
+        var staff = factory.CreateClientAs("Admin");
+        await EnrollAsync(staff, classroom, student);
 
-        var response = await UnenrollAsync(teacher, classroom, student);
+        var response = await UnenrollAsync(staff, classroom, student);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        Assert.Empty(await RosterAsync(teacher, classroom));
+        Assert.Empty(await RosterAsync(staff, classroom));
     }
 
     [Fact]
     public async Task Dropped_student_can_be_enrolled_again()
     {
         var (student, classroom) = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
-        await EnrollAsync(teacher, classroom, student);
-        await UnenrollAsync(teacher, classroom, student);
+        var staff = factory.CreateClientAs("Admin");
+        await EnrollAsync(staff, classroom, student);
+        await UnenrollAsync(staff, classroom, student);
 
-        var again = await EnrollAsync(teacher, classroom, student);
+        var again = await EnrollAsync(staff, classroom, student);
 
         Assert.Equal(HttpStatusCode.OK, again.StatusCode);
-        var entry = Assert.Single(await RosterAsync(teacher, classroom));
+        var entry = Assert.Single(await RosterAsync(staff, classroom));
         Assert.Equal("Active", entry.GetProperty("status").GetString());
         Assert.Equal(JsonValueKind.Null, entry.GetProperty("unenrolledAt").ValueKind);
     }
@@ -72,10 +72,10 @@ public class EnrollmentTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     public async Task Enrolling_an_active_student_twice_is_a_conflict()
     {
         var (student, classroom) = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
-        await EnrollAsync(teacher, classroom, student);
+        var staff = factory.CreateClientAs("Admin");
+        await EnrollAsync(staff, classroom, student);
 
-        var second = await EnrollAsync(teacher, classroom, student);
+        var second = await EnrollAsync(staff, classroom, student);
 
         Assert.Equal(HttpStatusCode.Conflict, second.StatusCode);
     }
@@ -84,11 +84,11 @@ public class EnrollmentTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     public async Task Unenrolling_a_student_who_already_left_is_not_found()
     {
         var (student, classroom) = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
-        await EnrollAsync(teacher, classroom, student);
-        await UnenrollAsync(teacher, classroom, student);
+        var staff = factory.CreateClientAs("Admin");
+        await EnrollAsync(staff, classroom, student);
+        await UnenrollAsync(staff, classroom, student);
 
-        var second = await UnenrollAsync(teacher, classroom, student);
+        var second = await UnenrollAsync(staff, classroom, student);
 
         Assert.Equal(HttpStatusCode.NotFound, second.StatusCode);
     }

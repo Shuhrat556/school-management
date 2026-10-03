@@ -9,21 +9,31 @@ namespace SchoolService.Tests;
 // F5: every grade that is set, changed or removed leaves a record of who did it and when.
 public class GradeAuditTests(SchoolApiFactory factory) : IClassFixture<SchoolApiFactory>
 {
-    private async Task<(Student Student, Subject Subject)> SeedAsync()
+    // A student in a class taught by a teacher with this auth id (teachers grade only their students, B48)
+    private async Task<(Student Student, Subject Subject, Guid TeacherAuthId)> SeedAsync()
     {
         var student = new Student("Audit", "Student");
+        var teacherAuthId = Guid.NewGuid();
+        var teacher = new Teacher("Grade", "Keeper", teacherAuthId);
         var department = new Department($"Dept {Guid.NewGuid():N}");
         Subject subject = null!;
         await factory.WithDbAsync(async db =>
         {
             db.Students.Add(student);
+            db.Teachers.Add(teacher);
             db.Departments.Add(department);
             await db.SaveChangesAsync();
             subject = new Subject($"History {Guid.NewGuid():N}", department.Id);
             db.Subjects.Add(subject);
             await db.SaveChangesAsync();
+            var classroom = new Classroom($"HI-{Guid.NewGuid():N}", subject.Id);
+            classroom.AssignTeacher(teacher.Id);
+            db.Classrooms.Add(classroom);
+            await db.SaveChangesAsync();
+            db.StudentClassrooms.Add(new StudentClassroom(student.Id, classroom.Id));
+            await db.SaveChangesAsync();
         });
-        return (student, subject);
+        return (student, subject, teacherAuthId);
     }
 
     private static async Task<Guid> SaveGradeAsync(HttpClient client, Student student, Subject subject, decimal score)
@@ -47,8 +57,7 @@ public class GradeAuditTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     [Fact]
     public async Task Every_change_to_a_grade_is_recorded_with_its_author()
     {
-        var (student, subject) = await SeedAsync();
-        var teacherAuthId = Guid.NewGuid();
+        var (student, subject, teacherAuthId) = await SeedAsync();
         var teacher = factory.CreateClientAs("Teacher", teacherAuthId);
 
         var gradeId = await SaveGradeAsync(teacher, student, subject, 70);
@@ -74,8 +83,8 @@ public class GradeAuditTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     [Fact]
     public async Task Saving_the_same_score_again_is_not_a_change()
     {
-        var (student, subject) = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
+        var (student, subject, teacherAuthId) = await SeedAsync();
+        var teacher = factory.CreateClientAs("Teacher", teacherAuthId);
 
         var gradeId = await SaveGradeAsync(teacher, student, subject, 77);
         await SaveGradeAsync(teacher, student, subject, 77);
@@ -87,12 +96,12 @@ public class GradeAuditTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     [Fact]
     public async Task Admin_sees_the_recent_changes_for_a_student()
     {
-        var (student, subject) = await SeedAsync();
-        var (other, otherSubject) = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
+        var (student, subject, teacherAuthId) = await SeedAsync();
+        var (other, otherSubject, otherTeacherAuthId) = await SeedAsync();
+        var teacher = factory.CreateClientAs("Teacher", teacherAuthId);
         await SaveGradeAsync(teacher, student, subject, 60);
         await SaveGradeAsync(teacher, student, subject, 65);
-        await SaveGradeAsync(teacher, other, otherSubject, 99);
+        await SaveGradeAsync(factory.CreateClientAs("Teacher", otherTeacherAuthId), other, otherSubject, 99);
 
         var feed = (await factory.CreateClientAs("Admin")
             .GetFromJsonAsync<JsonElement>($"/api/school/grades/changes?studentId={student.Id}")).EnumerateArray().ToArray();
@@ -107,8 +116,8 @@ public class GradeAuditTests(SchoolApiFactory factory) : IClassFixture<SchoolApi
     [InlineData("Parent")]
     public async Task Students_and_parents_cannot_read_the_audit_trail(string role)
     {
-        var (student, subject) = await SeedAsync();
-        var gradeId = await SaveGradeAsync(factory.CreateClientAs("Teacher"), student, subject, 50);
+        var (student, subject, teacherAuthId) = await SeedAsync();
+        var gradeId = await SaveGradeAsync(factory.CreateClientAs("Teacher", teacherAuthId), student, subject, 50);
         var client = factory.CreateClientAs(role);
 
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync($"/api/school/grades/{gradeId}/history")).StatusCode);

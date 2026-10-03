@@ -55,7 +55,7 @@ public class NotificationTests(SchoolApiFactory factory) : IClassFixture<SchoolA
         var student = factory.CreateClientAs("Student", w.StudentAuthId);
         var parent = factory.CreateClientAs("Parent", w.ParentId);
 
-        await factory.CreateClientAs("Teacher").PostAsJsonAsync("/api/school/grades",
+        await factory.CreateClientAs("Admin").PostAsJsonAsync("/api/school/grades",
             new { studentId = w.Student.Id, subjectId = w.Subject.Id, score = 91, semester = "1" });
 
         var studentFeed = await FeedAsync(student);
@@ -70,9 +70,9 @@ public class NotificationTests(SchoolApiFactory factory) : IClassFixture<SchoolA
     {
         var w = await SeedAsync();
         var parent = factory.CreateClientAs("Parent", w.ParentId);
-        var teacher = factory.CreateClientAs("Teacher");
-        await teacher.PostAsJsonAsync("/api/school/grades", new { studentId = w.Student.Id, subjectId = w.Subject.Id, score = 60, semester = "1" });
-        await teacher.PostAsJsonAsync("/api/school/grades", new { studentId = w.Student.Id, subjectId = w.Subject.Id, score = 75, semester = "1" });
+        var staff = factory.CreateClientAs("Admin");
+        await staff.PostAsJsonAsync("/api/school/grades", new { studentId = w.Student.Id, subjectId = w.Subject.Id, score = 60, semester = "1" });
+        await staff.PostAsJsonAsync("/api/school/grades", new { studentId = w.Student.Id, subjectId = w.Subject.Id, score = 75, semester = "1" });
         var feed = await FeedAsync(parent);
         Assert.Equal(2, await UnreadAsync(parent));
 
@@ -88,12 +88,12 @@ public class NotificationTests(SchoolApiFactory factory) : IClassFixture<SchoolA
     public async Task Absence_is_reported_once_and_presence_not_at_all()
     {
         var w = await SeedAsync();
-        var teacher = factory.CreateClientAs("Teacher");
+        var staff = factory.CreateClientAs("Admin");
         object Mark(int status) => new { classroomId = w.Classroom.Id, date = "2026-09-21", records = new[] { new { studentId = w.Student.Id, status } } };
 
-        await teacher.PostAsJsonAsync("/api/school/attendance/mark", Mark(1));
-        await teacher.PostAsJsonAsync("/api/school/attendance/mark", Mark(2));
-        await teacher.PostAsJsonAsync("/api/school/attendance/mark", Mark(2));
+        await staff.PostAsJsonAsync("/api/school/attendance/mark", Mark(1));
+        await staff.PostAsJsonAsync("/api/school/attendance/mark", Mark(2));
+        await staff.PostAsJsonAsync("/api/school/attendance/mark", Mark(2));
 
         var feed = await FeedAsync(factory.CreateClientAs("Student", w.StudentAuthId));
         Assert.Equal("Marked absent", Assert.Single(feed).GetProperty("title").GetString());
@@ -122,12 +122,12 @@ public class NotificationTests(SchoolApiFactory factory) : IClassFixture<SchoolA
     public async Task Nobody_can_read_someone_elses_notification()
     {
         var w = await SeedAsync();
-        await factory.CreateClientAs("Teacher").PostAsJsonAsync("/api/school/grades",
+        await factory.CreateClientAs("Admin").PostAsJsonAsync("/api/school/grades",
             new { studentId = w.Student.Id, subjectId = w.Subject.Id, score = 88, semester = "1" });
         var id = (await FeedAsync(factory.CreateClientAs("Parent", w.ParentId)))[0].GetProperty("id").GetGuid();
 
         var otherParent = await factory.CreateClientAs("Parent").PostAsync($"/api/school/notifications/{id}/read", null);
-        var teacher = await factory.CreateClientAs("Teacher").GetAsync("/api/school/notifications");
+        var teacher = await factory.CreateClientAs("Admin").GetAsync("/api/school/notifications");
 
         Assert.Equal(HttpStatusCode.NotFound, otherParent.StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, teacher.StatusCode);
