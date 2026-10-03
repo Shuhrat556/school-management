@@ -171,4 +171,10 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   Flutter va backend DTO kalitlari skript bilan solishtirildi — boshqa nomuvofiqlik yo'q; o'lik `createSchedule` olib tashlandi (44f6e44).
   school 181/181, Flutter 49/49.
 
-KEYINGI QADAM: Flutter attendance analysis, result/score ekranlari; F9 (xabarlar) dizayni. Ruxsat kelsa — Q2 deploy.
+- B45: parolni tiklashda yangi parolga talab yo'q edi → 8–200 belgi; Flutter/admin-web formalari moslandi (b92f8c2).
+- B46: uzun ism/email 500 → 400; `Username` 101 gacha (auth migratsiya `WidenUsername`, PostgreSQL'da up/down sinaldi) (359f909);
+  PostgreSQL 22001 → 400 ikkala servisda (da5c150). Flutter ekranlarining API'ga ulanishi skript bilan tekshirildi — qolganlari haqiqiy.
+  auth 51/51, school 181/181.
+
+KEYINGI QADAM: F9 (xabarlar) dizayni va backend (xavfsizlik qoidalari bilan); admin-web sahifalarini ham soxta ma'lumot uchun tekshirish.
+Ruxsat kelsa — Q2 deploy.
