@@ -122,5 +122,11 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
 - B24 TUZATILDI: jadvalda sinf/xona to'qnashuvi (ScheduleConflictTests, 47c5416). Prod'da SELECT bilan tekshirildi: to'qnashuv yo'q.
   school 146/146 (PostgreSQL bilan).
 
-KEYINGI QADAM: 6-bo'lim — Auth unit/integration testlar (refresh rotation, reset code lockout) va AttendanceService testlari
-(BulkMark, sinf varag'i); keyin F6 (OAuth akkaunt bog'lash). Ruxsat kelsa — Q2 deploy.
+- B25 TUZATILDI: davomat faqat sinfda faol o'quvchiga; admin-web formasi sinf ro'yxatidan tanlaydi (AttendanceTests; 9212b11, 02685da).
+  school 150/150 (PostgreSQL bilan).
+- B26 TUZATILDI (Flutter): muddati o'tgan refresh token cheksiz refresh zanjiri (IP limitigacha), parallel refresh, cheksiz retry;
+  yangi paketsiz soxta Dio adapter bilan 3 ta test (dab9158). Flutter 6/6, analyze toza.
+- D14: refresh token reuse aniqlash (RFC 9700) + muddati o'tgan tokenlarni tozalash (RefreshTokenReuseTests; cf2fd61). auth 26/26.
+
+KEYINGI QADAM: F6 — profil sahifasidan Google akkauntini bog'lash (`POST /api/auth/link/google`, Bearer + ID token) yoki Flutter login
+widget testi. Ruxsat kelsa — Q2 deploy.
