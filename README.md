@@ -152,7 +152,7 @@ A full-stack school management platform built with **.NET microservices**, a **F
   approve leave requests, look up students' parents
 - Student: grades, attendance, timetable, homework hand-in, notifications, leave requests, announcements
 - Link Google/Facebook under Settings → Security & Login
-- Messaging is not available yet (planned); the Messages tab points to announcements and notifications
+- Messages: one-to-one conversations between teachers and students or parents of the same classes
 - Profile editing for both roles
 - Animated splash screen with auto-login via stored tokens
 

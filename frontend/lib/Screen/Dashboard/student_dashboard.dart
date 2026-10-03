@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tamdansers/Controller/activity_list_widget.dart';
 import 'package:tamdansers/Controller/announcement_events.dart';
 import 'package:tamdansers/Controller/course_card_widget.dart';
-import 'package:tamdansers/Controller/messaging_unavailable.dart';
+import 'package:tamdansers/Screen/Messages/messages_screen.dart';
 import 'package:tamdansers/Screen/Edit-Profile/student_edit_profile.dart';
 import 'package:tamdansers/Screen/Role_STUDENT/attendance_student_role.dart';
 import 'package:tamdansers/Screen/Role_STUDENT/course_student.role.dart';
@@ -2256,18 +2256,11 @@ class _StudentCoursesTabState extends State<StudentCoursesTab> {
 }
 
 // =============================================================================
-// STUDENT MESSAGES TAB (no messaging backend yet — PLAN F9)
+// STUDENT MESSAGES TAB (messages: school-service D18)
 // =============================================================================
 class StudentMessagesTab extends StatelessWidget {
   const StudentMessagesTab({super.key});
 
   @override
-  Widget build(BuildContext context) => MessagingUnavailable(
-        explanation: "Your teachers' announcements, new grades and absences arrive in Notifications. "
-            'To ask to be excused from classes, send a leave request.',
-        actions: [
-          (Icons.notifications_active_rounded, 'Notifications', (_) => const NotificationScreen()),
-          (Icons.event_busy_rounded, 'Ask for leave', (_) => const StudentPermissionScreen()),
-        ],
-      );
+  Widget build(BuildContext context) => const MessagesScreen();
 }

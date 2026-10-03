@@ -1192,4 +1192,81 @@ class ApiService {
     }
     return [];
   }
+
+  // GET /api/school/messages/contacts — who the caller may write to
+  Future<List<MessageContactDto>> getMessageContacts() async {
+    try {
+      final response = await _dio.get('${ApiConfig.messagesEndpoint}/contacts');
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List).map((e) => MessageContactDto.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get contacts error: ${e.message}');
+    }
+    return [];
+  }
+
+  // GET /api/school/messages/conversations — newest first
+  Future<List<ConversationDto>> getConversations() async {
+    try {
+      final response = await _dio.get('${ApiConfig.messagesEndpoint}/conversations');
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List).map((e) => ConversationDto.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get conversations error: ${e.message}');
+    }
+    return [];
+  }
+
+  // POST /api/school/messages/conversations — finds or starts the conversation with a contact
+  Future<ConversationDto?> startConversation(MessageContactDto contact) async {
+    try {
+      final response = await _dio.post(
+        '${ApiConfig.messagesEndpoint}/conversations',
+        data: {
+          if (contact.teacherId != null) 'teacherId': contact.teacherId,
+          if (contact.studentId != null) 'studentId': contact.studentId,
+          if (contact.parentAuthUserId != null) 'parentAuthUserId': contact.parentAuthUserId,
+        },
+      );
+      return ConversationDto.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      _logger.warning('Start conversation error: ${e.message}');
+    }
+    return null;
+  }
+
+  // GET /api/school/messages/conversations/{id}/messages — oldest first
+  Future<List<ChatMessageDto>> getMessages(String conversationId) async {
+    try {
+      final response = await _dio.get('${ApiConfig.messagesEndpoint}/conversations/$conversationId/messages');
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List).map((e) => ChatMessageDto.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get messages error: ${e.message}');
+    }
+    return [];
+  }
+
+  // POST /api/school/messages/conversations/{id}/messages — null on success, otherwise the reason
+  Future<String?> sendMessage(String conversationId, String body) async {
+    try {
+      await _dio.post('${ApiConfig.messagesEndpoint}/conversations/$conversationId/messages', data: {'body': body});
+      return null;
+    } on DioException catch (e) {
+      _logger.warning('Send message error: ${e.message}');
+      return _errorMessage(e, 'The message could not be sent.');
+    }
+  }
+
+  // POST /api/school/messages/conversations/{id}/read
+  Future<void> markConversationRead(String conversationId) async {
+    try {
+      await _dio.post('${ApiConfig.messagesEndpoint}/conversations/$conversationId/read');
+    } on DioException catch (e) {
+      _logger.warning('Mark read error: ${e.message}');
+    }
+  }
 }

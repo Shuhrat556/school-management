@@ -17,7 +17,7 @@ import 'package:tamdansers/Screen/Role_TEACHER/schedule_student_role.dart';
 import 'package:tamdansers/Screen/Role_TEACHER/student_list_screen.dart';
 import 'package:tamdansers/Screen/Role_TEACHER/teacher_list_screen.dart';
 import 'package:tamdansers/Screen/setting/linked_accounts_screen.dart';
-import 'package:tamdansers/Controller/messaging_unavailable.dart';
+import 'package:tamdansers/Screen/Messages/messages_screen.dart';
 import 'package:tamdansers/Controller/announcement_events.dart';
 import 'package:tamdansers/routes/app_routes.dart';
 import 'package:tamdansers/services/api_models.dart';
@@ -2837,20 +2837,13 @@ class _TeacherCoursesTabState extends State<TeacherCoursesTab> {
 }
 
 // =============================================================================
-// TEACHER MESSAGES TAB (no messaging backend yet — PLAN F9)
+// TEACHER MESSAGES TAB (messages: school-service D18)
 // =============================================================================
 class TeacherMessagesTab extends StatelessWidget {
   const TeacherMessagesTab({super.key});
 
   @override
-  Widget build(BuildContext context) => MessagingUnavailable(
-        explanation: 'To reach families, post a class announcement: the students and their parents get a notification. '
-            'Requests from families, such as leave requests, appear in Notifications.',
-        actions: [
-          (Icons.campaign_rounded, 'Post an announcement', (_) => const AnnounceToParentsScreen()),
-          (Icons.notifications_active_rounded, 'Notifications', (_) => const TeacherNotificationScreen()),
-        ],
-      );
+  Widget build(BuildContext context) => const MessagesScreen();
 }
 
 // =============================================================================

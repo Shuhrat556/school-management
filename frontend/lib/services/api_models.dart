@@ -934,3 +934,70 @@ class AnnouncementDto {
         isPublished: json['isPublished'] as bool? ?? true,
       );
 }
+
+// messages between a teacher and a student or parent (/api/school/messages)
+
+class MessageContactDto {
+  final String kind; // "Teacher", "Student" or "Parent"
+  final String name;
+  final String? context;
+  final String? teacherId;
+  final String? studentId;
+  final String? parentAuthUserId;
+
+  MessageContactDto({required this.kind, required this.name, this.context, this.teacherId, this.studentId, this.parentAuthUserId});
+
+  factory MessageContactDto.fromJson(Map<String, dynamic> json) => MessageContactDto(
+        kind: json['kind'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        context: json['context'] as String?,
+        teacherId: json['teacherId']?.toString(),
+        studentId: json['studentId']?.toString(),
+        parentAuthUserId: json['parentAuthUserId']?.toString(),
+      );
+}
+
+class ConversationDto {
+  final String id;
+  final String title;
+  final String? subtitle;
+  final String? lastMessage;
+  final DateTime? lastMessageAt;
+  final int unreadCount;
+
+  ConversationDto({
+    required this.id,
+    required this.title,
+    this.subtitle,
+    this.lastMessage,
+    this.lastMessageAt,
+    this.unreadCount = 0,
+  });
+
+  factory ConversationDto.fromJson(Map<String, dynamic> json) => ConversationDto(
+        id: json['id']?.toString() ?? '',
+        title: json['title'] as String? ?? '',
+        subtitle: json['subtitle'] as String?,
+        lastMessage: json['lastMessage'] as String?,
+        lastMessageAt: DateTime.tryParse(json['lastMessageAt'] as String? ?? '')?.toLocal(),
+        unreadCount: json['unreadCount'] as int? ?? 0,
+      );
+}
+
+class ChatMessageDto {
+  final String id;
+  final String senderName;
+  final String body;
+  final DateTime sentAt;
+  final bool isMine;
+
+  ChatMessageDto({required this.id, required this.senderName, required this.body, required this.sentAt, required this.isMine});
+
+  factory ChatMessageDto.fromJson(Map<String, dynamic> json) => ChatMessageDto(
+        id: json['id']?.toString() ?? '',
+        senderName: json['senderName'] as String? ?? '',
+        body: json['body'] as String? ?? '',
+        sentAt: DateTime.tryParse(json['sentAt'] as String? ?? '')?.toLocal() ?? DateTime.now(),
+        isMine: json['isMine'] as bool? ?? false,
+      );
+}
