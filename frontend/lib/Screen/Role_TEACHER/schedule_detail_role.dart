@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:tamdansers/services/api_models.dart';
+import 'package:tamdansers/services/api_service.dart';
 
 class TeacherScheduleDetailScreen extends StatefulWidget {
   final Map<String, dynamic> classData;
+  // Replaceable in tests; by default the class is read from the API.
+  final Future<ClassSnapshot?> Function(String classroomId)? loadClass;
 
-  const TeacherScheduleDetailScreen({super.key, required this.classData});
+  const TeacherScheduleDetailScreen({super.key, required this.classData, this.loadClass});
 
   @override
   State<TeacherScheduleDetailScreen> createState() =>
@@ -20,78 +25,18 @@ class _TeacherScheduleDetailScreenState
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
 
-  final List<Map<String, dynamic>> students = [
-    {
-      'name': 'Alexander Pong',
-      'id': 'ST-001',
-      'status': 'Present',
-      'avatar': 'A',
-      'grade': 'A',
-      'score': 92,
-    },
-    {
-      'name': 'Sokha Mao',
-      'id': 'ST-002',
-      'status': 'Present',
-      'avatar': 'S',
-      'grade': 'A-',
-      'score': 88,
-    },
-    {
-      'name': 'Chanrath Vann',
-      'id': 'ST-003',
-      'status': 'Late',
-      'avatar': 'C',
-      'grade': 'B+',
-      'score': 78,
-    },
-    {
-      'name': 'Dara Keat',
-      'id': 'ST-004',
-      'status': 'Present',
-      'avatar': 'D',
-      'grade': 'A',
-      'score': 95,
-    },
-    {
-      'name': 'Bory Lim',
-      'id': 'ST-005',
-      'status': 'Absent',
-      'avatar': 'B',
-      'grade': 'B',
-      'score': 72,
-    },
-    {
-      'name': 'Kunthea Sok',
-      'id': 'ST-006',
-      'status': 'Present',
-      'avatar': 'K',
-      'grade': 'A+',
-      'score': 98,
-    },
-    {
-      'name': 'Visal Ek',
-      'id': 'ST-007',
-      'status': 'Present',
-      'avatar': 'V',
-      'grade': 'B+',
-      'score': 81,
-    },
-    {
-      'name': 'Pisey Ros',
-      'id': 'ST-008',
-      'status': 'Late',
-      'avatar': 'P',
-      'grade': 'B',
-      'score': 75,
-    },
-  ];
+  // The class roster with today's attendance and the subject grade (BUGS B36: was made up).
+  List<Map<String, dynamic>> students = [];
+  bool _loadingStudents = true;
+  MaterialDto? _latestHomework;
+  List<String> _materialTitles = [];
 
   @override
   void initState() {
     super.initState();
     data = widget.classData;
     _tabController = TabController(length: 3, vsync: this);
+    _loadClass();
     _tabController.addListener(() {
       setState(() {});
     });
@@ -116,9 +61,13 @@ class _TeacherScheduleDetailScreenState
   String get room => data['room'] ?? '';
   String get topic => data['topic'] ?? 'General Lesson';
   String get description => data['description'] ?? '';
-  String get homework => data['homework'] ?? '';
-  int get studentCount => data['students'] ?? 0;
-  List<dynamic> get materials => data['materials'] ?? [];
+  String get homework => _latestHomework == null
+      ? 'No homework assigned yet.'
+      : _latestHomework!.dueAt == null
+          ? _latestHomework!.title
+          : '${_latestHomework!.title} (due ${DateFormat('MMM d').format(_latestHomework!.dueAt!)})';
+  int get studentCount => students.length;
+  List<dynamic> get materials => _materialTitles.isNotEmpty ? _materialTitles : (data['materials'] ?? []);
   bool get isDone => data['isDone'] ?? false;
   bool get isCurrent => data['isCurrent'] ?? false;
 
@@ -126,8 +75,72 @@ class _TeacherScheduleDetailScreenState
       students.where((s) => s['status'] == 'Present').length;
   int get lateCount => students.where((s) => s['status'] == 'Late').length;
   int get absentCount => students.where((s) => s['status'] == 'Absent').length;
+  String get _dueLabel {
+    final due = _latestHomework?.dueAt;
+    if (_latestHomework == null) return 'None';
+    if (due == null) return 'No due date';
+    return due.isBefore(DateTime.now()) ? 'Overdue' : 'Due ${DateFormat('MMM d').format(due)}';
+  }
+
   double get attendanceRate =>
-      (presentCount + lateCount) / students.length * 100;
+      students.isEmpty ? 0 : (presentCount + lateCount) / students.length * 100;
+
+  Future<void> _loadClass() async {
+    final classroomId = data['classroomId'] as String? ?? '';
+    final snapshot = classroomId.isEmpty ? null : await (widget.loadClass ?? _classFromApi)(classroomId);
+    if (!mounted) return;
+    setState(() {
+      students = snapshot?.students ?? [];
+      _latestHomework = snapshot?.latestHomework;
+      _materialTitles = snapshot?.materials ?? [];
+      _loadingStudents = false;
+    });
+  }
+
+  static String _letter(double score) => score >= 90
+      ? 'A'
+      : score >= 80
+          ? 'B'
+          : score >= 70
+              ? 'C'
+              : score >= 60
+                  ? 'D'
+                  : 'F';
+
+  Future<ClassSnapshot?> _classFromApi(String classroomId) async {
+    final api = ApiService();
+    final detail = await api.getClassroomDetail(classroomId);
+    if (detail == null) return null;
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final marks = {for (final a in await api.getClassroomAttendance(classroomId, today)) a.studentId: a.status};
+    // Latest grade per student in this class's subject
+    final grades = <String, double>{};
+    if (detail.subjectId != null) {
+      final all = await api.getGrades(subjectId: detail.subjectId)
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      for (final g in all) {
+        grades[g.studentId] = g.score;
+      }
+    }
+    final materials = await api.getMaterials(classroomId);
+    final homework = materials.where((m) => m.isAssignment).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return ClassSnapshot(
+      students: [
+        for (final s in detail.students)
+          {
+            'name': '${s.firstName} ${s.lastName}'.trim(),
+            'id': s.studentId.length > 8 ? s.studentId.substring(0, 8).toUpperCase() : s.studentId,
+            'status': marks[s.studentId] ?? 'Not marked',
+            'avatar': s.firstName.isEmpty ? '?' : s.firstName[0].toUpperCase(),
+            'grade': grades[s.studentId] == null ? null : _letter(grades[s.studentId]!),
+            'score': grades[s.studentId]?.round(),
+          },
+      ],
+      latestHomework: homework.isEmpty ? null : homework.first,
+      materials: materials.map((m) => m.title).toList(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -606,7 +619,7 @@ class _TeacherScheduleDetailScreenState
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              'Due Tomorrow',
+              _dueLabel,
               style: GoogleFonts.inter(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
@@ -645,7 +658,7 @@ class _TeacherScheduleDetailScreenState
                     ),
                   ),
                   Text(
-                    '5 / ${students.length}',
+                    _latestHomework == null ? '—' : '${_latestHomework!.submissionCount} / ${students.length}',
                     style: GoogleFonts.outfit(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
@@ -658,7 +671,9 @@ class _TeacherScheduleDetailScreenState
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: LinearProgressIndicator(
-                  value: 5 / students.length,
+                  value: _latestHomework == null || students.isEmpty
+                      ? 0
+                      : (_latestHomework!.submissionCount / students.length).clamp(0, 1).toDouble(),
                   minHeight: 8,
                   backgroundColor: Colors.grey.shade200,
                   valueColor: AlwaysStoppedAnimation<Color>(accent),
@@ -800,6 +815,15 @@ class _TeacherScheduleDetailScreenState
       Divider(height: 1, thickness: 1, color: Colors.grey.shade100);
 
   Widget _buildStudentsTab() {
+    if (_loadingStudents) return const Center(child: CircularProgressIndicator());
+    if (students.isEmpty) {
+      return Center(
+        child: Text(
+          'No students are enrolled in this class.',
+          style: GoogleFonts.inter(color: Colors.grey.shade500),
+        ),
+      );
+    }
     return Column(
       children: [
         // Summary strip
@@ -904,6 +928,10 @@ class _TeacherScheduleDetailScreenState
         statusColor = const Color(0xFFFFB75E);
         statusIcon = Icons.schedule_rounded;
         break;
+      case 'Not marked':
+        statusColor = Colors.grey;
+        statusIcon = Icons.help_outline_rounded;
+        break;
       default:
         statusColor = const Color(0xFFFF6B6B);
         statusIcon = Icons.cancel_rounded;
@@ -982,6 +1010,7 @@ class _TeacherScheduleDetailScreenState
                         ),
                       ),
                       const SizedBox(width: 8),
+                      if (student['grade'] != null)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 7,
@@ -1036,7 +1065,7 @@ class _TeacherScheduleDetailScreenState
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Score: ${student['score']}',
+                  student['score'] == null ? 'No grade yet' : 'Score: ${student['score']}',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey.shade400,
@@ -1056,8 +1085,11 @@ class _TeacherScheduleDetailScreenState
         ? const Color(0xFF50E3C2)
         : student['status'] == 'Late'
         ? const Color(0xFFFFB75E)
+        : student['status'] == 'Not marked'
+        ? Colors.grey
         : const Color(0xFFFF6B6B);
-    final score = student['score'] as int;
+    final hasScore = student['score'] != null;
+    final score = student['score'] as int? ?? 0;
 
     showModalBottomSheet(
       context: context,
@@ -1130,11 +1162,11 @@ class _TeacherScheduleDetailScreenState
             const SizedBox(height: 24),
             Row(
               children: [
-                _sheetStat('Grade', student['grade'], accent),
+                _sheetStat('Grade', student['grade'] ?? '—', accent),
                 const SizedBox(width: 10),
                 _sheetStat(
                   'Score',
-                  '$score%',
+                  hasScore ? '$score%' : '—',
                   score >= 90
                       ? const Color(0xFF50E3C2)
                       : score >= 75
@@ -1162,7 +1194,7 @@ class _TeacherScheduleDetailScreenState
                       ),
                     ),
                     Text(
-                      '$score / 100',
+                      hasScore ? '$score / 100' : 'No grade yet',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,

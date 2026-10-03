@@ -198,3 +198,9 @@ havola/fayl nomi bilan topshirish; 0 o'quvchili sinfda 0 ga bo'linish ham tuzati
 ### B35 [O'RTA] Materialni o'chirish o'quvchilarning topshiriqlari va baholarini kaskad o'chirardi
 `MaterialRepository.DeleteAsync` → `Remove()`, `Submissions.MaterialId` FK = CASCADE; ro'yxat o'chirilgan/nofaol materiallarni ham qaytarardi.
 · TUZATILDI: soft delete (`DeletedAt` + nofaol), ro'yxatda o'chirilganlar yo'q, nofaol — faqat Staff'ga; o'chirilgan materialga topshiriq 404 (HomeworkTests).
+
+### B36 [O'RTA] Flutter: o'qituvchining dars/sinf tafsiloti ekrani soxta o'quvchilarni ko'rsatardi
+`schedule_detail_role.dart` — Students tab'ida qattiq yozilgan 8 ta o'quvchi ("Alexander Pong") soxta davomat va ballar bilan, "Submissions 5 / N",
+"Due Tomorrow", o'quvchilar soni doim 25. · TUZATILDI: sinf ro'yxati + bugungi davomat ("Not marked" holati) + shu fandagi oxirgi baho, oxirgi uy
+vazifasi va topshirganlar soni, materiallar — API'dan (`ClassSnapshot`); 0 o'quvchida bo'linish himoyalangan (test/teacher_class_detail_test.dart).
+Eslatma: Quick Actions tugmalarining ko'pi hali hech narsa qilmaydi (`onTap: () {}`) — keyingi qadam.

@@ -392,6 +392,7 @@ class ClassroomDetailDto {
   final String? academicYear;
   final String? teacherId;
   final String? teacherName;
+  final String? subjectId;
   final bool isActive;
   final String createdAt;
   final List<ClassroomStudentDto> students;
@@ -403,6 +404,7 @@ class ClassroomDetailDto {
     this.academicYear,
     this.teacherId,
     this.teacherName,
+    this.subjectId,
     required this.isActive,
     required this.createdAt,
     required this.students,
@@ -416,6 +418,7 @@ class ClassroomDetailDto {
       academicYear: json['academicYear'] as String?,
       teacherId: json['teacherId']?.toString(),
       teacherName: json['teacherName'] as String?,
+      subjectId: json['subjectId']?.toString(),
       isActive: json['isActive'] as bool? ?? true,
       createdAt: json['createdAt']?.toString() ?? '',
       students: (json['students'] as List<dynamic>?)
@@ -820,4 +823,13 @@ class SubmissionDto {
       feedback: json['feedback'] as String?,
     );
   }
+}
+
+// What the teacher's class screen shows about one class right now (BUGS B36)
+class ClassSnapshot {
+  final List<Map<String, dynamic>> students; // name, id, status, avatar, grade, score
+  final MaterialDto? latestHomework;
+  final List<String> materials;
+
+  ClassSnapshot({required this.students, this.latestHomework, this.materials = const []});
 }
