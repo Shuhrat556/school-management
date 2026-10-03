@@ -858,6 +858,8 @@ class LeaveRequestDto {
   final String reason;
   final String status; // "Pending", "Approved" or "Rejected"
   final String? reviewNote;
+  final String studentName;
+  final DateTime? createdAt;
 
   LeaveRequestDto({
     required this.id,
@@ -867,6 +869,8 @@ class LeaveRequestDto {
     required this.reason,
     required this.status,
     this.reviewNote,
+    this.studentName = '',
+    this.createdAt,
   });
 
   factory LeaveRequestDto.fromJson(Map<String, dynamic> json) => LeaveRequestDto(
@@ -877,5 +881,7 @@ class LeaveRequestDto {
         reason: json['reason'] as String? ?? '',
         status: json['status'] as String? ?? 'Pending',
         reviewNote: json['reviewNote'] as String?,
+        studentName: json['studentName'] as String? ?? '',
+        createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '')?.toLocal(),
       );
 }

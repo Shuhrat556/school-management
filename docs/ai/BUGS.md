@@ -216,3 +216,8 @@ ishlatilmay qolgan `course_model.dart` o'chirildi (test/add_subject_test.dart).
 `permision_student_role.dart` — so'rov faqat ekrandagi ro'yxatga qo'shilardi ("Pending" abadiy), tarix qattiq yozilgan namunalar; backend'da bunday tushuncha
 yo'q edi. · TUZATILDI (F8, D17): backend `LeaveRequests`, Flutter ekran API'ga (leave_request_test), admin-web xodimlar ko'rib chiqish va ota-ona yuborish
 sahifalari; lokal stekda uchidan-uchiga sinaldi (smoke 33/33).
+
+### B39 [PAST] Flutter: o'qituvchi bildirishnomalari soxta edi
+`notifications_role.dart` — qattiq yozilgan namunalar ("Sok Pong has requested a 2-day leave", "Urgent Meeting"). · TUZATILDI: kutilayotgan dars qoldirish
+so'rovlari API'dan, detal oynasida Approve/Decline (oila xabardor qilinadi); manbasi yo'q "System/Urgent" toifalari olib tashlandi
+(test/teacher_notifications_test.dart).

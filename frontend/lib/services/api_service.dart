@@ -1147,4 +1147,36 @@ class ApiService {
       return _errorMessage(e, 'Could not send the request.');
     }
   }
+
+  // GET /api/school/leave-requests?status= — the staff queue
+  Future<List<LeaveRequestDto>> getLeaveRequests({String? status}) async {
+    try {
+      final response = await _dio.get(
+        ApiConfig.leaveRequestsEndpoint,
+        queryParameters: status == null ? null : {'status': status},
+      );
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => LeaveRequestDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get leave request queue error: ${e.message}');
+    }
+    return [];
+  }
+
+  // POST /api/school/leave-requests/{id}/approve|reject — null on success, otherwise the reason
+  Future<String?> decideLeaveRequest(String id, {required bool approve, String? note}) async {
+    try {
+      await _dio.post(
+        '${ApiConfig.leaveRequestsEndpoint}/$id/${approve ? 'approve' : 'reject'}',
+        data: {'note': note},
+      );
+      return null;
+    } on DioException catch (e) {
+      _logger.warning('Decide leave request error: ${e.message}');
+      return _errorMessage(e, 'Could not save the decision.');
+    }
+  }
 }

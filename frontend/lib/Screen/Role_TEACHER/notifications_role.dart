@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:tamdansers/services/api_models.dart';
+import 'package:tamdansers/services/api_service.dart';
 
 class TeacherNotification {
   final IconData icon;
@@ -12,6 +15,7 @@ class TeacherNotification {
   final String time;
   final String category;
   final Color categoryColor;
+  final String? leaveRequestId; // set when the teacher can approve or decline it
   bool isRead;
 
   TeacherNotification({
@@ -24,12 +28,20 @@ class TeacherNotification {
     required this.time,
     required this.category,
     required this.categoryColor,
+    this.leaveRequestId,
     this.isRead = false,
   });
 }
 
+// What needs the teacher's attention: pending leave requests from students and parents,
+// which can be approved or declined here (school-service D17). It used to show sample items.
 class TeacherNotificationScreen extends StatefulWidget {
-  const TeacherNotificationScreen({super.key});
+  // The calls can be replaced in tests; by default they go to the API.
+  // decide returns null on success, otherwise the reason.
+  const TeacherNotificationScreen({super.key, this.loadRequests, this.decide});
+
+  final Future<List<LeaveRequestDto>> Function()? loadRequests;
+  final Future<String?> Function(String id, bool approve)? decide;
 
   @override
   State<TeacherNotificationScreen> createState() =>
@@ -38,63 +50,67 @@ class TeacherNotificationScreen extends StatefulWidget {
 
 class _TeacherNotificationScreenState extends State<TeacherNotificationScreen> {
   String activeFilter = "All";
-  final List<String> filters = ["All", "Requests", "System", "Urgent"];
-
-  late List<TeacherNotification> notifications;
+  final List<String> filters = ["All", "Requests"];
+  List<TeacherNotification> notifications = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    notifications = [
-      TeacherNotification(
-        icon: Icons.person_add_rounded,
-        iconColor: const Color(0xFF4A90E2),
-        bgColor: const Color(0xFF4A90E2).withValues(alpha: 0.1),
-        title: "Leave Request",
-        subtitle: "Sok Pong has requested a 2-day leave.",
-        description:
-            "Student Sok Pong (Grade 10B) has submitted a leave request for Feb 24-25 due to family personal matters. Please review and approve or decline this request in the management portal.",
-        time: "10m ago",
-        category: "Requests",
-        categoryColor: const Color(0xFF4A90E2),
+    _load();
+  }
+
+  Future<void> _load() async {
+    final requests = await (widget.loadRequests ?? () => ApiService().getLeaveRequests(status: 'Pending'))();
+    if (!mounted) return;
+    setState(() {
+      notifications = requests.map(_fromLeaveRequest).toList();
+      _loading = false;
+    });
+  }
+
+  static TeacherNotification _fromLeaveRequest(LeaveRequestDto r) {
+    String day(String iso) {
+      final d = DateTime.tryParse(iso);
+      return d == null ? iso : DateFormat('MMM d').format(d);
+    }
+
+    final dates = r.startDate == r.endDate ? day(r.startDate) : '${day(r.startDate)} – ${day(r.endDate)}';
+    final created = r.createdAt;
+    return TeacherNotification(
+      icon: Icons.person_add_rounded,
+      iconColor: const Color(0xFF4A90E2),
+      bgColor: const Color(0xFF4A90E2).withValues(alpha: 0.1),
+      title: "Leave Request",
+      subtitle: "${r.studentName} asked to be excused ($dates).",
+      description: "${r.type} leave for ${r.studentName}, $dates.\n\nReason: ${r.reason}",
+      time: created == null ? '' : _ago(DateTime.now().difference(created)),
+      category: "Requests",
+      categoryColor: const Color(0xFF4A90E2),
+      leaveRequestId: r.id,
+    );
+  }
+
+  static String _ago(Duration d) => d.inMinutes < 60
+      ? '${d.inMinutes}m ago'
+      : d.inHours < 24
+          ? '${d.inHours}h ago'
+          : '${d.inDays}d ago';
+
+  Future<void> _decide(TeacherNotification item, bool approve) async {
+    final id = item.leaveRequestId;
+    if (id == null) return;
+    final error = await (widget.decide ?? (id, ok) => ApiService().decideLeaveRequest(id, approve: ok))(id, approve);
+    if (!mounted) return;
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error ?? (approve ? 'Leave approved. The family was notified.' : 'Leave declined. The family was notified.')),
+        backgroundColor: error == null ? const Color(0xFF50E3C2) : const Color(0xFFFF6B6B),
+        behavior: SnackBarBehavior.floating,
       ),
-      TeacherNotification(
-        icon: Icons.warning_amber_rounded,
-        iconColor: const Color(0xFFFF6B6B),
-        bgColor: const Color(0xFFFF6B6B).withValues(alpha: 0.1),
-        title: "Urgent Meeting",
-        subtitle: "Staff meeting in the conference room at 2 PM.",
-        description:
-            "There is an emergency administrative meeting today at 2:00 PM to discuss the upcoming semester planning and curriculum updates. Attendance is mandatory for all senior teachers.",
-        time: "1h ago",
-        category: "Urgent",
-        categoryColor: const Color(0xFFFF6B6B),
-      ),
-      TeacherNotification(
-        icon: Icons.update_rounded,
-        iconColor: const Color(0xFF50E3C2),
-        bgColor: const Color(0xFF50E3C2).withValues(alpha: 0.1),
-        title: "System Update",
-        subtitle: "Grade submission deadline extended.",
-        description:
-            "The deadline for final grade submission for Semester 1 has been extended to Friday, March 1st. Please ensure all student records are updated before the new deadline.",
-        time: "5h ago",
-        category: "System",
-        categoryColor: const Color(0xFF0D3B66),
-      ),
-      TeacherNotification(
-        icon: Icons.assignment_ind_rounded,
-        iconColor: const Color(0xFFFFB75E),
-        bgColor: const Color(0xFFFFB75E).withValues(alpha: 0.1),
-        title: "New Parent Link",
-        subtitle: "Parent 'Mao Sophal' linked to student 'Pong'.",
-        description:
-            "A new parent account for Mao Sophal has been successfully linked to student Sok Pong. You can now communicate with them directly through the portal.",
-        time: "Yesterday",
-        category: "Requests",
-        categoryColor: const Color(0xFFFFB75E),
-      ),
-    ];
+    );
+    if (error == null) setState(() => notifications.remove(item));
   }
 
   void _markAllRead() {
@@ -160,7 +176,9 @@ class _TeacherNotificationScreenState extends State<TeacherNotificationScreen> {
         children: [
           _buildFilterBar(),
           Expanded(
-            child: filteredList.isEmpty
+            child: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : filteredList.isEmpty
                 ? _buildEmptyState()
                 : ListView.builder(
                     padding: const EdgeInsets.all(20),
@@ -328,7 +346,8 @@ class _TeacherNotificationScreenState extends State<TeacherNotificationScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.6,
+        // Taller when the approve/decline buttons are shown
+        height: MediaQuery.of(context).size.height * (item.leaveRequestId != null ? 0.75 : 0.6),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -410,6 +429,39 @@ class _TeacherNotificationScreenState extends State<TeacherNotificationScreen> {
               ),
             ),
             const SizedBox(height: 30),
+            if (item.leaveRequestId != null) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      key: const ValueKey('decline-leave'),
+                      onPressed: () => _decide(item, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        foregroundColor: const Color(0xFFFF6B6B),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text("Decline", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      key: const ValueKey('approve-leave'),
+                      onPressed: () => _decide(item, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF50E3C2),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                      child: Text("Approve", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
