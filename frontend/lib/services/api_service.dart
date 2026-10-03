@@ -675,20 +675,41 @@ class ApiService {
   }
 
   // POST /api/school/Subjects
-  Future<SubjectDto?> createSubject(String subjectName) async {
+  // A subject needs its department. Null on success, otherwise the reason.
+  Future<String?> createSubject({
+    required String subjectName,
+    required String departmentId,
+    String? description,
+  }) async {
     try {
-      final response = await _dio.post(
+      await _dio.post(
         ApiConfig.subjectsEndpoint,
-        data: {'subjectName': subjectName},
+        data: {
+          'subjectName': subjectName,
+          'departmentId': departmentId,
+          if (description != null && description.isNotEmpty) 'description': description,
+        },
       );
-      if (response.statusCode == 201) {
-        return SubjectDto.fromJson(response.data as Map<String, dynamic>);
-      }
+      return null;
     } on DioException catch (e) {
       _logger.warning('Create subject error: ${e.message}');
-      rethrow;
+      return _errorMessage(e, 'Could not create the subject.');
     }
-    return null;
+  }
+
+  // GET /api/school/Departments
+  Future<List<DepartmentDto>> getDepartments() async {
+    try {
+      final response = await _dio.get(ApiConfig.departmentsEndpoint);
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => DepartmentDto.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get departments error: ${e.message}');
+    }
+    return [];
   }
 
   // POST /api/school/Subjects/{id}/assign-teacher

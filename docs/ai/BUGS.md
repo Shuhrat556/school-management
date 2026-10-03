@@ -205,3 +205,9 @@ havola/fayl nomi bilan topshirish; 0 o'quvchili sinfda 0 ga bo'linish ham tuzati
 vazifasi va topshirganlar soni, materiallar — API'dan (`ClassSnapshot`); 0 o'quvchida bo'linish himoyalangan (test/teacher_class_detail_test.dart).
 Quick Actions: davomat, baholar, e'lon/bildirishnoma, o'quvchi qo'shish haqiqiy ekranlarni ochadi; backend'i yo'q amallar (Lesson Plan,
 Class Notes, Edit Class Info, Export Report) "hali mavjud emas" deydi (avval hech narsa qilmasdi).
+
+### B37 [O'RTA] Flutter: "Create Course" hech narsa yaratmasdi
+`add_course_role.dart` — boshqa ilova shablonidan qolgan forma (narx, daraja, boshlanish sanasi, "Contemporary Dance" namunasi): `createSubject` faqat nom
+yuborardi, backend esa `departmentId` talab qiladi → 400, xato jimgina yutilardi; "kurs" faqat mahalliy ro'yxatda turib, qayta ishga tushirganda yo'qolardi.
+· TUZATILDI: "New Subject" formasi — nom, kafedra (API'dan), tavsif → haqiqiy `POST /subjects`, xato ko'rsatiladi; kurslar ro'yxati faqat haqiqiy fanlar;
+ishlatilmay qolgan `course_model.dart` o'chirildi (test/add_subject_test.dart).

@@ -2,7 +2,6 @@
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tamdansers/Screen/Role_TEACHER/add_course_role.dart';
-import 'package:tamdansers/model/course_model.dart';
 import 'package:tamdansers/services/api_models.dart';
 import 'package:tamdansers/services/api_service.dart';
 
@@ -25,20 +24,6 @@ class _TeacherCourseScreenState extends State<TeacherCourseScreen> {
   void initState() {
     super.initState();
     _fetchSubjects();
-    // Ensuring there is at least one default data point for a clean first look
-    if (globalCourses.isEmpty) {
-      globalCourses.add(
-        Course(
-          title: "Introduction to Contemporary Dance",
-          subject: "Arts",
-          grade: "Level 1",
-          price: 25.00,
-          description:
-              "Master the basics of rhythmic movement and fluid expression.",
-          startDate: DateTime.now(),
-        ),
-      );
-    }
   }
 
   Future<void> _fetchSubjects() async {
@@ -90,21 +75,15 @@ class _TeacherCourseScreenState extends State<TeacherCourseScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
             sliver:
-                _loadingSubjects &&
-                    _apiSubjects.isEmpty &&
-                    globalCourses.isEmpty
+                _loadingSubjects && _apiSubjects.isEmpty
                 ? const SliverFillRemaining(
                     child: Center(child: CircularProgressIndicator()),
                   )
                 : SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      // Show globalCourses first, then API subjects
-                      if (index < globalCourses.length) {
-                        return _buildModernCourseCard(globalCourses[index]);
-                      }
-                      final apiIndex = index - globalCourses.length;
-                      return _buildSubjectCard(_apiSubjects[apiIndex]);
-                    }, childCount: globalCourses.length + _apiSubjects.length),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildSubjectCard(_apiSubjects[index]),
+                      childCount: _apiSubjects.length,
+                    ),
                   ),
           ),
         ],
@@ -237,150 +216,6 @@ class _TeacherCourseScreenState extends State<TeacherCourseScreen> {
     );
   }
 
-  Widget _buildModernCourseCard(Course course) {
-    return Bounceable(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => CourseDetailScreen.fromCourse(course),
-        ),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(color: Colors.grey.shade50),
-          boxShadow: [
-            BoxShadow(
-              color: _darkBlue.withValues(alpha: 0.03),
-              blurRadius: 30,
-              offset: const Offset(0, 15),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                // Mini Subject Badge
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _darkBlue.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      course.subject.toUpperCase(),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: GoogleFonts.plusJakartaSans(
-                        color: _darkBlue,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                // Status indicator
-                const CircleAvatar(
-                  radius: 3,
-                  backgroundColor: Color(0xFF10B981),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  "Active",
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF10B981),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              course.title,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: _darkBlue,
-                height: 1.2,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              course.description,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.plusJakartaSans(
-                color: Colors.grey.shade500,
-                fontSize: 14,
-                height: 1.5,
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Divider(height: 1, color: Color(0xFFF1F5F9)),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "ENROLLMENT FEE",
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
-                    Text(
-                      "\$${course.price.toStringAsFixed(2)}",
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: _darkBlue,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _darkBlue,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Text(
-                    course.grade,
-                    style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildPremiumFAB() {
     return Bounceable(
       onTap: () async {
@@ -389,15 +224,12 @@ class _TeacherCourseScreenState extends State<TeacherCourseScreen> {
           MaterialPageRoute(builder: (context) => const AddCourse()),
         );
 
-        if (result != null && result is Course) {
-          setState(() {
-            globalCourses.insert(0, result);
-          });
-
+        if (result is String) {
+          await _fetchSubjects();
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("${result.title} added successfully!"),
+              content: Text("$result added."),
               behavior: SnackBarBehavior.floating,
               backgroundColor: const Color(0xFF10B981),
               shape: RoundedRectangleBorder(
@@ -427,7 +259,7 @@ class _TeacherCourseScreenState extends State<TeacherCourseScreen> {
             const Icon(Icons.add_rounded, color: Colors.white, size: 24),
             const SizedBox(width: 12),
             Text(
-              "Create Course",
+              "Add Subject",
               style: GoogleFonts.plusJakartaSans(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
@@ -463,30 +295,6 @@ class CourseDetailScreen extends StatelessWidget {
     this.teachers = const [],
     required this.accentColor,
   });
-
-  factory CourseDetailScreen.fromCourse(Course course) {
-    const colors = [
-      Color(0xFF6366F1),
-      Color(0xFF8B5CF6),
-      Color(0xFF10B981),
-      Color(0xFFF59E0B),
-      Color(0xFFEC4899),
-    ];
-    final color = colors[course.subject.hashCode.abs() % colors.length];
-    return CourseDetailScreen(
-      title: course.title,
-      subject: course.subject,
-      status: 'Active',
-      description: course.description,
-      grade: course.grade,
-      price: course.price,
-      startDate: course.startDate != null
-          ? '${course.startDate!.day}/${course.startDate!.month}/${course.startDate!.year}'
-          : null,
-      teachers: const [],
-      accentColor: color,
-    );
-  }
 
   factory CourseDetailScreen.fromSubject(SubjectDto subject) {
     const colors = [

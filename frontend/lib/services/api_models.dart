@@ -833,3 +833,17 @@ class ClassSnapshot {
 
   ClassSnapshot({required this.students, this.latestHomework, this.materials = const []});
 }
+
+// GET /api/school/Departments — a subject belongs to one department
+
+class DepartmentDto {
+  final String id;
+  final String name;
+
+  DepartmentDto({required this.id, required this.name});
+
+  factory DepartmentDto.fromJson(Map<String, dynamic> json) => DepartmentDto(
+        id: json['id']?.toString() ?? '',
+        name: json['name'] as String? ?? '',
+      );
+}
