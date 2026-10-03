@@ -975,4 +975,46 @@ class ApiService {
     if (data is Map && data['message'] is String) return data['message'] as String;
     return fallback;
   }
+
+  // POST /api/announcements — publishes right away, so the class's students and
+  // parents are notified. Null on success, otherwise the reason.
+  Future<String?> createAnnouncement({
+    required String authorTeacherId,
+    required String classroomId,
+    required String title,
+    required String body,
+  }) async {
+    try {
+      await _dio.post(
+        ApiConfig.announcementsEndpoint,
+        data: {
+          'authorTeacherId': authorTeacherId,
+          'classroomId': classroomId,
+          'title': title,
+          'body': body,
+          'publishImmediately': true,
+        },
+      );
+      return null;
+    } on DioException catch (e) {
+      _logger.warning('Create announcement error: ${e.message}');
+      return _errorMessage(e, 'Could not send the announcement.');
+    }
+  }
+
+  // GET /api/materials/classroom/{id} — titles of the class's lessons and assignments
+  Future<List<String>> getMaterialTitles(String classroomId) async {
+    try {
+      final response = await _dio.get('${ApiConfig.materialsEndpoint}/classroom/$classroomId');
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => (e as Map<String, dynamic>)['title'] as String? ?? '')
+            .where((t) => t.isNotEmpty)
+            .toList();
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get materials error: ${e.message}');
+    }
+    return [];
+  }
 }

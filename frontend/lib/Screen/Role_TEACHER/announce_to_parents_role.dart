@@ -4,9 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tamdansers/services/api_models.dart';
+import 'package:tamdansers/services/api_service.dart';
 
+// Posts a class announcement: it is published at once, so the class's students
+// and their parents get a notification (school-service D11).
 class AnnounceToParentsScreen extends StatefulWidget {
-  const AnnounceToParentsScreen({super.key});
+  // The calls can be replaced in tests; by default they go to the API.
+  // post returns null on success, otherwise the reason.
+  const AnnounceToParentsScreen({
+    super.key,
+    this.loadClasses,
+    this.loadLessons,
+    this.post,
+  });
+
+  final Future<List<ClassroomDto>> Function()? loadClasses;
+  final Future<List<String>> Function(String classroomId)? loadLessons;
+  final Future<String?> Function(String classroomId, String title, String body)? post;
 
   @override
   State<AnnounceToParentsScreen> createState() =>
@@ -18,28 +33,68 @@ class _AnnounceToParentsScreenState extends State<AnnounceToParentsScreen> {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
 
-  String? _selectedClass;
+  String? _selectedClass; // classroom id
   String? _selectedLesson;
   final List<File> _attachedFiles = [];
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
 
-  // Sample data for dropdowns
-  final List<String> _classes = [
-    'Grade 10 - Biology',
-    'Grade 11 - Chemistry',
-    'Grade 12 - Physics',
-    'Grade 9 - Mathematics',
-    'Grade 8 - Khmer Literature',
-  ];
+  List<ClassroomDto> _classes = [];
+  List<String> _lessons = []; // the selected class's materials
 
-  final List<String> _lessons = [
-    'Chapter 1: Cell Structure',
-    'Chapter 2: Photosynthesis',
-    'Chapter 3: Human Anatomy',
-    'Revision: Previous Lessons',
-    'Practice Exercises',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadClasses();
+  }
+
+  // The teacher's own classes; every class when none is assigned to them yet.
+  Future<void> _loadClasses() async {
+    final classes = await (widget.loadClasses ?? () async {
+      final api = ApiService();
+      final all = await api.getClassrooms();
+      final me = await api.getEntityId();
+      final mine = all.where((c) => c.teacherId != null && c.teacherId == me).toList();
+      return mine.isNotEmpty ? mine : all;
+    })();
+    if (mounted) setState(() => _classes = classes);
+  }
+
+  Future<void> _selectClass(String? classroomId) async {
+    setState(() {
+      _selectedClass = classroomId;
+      _selectedLesson = null;
+      _lessons = [];
+    });
+    if (classroomId == null) return;
+    final lessons = await (widget.loadLessons ?? ApiService().getMaterialTitles)(classroomId);
+    if (mounted && _selectedClass == classroomId) setState(() => _lessons = lessons);
+  }
+
+  Future<String?> _postToApi(String classroomId, String title, String body) async {
+    final api = ApiService();
+    final teacherId = await api.getEntityId();
+    if (teacherId == null || teacherId.isEmpty) {
+      return 'Your teacher profile could not be found. Please sign in again.';
+    }
+    return api.createAnnouncement(
+      authorTeacherId: teacherId,
+      classroomId: classroomId,
+      title: title,
+      body: body,
+    );
+  }
+
+  void _showMessage(String text, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -192,21 +247,33 @@ class _AnnounceToParentsScreenState extends State<AnnounceToParentsScreen> {
     });
   }
 
-  void _sendAnnouncement() {
-    if (_formKey.currentState!.validate()) {
-      // Here you would implement the actual sending logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Announcement sent successfully!'),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-      Navigator.pop(context);
+  Future<void> _sendAnnouncement() async {
+    if (!_formKey.currentState!.validate()) return;
+    final classroomId = _selectedClass;
+    if (classroomId == null) {
+      _showMessage('Select a class first.', Colors.red);
+      return;
     }
+
+    setState(() => _isLoading = true);
+    final message = _messageController.text.trim();
+    final body = _selectedLesson == null ? message : '$message\n\nLesson: $_selectedLesson';
+    final error = await (widget.post ?? _postToApi)(classroomId, _titleController.text.trim(), body);
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (error != null) {
+      _showMessage(error, Colors.red);
+      return;
+    }
+    // Announcements carry text only; files picked here stay on the device.
+    _showMessage(
+      _attachedFiles.isEmpty
+          ? 'Announcement sent to the class and its parents.'
+          : 'Announcement sent. Attachments are not supported yet and were not sent.',
+      Colors.green,
+    );
+    Navigator.pop(context);
   }
 
   @override
@@ -243,6 +310,7 @@ class _AnnounceToParentsScreenState extends State<AnnounceToParentsScreen> {
         centerTitle: true,
         actions: [
           Bounceable(
+            key: const ValueKey('send-announcement'),
             onTap: _isLoading ? null : _sendAnnouncement,
             child: Container(
               margin: const EdgeInsets.all(8),
@@ -459,11 +527,11 @@ class _AnnounceToParentsScreenState extends State<AnnounceToParentsScreen> {
                                         Icons.keyboard_arrow_down_rounded,
                                         color: Color(0xFF0D3B66),
                                       ),
-                                      items: _classes.map((String classItem) {
+                                      items: _classes.map((ClassroomDto classItem) {
                                         return DropdownMenuItem<String>(
-                                          value: classItem,
+                                          value: classItem.id,
                                           child: Text(
-                                            classItem,
+                                            classItem.name,
                                             style: GoogleFonts.inter(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -472,11 +540,7 @@ class _AnnounceToParentsScreenState extends State<AnnounceToParentsScreen> {
                                           ),
                                         );
                                       }).toList(),
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          _selectedClass = newValue;
-                                        });
-                                      },
+                                      onChanged: _selectClass,
                                     ),
                                   ),
                                 ),

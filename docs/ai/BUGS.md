@@ -181,3 +181,10 @@ a'zo bo'lmagan o'quvchiga material 404; `[SafeLink]` — faqat http(s) yoki oddi
 `GET /api/announcements` classroomId'siz barcha sinf e'lonlarini, boshqa sinf id'si bilan o'sha sinfnikini qaytarardi.
 · TUZATILDI: Staff'dan boshqalar — umumiy e'lonlar + o'z (farzandi) sinflari; boshqa sinf so'rovi 403, uning e'loni 404
 (`ProfileAccess.GetVisibleClassroomIdsAsync`, materiallar bilan umumiy; AnnouncementVisibilityTests: avval 4/5 yiqildi).
+
+### B33 [YUQORI] Flutter: o'qituvchining "Announce to parents" ekrani hech narsa yubormasdi
+`announce_to_parents_role.dart` — "Announcement sent successfully!" deb ko'rsatib yopilardi, lekin API chaqirilmasdi; sinflar va darslar
+qattiq yozilgan namunalar ("Grade 10 - Biology"). O'qituvchi ota-onalarga xabar berildi deb o'ylardi.
+· TUZATILDI: o'qituvchining sinflari API'dan, darslar — tanlangan sinf materiallaridan (matnga "Lesson: ..." qo'shiladi), yuborish —
+`POST /api/announcements` (darhol publish → o'quvchi va ota-onalarga bildirishnoma), xato bo'lsa sabab ko'rsatiladi. Fayl biriktirish backend'da yo'q —
+muvaffaqiyat xabari buni ochiq aytadi (test/announce_to_parents_test.dart).
