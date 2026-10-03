@@ -74,10 +74,15 @@ admin-web `/teacher/grades` → `POST /api/school/grades` (Next.js rewrite) → 
 
 - school-service: writes need `Admin` or `Teacher`, deletes and most structural changes need `Admin`; a student reads
   and edits only their own profile and reads only their own grades, attendance and submissions (`ProfileAccess`).
+  A parent reads the records of linked children. Class-scoped content (class details, materials, class announcements)
+  is limited to the classes a student is in, or a parent's children are in (`ProfileAccess.GetVisibleClassroomIdsAsync`);
+  rosters shown to them carry names only.
+- Who changed what: grade changes are recorded in `GradeChanges`; leave decisions record the reviewer.
 - auth-service: anonymous endpoints are rate-limited per client IP; five wrong passwords lock an account for five minutes.
 - Services trust `X-Forwarded-For` only from private networks (the gateway and the web front ends).
 
 ## Known gaps
 
 Tracked with IDs in [`docs/ai/BUGS.md`](ai/BUGS.md). Open at the time of writing: production runs over plain HTTP
-without backups (B14, B15 — need the owner's go-ahead), and old secrets are in git history (B5).
+without backups (B14, B15 — need the owner's go-ahead), and old secrets are in git history (B5). Not built yet:
+messaging between families and teachers (PLAN F9), file uploads (hand-ins are links or file names), push notifications.

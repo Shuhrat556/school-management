@@ -71,8 +71,9 @@ A full-stack school management platform built with **.NET microservices**, a **F
 - Email/password login; accounts are created by an admin (self-registration is off by default, `Registration__Enabled=true` re-opens it)
 - Email verification with code
 - Password reset via email code
-- Google and Facebook OAuth
-- JWT access tokens with refresh token rotation
+- Google and Facebook OAuth; a signed-in user links Google/Facebook to their account (needed for Facebook sign-in)
+- JWT access tokens with refresh token rotation; reusing a rotated refresh token ends all of the user's sessions
+- Rate-limited sign-in, account lockout after five wrong passwords, passwords of 8–200 characters
 - Four roles: **Admin**, **Teacher**, **Student**, **Parent**
 
 ### Student Management
@@ -100,8 +101,23 @@ A full-stack school management platform built with **.NET microservices**, a **F
 
 ### Grades & Scores
 
-- Score entry (0–100) per student, subject, and semester
-- Filter and view by student, subject, or semester
+- Score entry (0–100) per student, subject, and semester (saving again updates the grade)
+- Audit trail: who set, changed or removed each grade, and when (admin "Grade history" page)
+- Report card per student and semester: scores, letters, GPA, attendance rate; CSV download and a printable page
+
+### Homework & Materials
+
+- Class materials and assignments with an optional due date; teachers see how many students handed work in
+- Students hand in a link or a file name; deleting an assignment keeps the students' work
+
+### Leave Requests
+
+- A student or a parent asks to excuse an absence; teachers and admins approve or reject it and the family is notified
+
+### Notifications & Announcements
+
+- In-app notifications to students and parents for new grades, absences, class announcements and leave decisions
+- Announcements are school-wide or per class; students and parents only see their own classes'
 
 ### Attendance
 
@@ -126,13 +142,17 @@ A full-stack school management platform built with **.NET microservices**, a **F
 ### Parent Portal (web)
 
 - Admins link parent accounts (role Parent) to students on the student page
-- Parents sign in to the web app and see each child's grades, GPA, attendance rate and recent absences
+- Parents sign in to the web app and see each child's grades, GPA, attendance rate, recent absences and report card,
+  get notifications and send leave requests
 
 ### Mobile App (Flutter)
 
-- Role-based dashboards (Student / Teacher)
-- Teacher: manage classes, take attendance, enter grades, create schedules, add courses, send announcements
-- Student: view attendance, schedule, grades, courses, homework, notifications
+- Role-based dashboards (Student / Teacher); each login screen accepts only its own role
+- Teacher: manage classes, take attendance, enter grades, assign homework, add subjects, send class announcements,
+  approve leave requests, look up students' parents
+- Student: grades, attendance, timetable, homework hand-in, notifications, leave requests, announcements
+- Link Google/Facebook under Settings → Security & Login
+- Messaging is not available yet (planned); the Messages tab points to announcements and notifications
 - Profile editing for both roles
 - Animated splash screen with auto-login via stored tokens
 
