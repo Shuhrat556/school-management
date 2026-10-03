@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:tamdansers/Controller/activity_list_widget.dart';
 import 'package:tamdansers/Controller/announcement_events.dart';
 import 'package:tamdansers/Screen/Dashboard/student_dashboard.dart';
 import 'package:tamdansers/services/api_models.dart';
@@ -54,7 +55,7 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    expect(find.text('Biology', skipOffstage: false), findsOneWidget);
+    expect(find.text('Biology', skipOffstage: false), findsWidgets); // progress card and recent activity
     expect(find.text('92%', skipOffstage: false), findsOneWidget);
     expect(find.text('Parent meeting on Friday', skipOffstage: false), findsWidgets);
     expect(find.text('Advanced Mathematics II', skipOffstage: false), findsNothing);
@@ -88,5 +89,24 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Posted by', skipOffstage: false), findsOneWidget);
     expect(find.text('Ms. Karimova', skipOffstage: false), findsOneWidget);
+  });
+
+  testWidgets('recent activity is the student\'s grades, filtered by subject', (tester) async {
+    ignoreNetworkImages();
+    final grades = [
+      GradeDto.fromJson({'id': 'g1', 'subjectName': 'Chemistry', 'score': 81.0, 'semester': 'S1', 'createdAt': '2026-09-01'}),
+      GradeDto.fromJson({'id': 'g2', 'subjectName': 'Biology', 'score': 92.0, 'semester': 'S1', 'createdAt': '2026-09-20'}),
+    ];
+    await tester.pumpWidget(MaterialApp(home: AllActivityScreen(activities: activitiesFromGrades(grades))));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cell Light Microscopy', skipOffstage: false), findsNothing);
+    expect(find.text('Score 81.0 out of 100 for S1.', skipOffstage: false), findsOneWidget);
+
+    await tester.tap(find.text('Biology').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Score 81.0 out of 100 for S1.', skipOffstage: false), findsNothing);
+    expect(find.text('Score 92.0 out of 100 for S1.', skipOffstage: false), findsOneWidget);
   });
 }

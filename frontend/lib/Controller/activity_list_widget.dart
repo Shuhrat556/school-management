@@ -1,63 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
+import 'package:intl/intl.dart';
+import 'package:tamdansers/services/api_models.dart';
+
+const _palette = [Colors.indigo, Colors.teal, Colors.orange, Colors.red, Colors.purple];
+
+// The student's grades, newest first, as activity entries (they used to be sample lab sessions).
+List<Map<String, dynamic>> activitiesFromGrades(List<GradeDto> grades) => [
+      for (final g in grades)
+        {
+          "icon": Icons.grade_rounded,
+          "title": g.subjectName,
+          "status": "Graded",
+          "color": _palette[g.subjectName.hashCode.abs() % _palette.length],
+          "grade": g.score >= 90 ? "A" : g.score >= 80 ? "B" : g.score >= 70 ? "C" : g.score >= 60 ? "D" : "F",
+          "time": g.semester,
+          "date": DateTime.tryParse(g.createdAt) == null ? "" : DateFormat('dd MMM yyyy').format(DateTime.parse(g.createdAt).toLocal()),
+          "category": g.subjectName,
+          "desc": "Score ${g.score.toStringAsFixed(1)} out of 100 for ${g.semester}.",
+        },
+    ];
 
 class ActivityList extends StatelessWidget {
   final bool isDetailed;
   final int? limit;
+  final List<Map<String, dynamic>> activities;
 
-  const ActivityList({super.key, this.isDetailed = false, this.limit});
+  const ActivityList({super.key, this.isDetailed = false, this.limit, this.activities = const []});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> activities = [
-      {
-        "icon": Icons.science_rounded,
-        "title": "Cell Light Microscopy",
-        "status": "Completed",
-        "color": Colors.indigo,
-        "grade": "A+",
-        "time": "10:30 AM",
-        "date": "22 Feb 2026",
-        "category": "Science Lab",
-        "desc": "Explore cell structures through modern light microscopy.",
-      },
-      {
-        "icon": Icons.biotech_rounded,
-        "title": "History of the Earth",
-        "status": "Completed",
-        "color": Colors.teal,
-        "grade": null,
-        "time": "Yesterday",
-        "date": "21 Feb 2026",
-        "category": "Biology",
-        "desc":
-            "Study of the evolution of living organisms and Earth's environment in ancient times.",
-      },
-      {
-        "icon": Icons.functions_rounded,
-        "title": "Math: Linear Equations",
-        "status": "Completed",
-        "color": Colors.orange,
-        "grade": "B+",
-        "time": "2 days ago",
-        "date": "20 Feb 2026",
-        "category": "Mathematics",
-        "desc": "Practical solving of linear equations with two variables.",
-      },
-      {
-        "icon": Icons.history_edu_rounded,
-        "title": "Khmer Literature: Reamker",
-        "status": "Completed",
-        "color": Colors.red,
-        "grade": "A",
-        "time": "3 days ago",
-        "date": "19 Feb 2026",
-        "category": "Literature",
-        "desc":
-            "Analyze characters and moral meanings in the legendary Reamker story.",
-      },
-    ];
+    if (activities.isEmpty) {
+      return Text("No recent activity yet.", style: GoogleFonts.inter(color: Colors.grey.shade500));
+    }
 
     List<Map<String, dynamic>> displayList = activities;
     if (limit != null && !isDetailed) {

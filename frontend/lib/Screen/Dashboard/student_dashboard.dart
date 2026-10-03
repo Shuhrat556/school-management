@@ -197,12 +197,12 @@ class _StudentHomeContentState extends State<StudentHomeContent> {
               onActionTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AllActivityScreen(),
+                  builder: (context) => AllActivityScreen(activities: activitiesFromGrades(_grades)),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            const ActivityList(limit: 2),
+            ActivityList(limit: 2, activities: activitiesFromGrades(_grades)),
             const SizedBox(height: 120),
           ],
         ),
@@ -1540,7 +1540,9 @@ class EventDetailScreen extends StatelessWidget {
 }
 
 class AllActivityScreen extends StatefulWidget {
-  const AllActivityScreen({super.key});
+  final List<Map<String, dynamic>> activities;
+
+  const AllActivityScreen({super.key, this.activities = const []});
 
   @override
   State<AllActivityScreen> createState() => _AllActivityScreenState();
@@ -1548,13 +1550,9 @@ class AllActivityScreen extends StatefulWidget {
 
 class _AllActivityScreenState extends State<AllActivityScreen> {
   String selectedFilter = "All";
-  final List<String> filters = [
-    "All",
-    "Science",
-    "Biology",
-    "Math",
-    "Literature",
-  ];
+
+  // One filter per subject the student has activity in
+  List<String> get filters => ["All", ...{for (final a in widget.activities) a["category"] as String}];
 
   @override
   Widget build(BuildContext context) {
@@ -1669,9 +1667,14 @@ class _AllActivityScreenState extends State<AllActivityScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
-                  child: ActivityList(isDetailed: true),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ActivityList(
+                    isDetailed: true,
+                    activities: selectedFilter == "All"
+                        ? widget.activities
+                        : widget.activities.where((a) => a["category"] == selectedFilter).toList(),
+                  ),
                 ),
                 const SizedBox(height: 40),
               ],

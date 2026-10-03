@@ -232,6 +232,7 @@ orqali; bog'lanmagan bo'lsa, admin bog'lashi aytiladi (test/parents_directory_te
 "See All" — qattiq yozilgan tadbirlar (Annual Sports Day, soxta qatnashchilar soni). · TUZATILDI: progress — o'quvchining haqiqiy baholari (oxirgisi
 bosh sahifada, barchasi "View All"da, tafsilotda ball va semestr); tadbirlar — e'lon qilingan e'lonlar (`GET /api/announcements`, umumiy + o'z sinflari),
 nishonda muallif (test/student_home_test.dart). Regressiya (tafsilot ekrani muallifni 500 ga bo'lardi) 6eb3b2f da tuzatildi.
+"Recent Activity" (soxta laboratoriya mashg'ulotlari va A+ baholar) — o'quvchining haqiqiy baholari, filtrlar fanlardan va haqiqatan filtrlaydi.
 O'qituvchi bosh sahifasi tadbirlari ham e'lonlardan (faqat e'lon qilinganlar, qoralamalar emas), standart ism "Alexander Smith" → "Teacher" (teacher_home_test).
 
 ### B42 [YUQORI] Flutter: "Messages" tab'lari soxta chat edi
