@@ -149,3 +149,8 @@ Qayta yuborilgan so'rov yana 401 olsa ham cheksiz takrorlanardi; parallel 401'la
 sarflardi (B20 ning mobil nusxasi); qayta yuborishdagi har qanday xato (masalan 500) foydalanuvchini tizimdan chiqarardi.
 · TUZATILDI: refresh/logout va qayta yuborilgan so'rovlar refresh qilinmaydi, bitta umumiy in-flight refresh, refresh 401 → tokenlar tozalanadi,
 retry xatosi chaqiruvchiga qaytadi (test/api_service_refresh_test.dart: avval 3/3 yiqildi — 51 ta refresh, 3 ta refresh, cheksiz retry).
+
+### B28 [O'RTA] Parol almashtirilganda boshqa sessiyalar tugamasdi
+`AuthenticationService.ChangePasswordAsync` barcha refresh tokenlarni bekor qilishi kerak edi, lekin `UserRepository.GetByIdAsync`
+(`FindAsync`) tokenlarni yuklamasdi — bo'sh kolleksiya, hech narsa bekor qilinmasdi. O'g'irlangan sessiya parol almashgandan keyin ham ishlardi.
+· TUZATILDI: `GetByIdAsync` agregatni (refresh tokenlar, tashqi loginlar) yuklaydi (ChangePasswordTests: avval yiqildi).

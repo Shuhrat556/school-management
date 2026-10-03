@@ -18,8 +18,12 @@ public class UserRepository(AuthDbContext context) : IUserRepository
     public async Task<bool> EmailExistsAsync(string normalizedEmail)
         => await context.Users.AnyAsync(u => u.NormalizedEmail == normalizedEmail);
     
+    // The whole aggregate: password changes revoke refresh tokens, linking edits external logins.
     public async Task<User?> GetByIdAsync(Guid id)
-        => await context.Users.FindAsync(id);
+        => await context.Users
+            .Include(u => u.RefreshTokens)
+            .Include(u => u.ExternalLogins)
+            .FirstOrDefaultAsync(u => u.Id == id);
 
     public async Task<User?> GetByEmailAsync(string normalizedEmail)
         => await context.Users
