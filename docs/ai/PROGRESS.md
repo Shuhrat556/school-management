@@ -147,5 +147,10 @@ Jurnal: eng yangisi pastda. Har yozuv: sana — nima qilindi · fayllar · commi
   auth'da ko'p-kolleksiyali Include dekart JOIN (split query, ec80414).
 - `scripts/local-stack.sh` (Docker'siz stek) va `scripts/smoke_test.py` (standart faqat o'qish — deploy'dan keyin prod uchun) (0c9b1c8).
 
-KEYINGI QADAM: school-service qolgan kontrollerlari (Subjects/Departments/Rooms/Materials/Submissions) biznes-validatsiyasini tahlil;
-admin-web sahifalaridagi ishlatilmaydigan maydonlar (masalan davomat formasidagi "Notes" serverga yuborilmaydi). Ruxsat kelsa — Q2 deploy.
+- B31: materiallar/topshiriqlar sinfga a'zolik + xavfsiz havolalar (d77ae73); B32: e'lonlar faqat o'z sinflari (a39f9a7).
+- B33: Flutter o'qituvchi "Announce to parents" soxta edi → haqiqiy `POST /api/announcements` (1a04ef5).
+- F7 (D16) + B34/B35: uy vazifalari — backend `DueAt`, `submissionCount`, material soft delete (4ff3573, migratsiya `AddMaterialDueDate`);
+  Flutter o'qituvchi (26e92ef) va o'quvchi (63fac5f) ekranlari soxta ma'lumotdan API'ga. school 169/169 (PostgreSQL), Flutter 26/26.
+
+KEYINGI QADAM: Flutter'da qolgan soxta/qattiq yozilgan ekranlarni topish (teacher_dashboard faoliyat lentasi, permission, attendance analysis,
+course_learn) va API'ga ulash yoki halol "hali yo'q" holatiga o'tkazish. Ruxsat kelsa — Q2 deploy.
