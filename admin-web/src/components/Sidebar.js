@@ -15,6 +15,7 @@ import {
   ChevronRight,
   ClipboardCheck,
   FileText,
+  CalendarClock,
   GraduationCap,
   History,
   LayoutDashboard,
@@ -52,6 +53,7 @@ const adminSections = [
       { href: '/admin/subjects', label: 'Subjects', icon: BookOpen },
       { href: '/admin/grades', label: 'Grades', icon: BarChart3 },
       { href: '/admin/grade-changes', label: 'Grade history', icon: History },
+      { href: '/leave-requests', label: 'Leave requests', icon: CalendarClock },
       { href: '/admin/attendance', label: 'Attendance', icon: ClipboardCheck },
       { href: '/admin/schedules', label: 'Schedules', icon: CalendarDays },
     ],
@@ -72,6 +74,7 @@ const teacherSections = [
       { href: '/teacher/classrooms', label: 'Classrooms', icon: School },
       { href: '/teacher/attendance', label: 'Attendance', icon: ClipboardCheck },
       { href: '/teacher/grades', label: 'Grades', icon: BarChart3 },
+      { href: '/leave-requests', label: 'Leave requests', icon: CalendarClock },
     ],
   },
 ];
@@ -110,6 +113,7 @@ const parentSections = [
     title: 'Family',
     items: [
       { href: '/parent/dashboard', label: 'My children', icon: Users },
+      { href: '/parent/leave-requests', label: 'Leave requests', icon: CalendarClock },
       { href: '/notifications', label: 'Notifications', icon: Bell, showUnread: true },
     ],
   },

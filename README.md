@@ -149,6 +149,9 @@ All seed accounts use password: **`Password123!`**
 | Student | `student1@school.com` … `student45@school.com`                      |
 | Parent  | `parent1@school.com`, `parent2@school.com`                          |
 
+Parent accounts start with no children: an admin links them on the student's page in admin-web (Students → a student →
+Parents), after which the parent portal, notifications and leave requests work for that child.
+
 **Teacher → class mapping:**
 
 | Teacher  | Grade | Classes          |

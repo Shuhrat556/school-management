@@ -472,6 +472,31 @@ export async function downloadReportCardCsv(studentId, filters) {
   return { blob: await res.blob(), fileName: match ? decodeURIComponent(match[1]) : 'report-card.csv' };
 }
 
+// Leave requests: families ask, staff decide
+export async function getLeaveRequests({ status } = {}) {
+  const res = await request(`/api/school/leave-requests${status ? `?status=${status}` : ''}`);
+  return res.ok ? res.json() : null;
+}
+
+export async function decideLeaveRequest(id, approve, note) {
+  return request(`/api/school/leave-requests/${id}/${approve ? 'approve' : 'reject'}`, {
+    method: 'POST',
+    body: JSON.stringify({ note: note || null }),
+  });
+}
+
+export async function getMyLeaveRequests() {
+  const res = await request('/api/school/leave-requests/mine');
+  return res.ok ? res.json() : null;
+}
+
+export async function createLeaveRequest(data) {
+  return request('/api/school/leave-requests', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 //Attendance
 
 export async function getAttendance({ classroomId, studentId, date } = {}) {

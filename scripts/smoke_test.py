@@ -116,6 +116,11 @@ def read_only_checks():
         ctx["roster"] = [s["studentId"] for s in detail.get("students", [])] if status == 200 else []
         check("class roster lists the student", sid in ctx["roster"], f"{status}, {len(ctx['roster'])} students")
 
+    status, _, _ = call("GET", "/api/school/leave-requests/mine", ctx["student"])
+    check("student leave requests", status == 200, status)
+    status, _, _ = call("GET", "/api/school/leave-requests?status=Pending", ctx["teacher"])
+    check("teacher leave request queue", status == 200, status)
+
     status, logins, _ = call("GET", "/api/auth/logins", ctx["student"])
     check("linked sign-in accounts", status == 200 and "hasPassword" in logins, f"{status} {logins}")
     status, _, _ = call("GET", f"/api/auth/user/{ctx['teacher_user']}", ctx["student"])
@@ -141,6 +146,13 @@ def write_checks(ctx):
               status == 200 and any(h["action"] == "Updated" and float(h["newScore"]) == new_score for h in history), status)
         status, unread, _ = call("GET", "/api/school/notifications/unread-count", ctx["student"])
         check("student is notified of the grade", status == 200 and unread["count"] >= 1, f"{status} {unread}")
+
+    if sid:
+        status, leave, _ = call("POST", "/api/school/leave-requests", ctx["student"],
+                                {"type": 1, "startDate": "2026-10-12", "reason": "Smoke test: fever"})
+        if check("student files a leave request", status == 201, f"{status} {leave}"):
+            status, decided, _ = call("POST", f"/api/school/leave-requests/{leave['id']}/approve", ctx["teacher"], {"note": "ok"})
+            check("teacher approves it", status == 200 and decided["status"] == "Approved", f"{status} {decided}")
 
     classroom = ctx.get("classroom")
     if sid and classroom:

@@ -214,4 +214,5 @@ ishlatilmay qolgan `course_model.dart` o'chirildi (test/add_subject_test.dart).
 
 ### B38 [YUQORI] Flutter: dars qoldirish (ruxsat) so'rovi hech kimga yetib bormasdi
 `permision_student_role.dart` — so'rov faqat ekrandagi ro'yxatga qo'shilardi ("Pending" abadiy), tarix qattiq yozilgan namunalar; backend'da bunday tushuncha
-yo'q edi. · JARAYONDA (F8, D17): backend `LeaveRequests` tayyor.
+yo'q edi. · TUZATILDI (F8, D17): backend `LeaveRequests`, Flutter ekran API'ga (leave_request_test), admin-web xodimlar ko'rib chiqish va ota-ona yuborish
+sahifalari; lokal stekda uchidan-uchiga sinaldi (smoke 33/33).
