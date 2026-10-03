@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql;
 using SchoolService.Domain.Entities;
 using SchoolService.Infrastructure.Data;
 using SchoolService.Tests.Infrastructure;
@@ -11,38 +10,10 @@ namespace SchoolService.Tests;
 // BUGS B11: school_db was built with EnsureCreated() + hand-written SQL.
 public class MigrationTests
 {
-    // A throwaway database that is dropped even when the test fails.
-    private sealed class TempDatabase : IAsyncDisposable
-    {
-        public required SchoolDbContext Db { get; init; }
-
-        public async ValueTask DisposeAsync()
-        {
-            await Db.Database.EnsureDeletedAsync();
-            await Db.DisposeAsync();
-        }
-    }
-
-    private static async Task<TempDatabase> NewDatabaseAsync()
-    {
-        var admin = new NpgsqlConnectionStringBuilder(Environment.GetEnvironmentVariable(PostgresFactAttribute.Variable));
-        var name = $"school_test_{Guid.NewGuid():N}";
-        await using (var connection = new NpgsqlConnection(admin.ConnectionString))
-        {
-            await connection.OpenAsync();
-            await using var create = new NpgsqlCommand($"CREATE DATABASE \"{name}\"", connection);
-            await create.ExecuteNonQueryAsync();
-        }
-
-        admin.Database = name;
-        var options = new DbContextOptionsBuilder<SchoolDbContext>().UseNpgsql(admin.ConnectionString).Options;
-        return new TempDatabase { Db = new SchoolDbContext(options) };
-    }
-
     [PostgresFact]
     public async Task Fresh_database_is_built_by_migrations()
     {
-        await using var temp = await NewDatabaseAsync();
+        await using var temp = await PostgresTestDatabase.CreateAsync();
         var db = temp.Db;
 
         Assert.False(await LegacySchemaBaseline.ApplyAsync(db));
@@ -55,7 +26,7 @@ public class MigrationTests
     [PostgresFact]
     public async Task Database_created_by_EnsureCreated_is_baselined_and_keeps_its_data()
     {
-        await using var temp = await NewDatabaseAsync();
+        await using var temp = await PostgresTestDatabase.CreateAsync();
         var db = temp.Db;
         // What EnsureCreated used to build: the schema at the baseline migration
         // (verified identical) with no history table.
@@ -76,7 +47,7 @@ public class MigrationTests
     [PostgresFact]
     public async Task Every_migration_can_be_rolled_back()
     {
-        await using var temp = await NewDatabaseAsync();
+        await using var temp = await PostgresTestDatabase.CreateAsync();
         var db = temp.Db;
         await db.Database.MigrateAsync();
 
@@ -88,7 +59,7 @@ public class MigrationTests
     [PostgresFact]
     public async Task Emails_are_unique_ignoring_case()
     {
-        await using var temp = await NewDatabaseAsync();
+        await using var temp = await PostgresTestDatabase.CreateAsync();
         var db = temp.Db;
         await db.Database.MigrateAsync();
         var first = new Student("A", "One");

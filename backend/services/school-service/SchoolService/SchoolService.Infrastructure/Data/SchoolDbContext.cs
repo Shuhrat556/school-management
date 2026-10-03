@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SchoolService.Domain.Entities;
 
 namespace SchoolService.Infrastructure.Data;
@@ -29,6 +30,14 @@ public class SchoolDbContext : DbContext
     public DbSet<Conversation>      Conversations      => Set<Conversation>();
     public DbSet<Message>           Messages           => Set<Message>();
 
+    // Npgsql writes only UTC to "timestamp with time zone" (every DateTime column here).
+    // A time without a zone, e.g. a birth date posted as "2006-05-05", is taken as UTC
+    // like the rest of the API, instead of failing the save with a 500 (BUGS B50).
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -37,3 +46,7 @@ public class SchoolDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SchoolDbContext).Assembly);
     }
 }
+
+internal sealed class UtcDateTimeConverter() : ValueConverter<DateTime, DateTime>(
+    value => value.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(value, DateTimeKind.Utc) : value.ToUniversalTime(),
+    value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
