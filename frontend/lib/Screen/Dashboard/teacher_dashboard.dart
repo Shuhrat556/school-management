@@ -16,6 +16,7 @@ import 'package:tamdansers/Screen/Role_TEACHER/result_student_role.dart';
 import 'package:tamdansers/Screen/Role_TEACHER/schedule_student_role.dart';
 import 'package:tamdansers/Screen/Role_TEACHER/student_list_screen.dart';
 import 'package:tamdansers/Screen/Role_TEACHER/teacher_list_screen.dart';
+import 'package:tamdansers/Screen/setting/linked_accounts_screen.dart';
 import 'package:tamdansers/constants/app_image.dart';
 import 'package:tamdansers/routes/app_routes.dart';
 import 'package:tamdansers/services/api_models.dart';
@@ -1729,6 +1730,12 @@ class _TeacherSettingsScreenState extends State<TeacherSettingsScreen> {
                   icon: Icons.security_rounded,
                   title: "Security & Login",
                   color: const Color(0xFF50E3C2),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LinkedAccountsScreen(),
+                    ),
+                  ),
                 ),
                 _modernSubTile(
                   icon: Icons.notifications_active_rounded,

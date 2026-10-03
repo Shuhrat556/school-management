@@ -28,6 +28,7 @@ class ApiConfig {
   static const String resetPasswordEndpoint = '/api/auth/reset-password';
   static const String googleAuthEndpoint = '/api/auth/oauth/google';
   static const String facebookAuthEndpoint = '/api/auth/oauth/facebook';
+  static const String externalLoginsEndpoint = '/api/auth/logins';
 
   // School-service endpoints
   static const String studentsEndpoint = '/api/school/Students';

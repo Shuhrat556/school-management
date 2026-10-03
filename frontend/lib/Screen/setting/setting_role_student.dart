@@ -3,6 +3,7 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tamdansers/Screen/Edit-Profile/student_edit_profile.dart';
 import 'package:tamdansers/Screen/Role_STUDENT/notification_student_role.dart';
+import 'package:tamdansers/Screen/setting/linked_accounts_screen.dart';
 import 'package:tamdansers/routes/app_routes.dart';
 import 'package:tamdansers/services/api_service.dart';
 
@@ -72,6 +73,12 @@ class _StudentSettingsScreenState extends State<StudentSettingsScreen> {
                   icon: Icons.security_rounded,
                   title: "Security & Login",
                   color: const Color(0xFF50E3C2),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LinkedAccountsScreen(),
+                    ),
+                  ),
                 ),
                 _modernSubTile(
                   icon: Icons.notifications_active_rounded,

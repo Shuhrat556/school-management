@@ -931,4 +931,48 @@ class ApiService {
     }
     return false;
   }
+
+  // GET /api/auth/logins — Google/Facebook accounts linked to this user
+  Future<ExternalLoginsDto?> getExternalLogins() async {
+    try {
+      final response = await _dio.get(ApiConfig.externalLoginsEndpoint);
+      if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+        return ExternalLoginsDto.fromJson(response.data as Map<String, dynamic>);
+      }
+    } on DioException catch (e) {
+      _logger.warning('Get linked accounts error: ${e.message}');
+    }
+    return null;
+  }
+
+  // POST /api/auth/logins/{google|facebook} — null on success, otherwise the reason
+  Future<String?> linkExternalLogin(String provider, String token) async {
+    try {
+      await _dio.post(
+        '${ApiConfig.externalLoginsEndpoint}/$provider',
+        data: {'token': token},
+      );
+      return null;
+    } on DioException catch (e) {
+      _logger.warning('Link $provider error: ${e.message}');
+      return _errorMessage(e, 'Could not link the $provider account.');
+    }
+  }
+
+  // DELETE /api/auth/logins/{google|facebook} — null on success, otherwise the reason
+  Future<String?> unlinkExternalLogin(String provider) async {
+    try {
+      await _dio.delete('${ApiConfig.externalLoginsEndpoint}/$provider');
+      return null;
+    } on DioException catch (e) {
+      _logger.warning('Unlink $provider error: ${e.message}');
+      return _errorMessage(e, 'Could not unlink the $provider account.');
+    }
+  }
+
+  static String _errorMessage(DioException e, String fallback) {
+    final data = e.response?.data;
+    if (data is Map && data['message'] is String) return data['message'] as String;
+    return fallback;
+  }
 }

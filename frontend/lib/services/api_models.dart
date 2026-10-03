@@ -718,3 +718,25 @@ class NotificationDto {
     );
   }
 }
+
+// Google/Facebook accounts linked to the signed-in user (GET /api/auth/logins)
+
+class ExternalLoginsDto {
+  final bool hasPassword;
+  final List<String> providers; // "Google", "Facebook"
+
+  ExternalLoginsDto({required this.hasPassword, required this.providers});
+
+  bool isLinked(String provider) =>
+      providers.any((p) => p.toLowerCase() == provider.toLowerCase());
+
+  factory ExternalLoginsDto.fromJson(Map<String, dynamic> json) {
+    return ExternalLoginsDto(
+      hasPassword: json['hasPassword'] as bool? ?? false,
+      providers: (json['logins'] as List? ?? const [])
+          .map((e) => (e as Map<String, dynamic>)['provider'] as String? ?? '')
+          .where((p) => p.isNotEmpty)
+          .toList(),
+    );
+  }
+}
