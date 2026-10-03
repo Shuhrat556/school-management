@@ -7,7 +7,7 @@ namespace SchoolService.API.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/[controller]")]
+[Route("api/school/[controller]")]
 public class RoomsController : ControllerBase
 {
     private readonly IRoomService _roomService;

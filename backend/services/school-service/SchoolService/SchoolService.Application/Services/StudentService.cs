@@ -74,6 +74,9 @@ public class StudentService : IStudentService
             dto.Address,
             dto.Email);
 
+        if (!dto.IsActive)
+            student.Deactivate();
+
         await _repository.AddAsync(student);
         return MapToResponse(student);
     }

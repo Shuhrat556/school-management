@@ -667,31 +667,31 @@ export async function removeTeacherFromDepartment(teacherId, departmentId) {
 //Admin — Auth Accounts
 
 export async function getRooms() {
-  const res = await request('/api/rooms');
+  const res = await request('/api/school/rooms');
   return res.ok ? res.json() : null;
 }
 
 export async function getRoom(id) {
-  const res = await request(`/api/rooms/${id}`);
+  const res = await request(`/api/school/rooms/${id}`);
   return res.ok ? res.json() : null;
 }
 
 export async function createRoom(data) {
-  return request('/api/rooms', {
+  return request('/api/school/rooms', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
 export async function updateRoom(id, data) {
-  return request(`/api/rooms/${id}`, {
+  return request(`/api/school/rooms/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
 }
 
 export async function deleteRoom(id) {
-  return request(`/api/rooms/${id}`, { method: 'DELETE' });
+  return request(`/api/school/rooms/${id}`, { method: 'DELETE' });
 }
 
 export async function getAnnouncements(classroomId) {

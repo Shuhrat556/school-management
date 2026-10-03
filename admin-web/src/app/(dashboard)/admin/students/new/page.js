@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { createStudent } from '@/lib/api';
-import { GraduationCap, ArrowLeft, AlertCircle, Save, User, Phone, Calendar, MapPin, Users } from 'lucide-react';
+import { GraduationCap, ArrowLeft, AlertCircle, Save, User, Phone, Calendar, MapPin, Users, Mail, Power } from 'lucide-react';
 
 const defaultForm = {
   firstName: '',
@@ -13,6 +13,8 @@ const defaultForm = {
   dateOfBirth: '',
   phone: '',
   address: '',
+  email: '',
+  isActive: true,
 };
 
 export default function NewStudentPage() {
@@ -133,6 +135,30 @@ export default function NewStudentPage() {
             placeholder="123 Main St, City"
             className={inputCls}
           />
+        </Field>
+
+        <Field label="Email" icon={<Mail className="w-4 h-4" />}>
+          <input
+            type="email"
+            value={form.email}
+            onChange={(e) => set('email', e.target.value)}
+            placeholder="student@school.com"
+            className={inputCls}
+          />
+        </Field>
+
+        <Field label="Status" icon={<Power className="w-4 h-4" />}>
+          <button
+            type="button"
+            onClick={() => set('isActive', !form.isActive)}
+            className={`w-full px-4 py-2.5 rounded-lg font-medium text-sm transition-all ${
+              form.isActive
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200'
+            }`}
+          >
+            {form.isActive ? '✓ Active' : '✕ Inactive'}
+          </button>
         </Field>
 
         <div className="flex gap-3 pt-3">

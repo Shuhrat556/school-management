@@ -26,6 +26,8 @@ public class StudentCreateDto
     [StringLength(200)]
     [EmailAddress]
     public string? Email { get; set; }
+
+    public bool IsActive { get; set; } = true;
 }
 
 public class StudentUpdateDto
